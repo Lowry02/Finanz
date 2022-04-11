@@ -9,11 +9,16 @@ import "./style.css"
 function QuestionCreator(props) {
     let questionCreator = props.question
     const [newAnswer, setNewAnswer] = useState("")
-
+    const [newDescription, setNewDescription] = useState("")
+    
     function addAnswer(e) {
         if(e.key == "Enter" && newAnswer != "") {
-            questionCreator.question.addChoice(newAnswer)
+            questionCreator.question.addChoice({
+                title: newAnswer,
+                description: newDescription
+            })
             setNewAnswer("")
+            setNewDescription("")
         }
     }
 
@@ -75,7 +80,15 @@ function QuestionCreator(props) {
                 value={newAnswer}
                 onChange={(e) => setNewAnswer(e.target.value)}
                 onKeyDown={(e) => addAnswer(e)}/>
-
+            <TextField
+                className="my_input"
+                margin="normal"
+                label="Descrizione"
+                fullWidth={true}
+                variant="outlined"
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                onKeyDown={(e) => addAnswer(e)}/>
         </div>
     )
 }

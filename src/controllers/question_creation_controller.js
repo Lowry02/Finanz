@@ -164,9 +164,9 @@ class QuestionCreationController {
             contentType: "application/json",
             beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
             data: JSON.stringify({
-                answer: this.question.getChoices()[answerId],
+                answer: this.question.getChoices()[answerId]['title'],
                 isCorrect: this.question.getSelectedChoices().includes(answerId),
-                description: ""
+                description: this.question.getChoices()[answerId]['description']
             }),
             success: (data) => {
                 answerSlug = data['slug']

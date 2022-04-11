@@ -34,7 +34,10 @@ function MultipleChoiceQuestion(props) {
                                         {
                                             typeof question.getChoices()[id] == "string" ?
                                             <p className="mb-0">{question.getChoices()[id]}</p> :
-                                            <p className="mb-0">{question.getChoices()[id]['title']}</p>
+                                            <div>
+                                                <p className="mb-0">{question.getChoices()[id]['title']}</p>
+                                                <p className="mb-0 thin">{question.getChoices()[id]['description']}</p>
+                                            </div>
                                         }
                                         <IconButton className="m-0 p-0" onClick={(e) => handleDelete(e, id)}>
                                             <DeleteIcon className="orange_icon"/>

@@ -90,6 +90,12 @@ class QuestionController {
     }
 
     addChoice(choice, id = undefined) {
+        /**
+         * choiche = {
+         *  title: str,
+         *  description: str,
+         * }
+         */
         let newId = ""
 
         if(id == undefined){

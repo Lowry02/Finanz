@@ -330,9 +330,13 @@ class ModuleController {
 
                 for(let answer of quizAnswers) {
                     let answerId = answer['slug']
-                    let answerContent = answer['answer']
-                    // let description = answer['description']
-                    _questionCreationController.addItem(answerContent, answerId)
+                    let answerTitle = answer['answer']
+                    let answerDescription = answer['description']
+                    console.log(answerDescription)
+                    _questionCreationController.addItem({
+                        title: answerTitle,
+                        description: answerDescription
+                    }, answerId)
                 }
 
                 // set correct choice 

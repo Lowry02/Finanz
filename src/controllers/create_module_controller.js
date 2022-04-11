@@ -243,7 +243,6 @@ class CreateModuleController {
         if(this.module.getId() != "")
             updateMode = await this.moduleExist()
         
-        
         // create academy
         let academySlug = await this.createModule(updateMode['exist'], updateMode['categoryChanged'])
         if(academySlug == undefined) throw TypeError()
