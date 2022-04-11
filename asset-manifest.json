@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/Finanz/static/css/main.e282d1f1.chunk.css",
+    "main.css": "/Finanz/static/css/main.87e44f53.chunk.css",
     "main.js": "/Finanz/static/js/main.a672135f.chunk.js",
     "main.js.map": "/Finanz/static/js/main.a672135f.chunk.js.map",
     "runtime-main.js": "/Finanz/static/js/runtime-main.c89b2c6c.js",
@@ -10,7 +10,7 @@
     "static/js/2.110feb78.chunk.js.map": "/Finanz/static/js/2.110feb78.chunk.js.map",
     "index.html": "/Finanz/index.html",
     "static/css/2.0a9ec390.chunk.css.map": "/Finanz/static/css/2.0a9ec390.chunk.css.map",
-    "static/css/main.e282d1f1.chunk.css.map": "/Finanz/static/css/main.e282d1f1.chunk.css.map",
+    "static/css/main.87e44f53.chunk.css.map": "/Finanz/static/css/main.87e44f53.chunk.css.map",
     "static/js/2.110feb78.chunk.js.LICENSE.txt": "/Finanz/static/js/2.110feb78.chunk.js.LICENSE.txt",
     "static/media/accademy.d9686e56.png": "/Finanz/static/media/accademy.d9686e56.png",
     "static/media/avatar.90a0e34c.jpeg": "/Finanz/static/media/avatar.90a0e34c.jpeg",
@@ -31,7 +31,7 @@
     "static/js/runtime-main.c89b2c6c.js",
     "static/css/2.0a9ec390.chunk.css",
     "static/js/2.110feb78.chunk.js",
-    "static/css/main.e282d1f1.chunk.css",
+    "static/css/main.87e44f53.chunk.css",
     "static/js/main.a672135f.chunk.js"
   ]
 }
