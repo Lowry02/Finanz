@@ -1,0 +1,52 @@
+.editor {
+    background: var(--third_bkg);
+    border: 0px;
+}
+
+.no-border {
+    border: 0px;
+}
+
+.toolbar {
+    margin: 0;
+    padding: 10px;
+    border: 0px;
+    border-bottom: 1px solid gray;
+    margin-bottom: 10px;
+    background: var(--third_bkg);
+}
+
+.toolbar select {
+    border-top: 3px solid transparent;
+}
+
+.toolbar select:focus-visible {
+    outline: none;
+}
+
+.toolbar .Button__root___1gz0c {
+    background: transparent;
+    border-top: 3px solid transparent;
+    transition: 0.1s;
+}
+
+.toolbar .IconButton__isActive___2Ey8p {
+    border-top: 3px solid black
+}
+
+
+.toolbar .InputPopover__root___3Hpj9 {
+    background: var(--details_color);
+    color: white;
+}
+
+.toolbar * {
+    background-color: var(--details_color);
+    border: 0px;
+    border-radius: 5px;
+    color: black;
+}
+
+.toolbar .ButtonGroup__root___3lEAn:nth-child(2) {
+    display: none;
+}

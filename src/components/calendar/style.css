@@ -1,0 +1,62 @@
+.my_calendar,
+.my_calendar table, 
+.my_calendar thead,
+.my_calendar tbody, 
+.my_calendar tr {
+    width: 100%;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.my_calendar table{
+    border-collapse: separate;
+    border-spacing: 5px;
+}
+
+.my_calendar td {
+    border: 1px solid transparent;
+    position: relative;
+    border-radius: 5px;
+} 
+
+.my_calendar td.empty_cell:hover {
+    border: 1px solid transparent;
+} 
+
+.my_calendar td.selected {
+    border: 1px solid var(--details_color);
+    color: var(--details_color);
+}
+
+.my_calendar td.events::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: calc(50% - 3px);
+    height: 6px;
+    width: 6px;
+    background: var(--details_color);
+    border-radius: 100%;
+}
+
+.my_calendar td.selected.events::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: calc(50% - 3px);
+    height: 6px;
+    width: 6px;
+    background: transparent;
+    border-radius: 100%;
+}
+
+
+.my_calendar td:hover {
+    border: 1px solid var(--details_color);
+    border-radius: 5px;
+    color: var(--details_color);
+}
+
+.my_calendar td.today {
+    color: var(--details_color)
+}

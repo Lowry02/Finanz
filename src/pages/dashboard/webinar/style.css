@@ -1,0 +1,196 @@
+#webinar_page {
+
+}
+
+#webinar_page .content_container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% + 50px);
+    overflow: hidden;
+}
+
+#webinar_page .content_container .content  {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#webinar_page .content_container .content .wallpaper_container  {
+    position: relative;
+    display: grid;
+    place-items: end;
+    padding-bottom: 10px;
+}
+
+#webinar_page .content_container .content .wallpaper_container .horizontal_gradient_effect {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(0,0,0);
+    background: linear-gradient(-90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 50%);
+}
+
+#webinar_page .content_container .content .wallpaper_container .vertical_gradient_effect {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(0,0,0);
+    background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 60%);
+}
+
+
+#webinar_page .content_container .content .wallpaper_container .wallpaper {
+    z-index: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+#webinar_page .content_container .content .wallpaper_container .webinar_info {
+    z-index: 2;
+    position: relative;
+    width: 100%;
+    text-align: center;
+}
+
+#webinar_page .content_container .content .wallpaper_container .webinar_info .date {
+    color: var(--details_color);
+}
+
+#webinar_page .content_container .content .wallpaper_container .webinar_info .description {
+    font-weight: 100;
+    width: 80%;
+    text-align: center;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+
+#webinar_page .content_container .content .side_bar {
+    background: black;
+    display: grid;
+    place-items: center;
+    max-height: 100%;
+}
+
+#webinar_page .content_container .content .side_bar .list_container {
+    background: var(--second_bkg);
+    width: 80%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--default_shadow);
+    max-height: 90%;
+    overflow: hidden;
+}
+
+#webinar_page .content_container .content .side_bar .list_container .list{
+    /* overflow: scroll; */
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#webinar_page .content_container .content .side_bar .list_container .webinar_item,
+#webinar_page #mobile_mode .list_container .webinar_item {
+    background: var(--third_bkg);
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 12px;
+    box-shadow: var(--default_shadow);
+    margin-top: 10px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+#webinar_page .content_container .content .side_bar .list_container .webinar_item.selected,
+#webinar_page #mobile_mode .list_container .webinar_item.selected {
+    background: var(--details_color);
+}
+#webinar_page .content_container .content .side_bar .list_container .webinar_item.selected::before,
+#webinar_page #mobile_mode .list_container .webinar_item.selected::before {
+    background: var(--second_bkg);
+}
+
+#webinar_page .content_container .content .side_bar .list_container .webinar_item::before,
+#webinar_page #mobile_mode .list_container .webinar_item::before {
+    content: "";
+    position: absolute;
+    top: calc(50% - 4px);
+    left: 11px;
+    height: 8px;
+    width: 8px;
+    background: var(--details_color);
+    border-radius: 100%;
+    box-shadow: var(--default_shadow);
+}
+
+#webinar_page .content_container .content .side_bar .list_container .webinar_item .date {
+    font-weight: 100;
+    font-size: 13px;
+}
+
+.sliding_panel {
+    max-height: 80vh;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    overflow: scroll;
+    background-color: var(--third_bkg);
+    color: white;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.sliding_panel .swipe_icon {
+    background-color: var(--details_color);
+    width: 40px;
+    height: 5px;
+    border-radius: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.MuiDrawer-paperAnchorBottom {
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+}
+
+.sliding_panel .wallpaper_container {
+    height: 300px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    border-radius: 10px;
+}
+
+.sliding_panel .wallpaper_container .wallpaper {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+}
+
+
+
+
+.sliding_panel .info_container {
+    padding: 10px;
+    text-align: center;
+}
+
+.sliding_panel .info_container .thin {
+    font-weight: 100;
+}

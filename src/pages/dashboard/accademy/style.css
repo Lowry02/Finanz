@@ -1,0 +1,173 @@
+#accademy_page {
+    /* height: calc(100vh - 20px - 96px); --> MANAGED BY ACCADEMY index.js */
+}
+
+#accademy_page .search_bar input,
+#accademy_page .search_bar input {
+    background: var(--third_bkg);
+    padding: 4px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 6px;
+    outline: none;
+    box-shadow: none;
+    border: none;
+    color: white;
+    font-weight: 300;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    min-width: 300px;
+    box-shadow: var(--default_shadow);
+}
+
+#accademy_page .search_bar input::placeholder,
+#accademy_page .search_bar input::placeholder {
+    color: var(--details_color);
+}
+
+#accademy_page #categories {
+    overflow: scroll;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    display: -webkit-inline-box;
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#accademy_page #categories .category_item {
+    width: 200px;
+    height: 120px;
+    background: var(--third_bkg);
+    margin-right: 10px;
+    margin-left: 10px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--default_shadow);
+    position: relative;
+    overflow: hidden;
+    transition: 0.3;
+    border: 1px solid transparent;
+
+}
+
+#accademy_page #categories .category_item.selected {
+    border: 1px solid var(--details_color)
+}
+
+#accademy_page #categories .category_item::after {
+    position: absolute;
+    content: "";
+    bottom: 0;
+    right: -15px;
+    width: 65px;
+    height: 65px;
+    background: var(--details_color);
+    border-radius: 10px;
+    transform: rotate(45deg);
+    box-shadow: var(--default_shadow);
+}
+
+#accademy_page #general_modules .modules_list {
+    display: -webkit-inline-box;
+    width: 100%;
+    overflow: scroll;
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+
+#accademy_page #general_modules .section_container {
+    margin-bottom: 20px;
+}
+
+#accademy_page #per_category {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+}
+
+#accademy_page #right_bar {
+    height: fit-content;
+}
+
+#accademy_page .program_info{
+    padding: 40px;
+}
+
+#accademy_page .program_info .description{
+    font-weight: 100;
+}
+
+#accademy_page .survey{
+    padding: 40px;
+}
+
+#accademy_page .survey .display_inline {
+    flex-wrap: wrap;
+    place-content: center;
+}
+
+#accademy_page .survey .number{
+    width: 50px;
+    height: 50px;
+    border-radius: 100px;
+    border: 2px solid var(--details_color);
+    margin-left: 7px;
+    margin-right: 7px;
+}
+
+#accademy_page .survey .number *:hover{
+    cursor: default;
+}
+
+#accademy_page .survey .number.selected{
+    background: var(--details_color);
+}
+
+#accademy_page .personal_courses {
+    overflow: scroll;
+    height: fit-content;
+}
+
+#accademy_page .personal_courses .timeline .course_number {
+    width: 50px;
+    height: 50px;
+    border-radius: 100px;
+    background-color: var(--details_color);
+    display: grid;
+    place-content: center;
+    box-shadow: var(--default_shadow);
+}
+
+#accademy_page .personal_courses .timeline {
+    position: relative;
+    display: grid;
+    justify-content: center;
+}
+
+#accademy_page .personal_courses .timeline::before {
+    content: "";
+    width: 10px;
+    height: calc(100% + 10px);
+    position: absolute;
+    background-color: var(--details_color);
+    border-radius: 100px;
+    left: calc(50% - 5px);
+}
+
+#accademy_page .personal_courses .timeline .course_number {
+    width: 50px;
+    height: 50px;
+    border-radius: 100px;
+    background-color: var(--details_color);
+    display: grid;
+    place-content: center;
+    box-shadow: var(--default_shadow);
+    z-index: 1;
+}
+
+@media screen and (max-width: 768px) {
+    #accademy_page #categories {
+        width: calc(100% + 45px);
+        margin-left: -22px;
+    }
+}

@@ -1,0 +1,19 @@
+#comments_section .comment_item .title{
+    border-left: 5px solid var(--details_color);
+    text-align: left;
+    padding-left: 15px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    margin-bottom: 5px;
+}
+
+#comments_section .comment_item .description{
+    text-align: left;
+    padding-left: 20px;
+}
+
+#comments_section .comment_item .title .info{
+    text-align: left;
+    font-weight: 100;
+    margin: 0;
+}

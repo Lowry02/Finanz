@@ -1,0 +1,34 @@
+.question_creator .input{
+    text-align: left;
+}
+
+.question_creator .image_container {
+    width: 100%;
+    height: 150px;
+    position: relative;
+    overflow: hidden;
+}
+
+.question_creator .image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.question_creator .remove_wallpaper {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    background: var(--details_color);
+    border-radius: 100%;
+    padding: 1px;
+}
+
+
+.question_creator #select_image_input {
+    display: none;
+}

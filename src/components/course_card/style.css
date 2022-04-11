@@ -1,0 +1,25 @@
+.course_card {
+    width: 100%;
+    max-width: 450px;
+    min-width: 300px;
+}
+
+.course_card .wallpaper {
+    border-radius: 10px;
+    margin-bottom: 5px;
+    box-shadow: var(--default_shadow);
+}
+
+.course_card .title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* number of lines to show */
+            line-clamp: 2; 
+    -webkit-box-orient: vertical;
+    font-weight: 400;
+}
+
+.course_card .date_author {
+    color: var(--details_color);
+}

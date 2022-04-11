@@ -1,0 +1,240 @@
+:root {
+    --first_bkg         : #000000;
+    --second_bkg        : #1A1A1A;
+    --third_bkg         : #272727;
+    --main_text_color   : #FFFFFF;
+    --details_color     : #FF6600;
+    --default_shadow    : 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+}
+
+* {
+    font-family: 'Roboto', sans-serif;
+}
+
+*::-webkit-scrollbar {
+    display: none;
+}
+
+.m-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.button {
+    width: fit-content;
+    padding: 7px 20px 7px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    background: var(--details_color);
+    border: none;
+    color: white;
+    box-shadow: var(--default_shadow);
+    margin-top: 10px;
+    margin-bottom: 20px;
+    margin-left: 5px;
+    margin-right: 5px;
+    overflow: hidden;
+}
+
+.button:hover {
+    cursor: pointer;
+}
+
+.button.orange {
+    background-color: var(--details_color);
+    color: var(--main_text_color);
+
+}
+
+.content_center {
+    display: grid;
+    place-content: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.display_inline {
+    display: inline-flex;
+}
+
+.bounce {
+    transition: 0.2s;
+}
+
+.bounce:hover {
+    transform: scale(1.02);
+}
+
+.bounce:active {
+    transform: scale(0.98);
+}
+
+.loading {
+    width: 0px;
+    height: 5px;
+    background: white;
+    box-shadow: var(--default_shadow);
+    border-radius: 100px;
+    animation-name: zoom;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+.input {
+    width: 100%;
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, 0);
+    border: none;
+    border-bottom: 2px solid var(--details_color);
+    text-align: center;
+    color: var(--main_text_color);
+    font-weight: 200;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.input:focus-visible {
+    outline: none;
+}
+
+
+input::-webkit-calendar-picker-indicator { 
+    display: none;
+}
+
+.my_input {
+    margin-left: 5px !important;
+    margin-right: 5px !important;
+}
+
+.my_input * {
+    color: white !important;
+    border-color: var(--details_color) !important;
+} 
+
+.my_input label{
+    color: var(--details_color) !important;
+}
+
+textarea {
+    resize: none;
+}
+
+.block {
+    background-color: var(--third_bkg);
+    border-radius: 15px;
+    box-shadow: var(--default_shadow);
+    padding: 15px;
+}
+
+.space_between {
+    display: flex;
+    place-content: space-between;
+}
+
+.small-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.max_height {
+    height: calc(100vh - 20px);
+}
+
+.max_width {
+    width: 100%;
+}
+
+.centered {
+    display: grid;
+    place-content: center;
+}
+
+.orange_icon {
+    color: var(--details_color) !important;
+}
+
+.orange_rect {
+    background-color: var(--details_color);
+    border-radius: 100px;
+    text-align: center;
+    box-shadow: var(--default_shadow);
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.orange_rect h6{
+    font-size: 13px;
+    margin-bottom: 0px;
+}
+
+.MuiDialog-paper {
+    background: var(--second_bkg) !important;
+    color: var(--main_text_color) !important;
+    width: 500px;
+    max-width: 80%;
+}
+
+.separator {
+    width: 20px;
+    height: 4px;
+    background: var(--details_color);
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.search_bar input,
+.search_bar input {
+    background: var(--third_bkg);
+    padding: 6px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 6px;
+    outline: none;
+    box-shadow: none;
+    border: none;
+    color: white;
+    font-weight: 300;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    min-width: 300px;
+    box-shadow: var(--default_shadow);
+}
+
+.search_bar input::placeholder,
+.search_bar input::placeholder {
+    color: var(--details_color);
+}
+
+.css-1rxz5jq-MuiSelect-select-MuiInputBase-input-MuiInput-input.css-1rxz5jq-MuiSelect-select-MuiInputBase-input-MuiInput-input.css-1rxz5jq-MuiSelect-select-MuiInputBase-input-MuiInput-input {
+    border-bottom: 2px solid var(--details_color) !important;
+}
+
+.css-1480iag-MuiInputBase-root-MuiInput-root:hover:not(.Mui-disabled):before {
+    border-bottom: 2px solid var(--details_color) !important;
+}
+
+.label_orange {
+    color: var(--details_color) !important;
+}
+
+
+@keyframes zoom {
+    0% {
+        width: 0px;
+    }
+    50% {
+        width: 50px;
+    }
+    100% {
+        width: 0px;
+    }
+}

@@ -1,0 +1,30 @@
+
+#test_page {
+    display: grid;
+    place-content: center;
+}
+
+#test_page .list_container {
+    transform: perspective(700px) rotateY(10deg);
+    overflow: scroll;
+    width: 100%;
+}
+
+#test_page .list_container .list{
+    display: -webkit-inline-box;
+    overflow: scroll;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#test_page .list .my_card {
+    width: 300px;
+    height: 500px;
+    background: blue;
+    margin: 10px;
+    color: white;
+    display: grid;
+    place-content: center;
+    box-shadow: 0px 2px 4px black;
+    transform: perspective(700px) rotateY(-10deg);
+}

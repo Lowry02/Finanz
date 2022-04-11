@@ -1,0 +1,17 @@
+#static_home {
+    background: var(--first_bkg);
+    color: white;
+    min-height: 100vh;
+}
+#static_home .thin {
+    font-weight: 100;
+}
+
+#static_home a {
+    color: var(--details_color);
+}
+
+
+#static_home .allert {
+    color: red;
+}

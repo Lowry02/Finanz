@@ -1,0 +1,50 @@
+.scroll_container {
+    display: grid;
+    overflow: hidden;
+}
+
+.scroll_container.horizontal {
+    grid-auto-flow: column;
+    width: 100%;
+    place-content: center;
+
+}
+
+.scroll_container.vertical {
+    grid-auto-flow: row;
+    height: 100%;
+}
+
+.scroll_container .list {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    overflow: hidden;
+}
+
+.scroll_container .list .item{
+    width: auto;
+}
+
+.scroll_container .list.horizontal {
+    display: -webkit-inline-box;
+    place-content: center;
+}
+
+.scroll_container .list.vertical {
+    display: auto;
+}
+
+.scroll_container .disabled {
+    opacity: 0.5;
+}
+
+.scroll_container .arrow {
+    display: grid;
+    place-content: center;
+}
+
+@media screen and (max-width: 768px) {
+    .scroll_container .list {
+        overflow: scroll;
+    }
+}

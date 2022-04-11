@@ -1,0 +1,39 @@
+#single_news {
+    
+}
+
+#single_news .wallpaper_container{
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+}
+
+#single_news .wallpaper_container .wallpaper{
+    position: absolute;
+    object-fit: cover;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%
+}
+
+#single_news .title {
+    text-align: center;
+}
+
+#single_news .description {
+    text-align: center;
+    font-weight: 100;
+    font-style: italic;
+}
+
+#single_news .details_container {
+    width: 100%;
+    place-content: center;
+}
+
+#single_news .details_container .orange_rect {
+    margin-left: 5px;
+    margin-right: 5px;
+}

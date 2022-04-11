@@ -1,0 +1,130 @@
+.creation .wallpaper_container{
+    height: 200px;
+    display: flex;
+    place-content: center;
+    padding: 0px;
+    overflow: hidden;
+    position: relative;
+}
+
+.creation .wallpaper_container .select_wallpaper{
+    display: grid;
+    place-content: center;
+    color: white;
+    width: 150px;
+}
+
+.creation .wallpaper_container #wallpaper_input {
+    display: none;
+}
+
+.creation .wallpaper_container #wallpaper_img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.creation .wallpaper_container #remove_wallpaper {
+    width: 30px;
+    height: 30px;
+    background: var(--second_bkg);
+    border-radius: 100px;
+    box-shadow: var(--default_shadow);
+    margin: 10px;
+    margin-right: 20px;
+    position: absolute;
+    right: 0;
+    border: 2px solid var(--details_color);
+}
+
+.creation .wallpaper_container #remove_wallpaper img{
+    margin: 8px;
+    width: 10px;
+    height: 10px;
+}
+
+.creation .content_container .title,
+.creation .content_container .description
+{
+    text-align: left;
+}
+
+.creation .content_container .title {
+    font-size: 30px;
+    height: auto;
+    overflow: hidden;
+    font-weight: 500;
+}
+
+.creation .info_container{
+    padding-left: 30px;    
+    padding-right: 30px;
+}
+
+.creation .back_icon {
+    width: 20px;
+    height: 20px;
+    transform: rotate(90deg);
+    margin-right: 7px;
+}
+
+.creation .mini_block {
+    margin: 5px;
+    text-align: center;
+    padding: 20px;
+    background: var(--third_bkg) !important;
+    color: var(--main_text_color);
+    border: 1px solid var(--details_color);
+    place-items: center;
+    display: grid;
+}
+
+.tab_context{
+    place-items: center;
+    margin-top: 20px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.tab_context .tab{
+    padding: 10px;
+    margin-bottom: -2px;
+    transition: 0.3s;
+    border-bottom: 2px solid transparent;
+
+}
+
+.tab_context .tab:hover{
+    transform: translateY(-5px);
+    cursor: default;
+}
+
+.tab_context .tab.selected{
+    border-bottom: 2px solid var(--details_color);
+    color: var(--details_color);
+}
+
+.tab_context .tab.selected:hover{
+    transform: translateY(0px);
+}
+
+#category_image_container {
+    height: 100px;
+    width: 100%;
+    position: relative;
+}
+
+#category_image_container .remove_image_icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    background: var(--details_color);
+    border-radius: 100%;
+    padding: 2px;
+}
+
+#category_image_container .category_image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

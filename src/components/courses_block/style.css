@@ -1,0 +1,10 @@
+.courses_block {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.courses_block .content_list {
+    width: calc(100% + 45px);
+    margin-left: -22px;
+}

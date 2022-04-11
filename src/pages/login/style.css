@@ -1,0 +1,74 @@
+#registration {
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--first_bkg);
+    color: var(--main_text_color);
+    display: grid;
+    place-items: center;
+    text-align: center;   
+}
+
+#registration .description {
+    font-weight: 100;
+}
+
+#registration .content {
+    background-color: var(--second_bkg);
+    width: 90%;
+    max-width: 500px;
+    min-height: 300px;
+    border-radius: 12px;
+    padding: 20px;
+    display: grid;
+    place-items: center;
+    box-shadow: var(--default_shadow);
+    position: relative;
+
+}
+
+#registration .content::before {
+    content: "";
+    position: absolute;
+    top: -30px;
+    left: -30px;
+    width: 60px;
+    height: 60px;
+    background-color: var(--details_color);
+    transform: rotate(45deg);
+    box-shadow: var(--default_shadow);
+    border-radius: 5px;
+}
+
+#registration .content::after {
+    content: "";
+    position: absolute;
+    bottom: -30px;
+    right: -30px;
+    width: 60px;
+    height: 60px;
+    background-color: var(--details_color);
+    transform: rotate(45deg);
+    box-shadow: var(--default_shadow);
+    border-radius: 5px;
+}
+
+#registration .button {
+    background: var(--details_color);
+    border: none;
+    color: white;
+    box-shadow: var(--default_shadow);
+    margin-top: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+#registration .thin_orange {
+    color: var(--details_color);
+    font-weight: 100;
+    margin-bottom: 0px;
+}
+
+#registration .thin_orange:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}

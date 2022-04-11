@@ -1,0 +1,42 @@
+#webinar_creation .wallpaper_container {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+}
+
+#webinar_creation .wallpaper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+}
+
+#webinar_creation .select_wallpaper {
+    display: grid;
+    place-content: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+#webinar_creation .wallpapaer_picker_image {
+    height: 150px;
+}
+
+#webinar_creation #wallpaper_input {
+    display: none;
+}
+
+
+#webinar_creation .remove_wallpaper {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--details_color);
+    z-index: 1;
+    border-radius: 100%;
+    box-shadow: var(--default_shadow);
+    padding: 3px;
+}
