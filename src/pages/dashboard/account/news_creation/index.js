@@ -21,7 +21,6 @@ function NewsCreation(props) {
     const [dialogOpen, setDialogOpen] = useState(false)
     const [popupContent, setPopupContent] = useState()
     const { state } = useLocation()
-    const updateMode = useRef(false)    // true when the user is editing the news
 
     function loadWallpaper(e) {
         if(e != undefined) {
@@ -51,7 +50,7 @@ function NewsCreation(props) {
             }
         } else {
             setPopupContent({error : false, message : "Pubblicazione in corso..."})
-            content.publish(updateMode.current).then(() => setPopupContent({error: false, message: "Pubblicazione completata"}))
+            content.publish().then(() => setPopupContent({error: false, message: "Pubblicazione completata"}))
                              .catch(() => setPopupContent({error: true, message: "Errore"}))
         }
     }
@@ -64,7 +63,6 @@ function NewsCreation(props) {
             let newsInfo = state['news']
             let slug = newsInfo['id']
             content.news.loadById(slug)
-            updateMode.current = true
         }
     }, [])    
 

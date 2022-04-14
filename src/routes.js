@@ -2,6 +2,7 @@ import StaticHome from "./pages/static_home"
 import Dashbaord from "./pages/dashboard"
 import LoginPage from "./pages/login"
 import TestPage from "./pages/test"
+import Home from "./pages/home"
 
 let routes = {
     "home" : {
@@ -23,6 +24,12 @@ let routes = {
         path : "/test",
         url : "/test/*",
         component : (props) => <TestPage {...props} />
-    }
+    },
+    "homepage" : {
+        path : "/home",
+        url : "/home",
+        component : (props) => <Home {...props} />
+    },
+
 }
 export default routes

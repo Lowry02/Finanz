@@ -66,7 +66,7 @@ function InfoSection(props) {
 
     function redeemCode() {
         if(user) {
-            user.redeemCode().then(() => window.location.reload())
+            user.redeemCode().then(() => user.refreshToken().then(() => user.setCodiceInvito("")))
                              .catch((data) => setPopupStatus({error: true, message: "Codice non valido"}))
         }
     }
@@ -92,6 +92,7 @@ function InfoSection(props) {
             <div className="m-3 centered">
                 <h4 className="name">{user && user.getSurname()} {user && user.getName()}</h4>
                 <p className="username thin">{user && user.getUsername()}</p>
+                <p>{user && user.getRole().map(item => item['slug'] + " - ")}</p>
             </div>
         </div>
         <Row className="mt-3">
@@ -176,6 +177,7 @@ function InfoSection(props) {
                             <FormGroup>
                                 {
                                     assignableRoles.map(item => 
+                                        item['slug'] != "super-admin" ?
                                         <FormControlLabel
                                         control={<Checkbox 
                                                     className="orange_icon"
@@ -185,7 +187,8 @@ function InfoSection(props) {
                                                         else
                                                             selectedRoles.current.push(item['slug'])
                                                     }}/>}
-                                        label={item['name']} />
+                                        label={item['name']} /> : 
+                                        ""
                                     )
                                 }
                             </FormGroup>
@@ -231,6 +234,7 @@ function InfoSection(props) {
                             <h6>Codici non usati</h6>
                             {
                                 user && user.getCreatedCodes().map((code) => (
+                                    code?.usage != 0 ? 
                                     <div className="display_inline">
                                         <TextField
                                             className="my_input"
@@ -243,7 +247,7 @@ function InfoSection(props) {
                                             value={code['code']}/>
                                         <div className="centered m-2">
                                             <IconButton>
-                                                <ContentCopyIcon className="orange_icon" onClick={() => navigator.clipboard.writeText(user && user.getCodiceInvito())}/>
+                                                <ContentCopyIcon className="orange_icon" onClick={() => navigator.clipboard.writeText(code['code'])}/>
                                             </IconButton>
                                         </div>
                                         <div className="centered m-2">
@@ -283,7 +287,8 @@ function InfoSection(props) {
                                                                .catch(() => setPopupStatus({error: true, message: "Errore"}))}/>
                                             </IconButton>
                                         </div>
-                                    </div>
+                                    </div> : 
+                                    ""
                                 ))
                             }
                         </Col>

@@ -122,8 +122,10 @@ class CreateNewsController {
         return { error : false, messaggio : "Tutto apposto"}
     }
 
-    async publish(updateMode = false) {
+    async publish() {
         let accessToken = window.localStorage.getItem("accessToken")
+        let updateMode = false
+        if(this.news.getId() != "") updateMode = true
 
         let type = ""
         let url = ""
@@ -141,12 +143,13 @@ class CreateNewsController {
         formData.append("title", this.news.getTitle())
         formData.append("description", this.news.getDescription())
         formData.append("newsLocation", "both")
-        formData.append("categories", this.getCategories().getSelectedChoices())
+        for(let category of this.getCategories().getSelectedChoices())
+            formData.append("categories", category)
         formData.append("content", this.news.getContent())
         if(this.news.getWallpaper().slice(0,5) != "https") {
             formData.append("picture", urlToFile(this.news.getWallpaper()))
         }
-        
+
         $.ajax({
             type: type,
             url: api_url + url,
@@ -158,6 +161,18 @@ class CreateNewsController {
             success: (data) => {
                 this.news.setId(data['slug'])
                 this.news.setWallpaper(data['coverImageLink'])
+                if(updateMode) {
+                    $.ajax({
+                        type: "POST",
+                        url: api_url + "news/article/" + this.news.getId() +"/categories",
+                        accepts: "application/json",
+                        contentType: "application/json",
+                        beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                        data: JSON.stringify({
+                            categories: this.getCategories().getSelectedChoices()
+                        })
+                    })
+                }
             },
             error: (message) => console.log(message)
         })

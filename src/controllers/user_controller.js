@@ -271,19 +271,25 @@ class UserController {
             },
             error : (message) => {
                 if(message.status == 401) {
-                    $.ajax({
-                        type: "POST",
-                        url : api_url + "refreshToken",
-                        contentType: "application/json",
-                        beforeSend : (request) => request.setRequestHeader("Authorization", "Bearer " + refreshToken),
-                        success: (data) => {
-                            this.setAccessToken(data['access_token'])
-                            this.setInfo(callback)
-                        },
-                        error: (message) => console.log(message)
-                    })
+                    this.refreshToken(callback)
                 }
             }
+        })
+    }
+    
+    async refreshToken(callback) {
+        let refreshToken = window.localStorage.getItem('refreshToken')
+
+        $.ajax({
+            type: "POST",
+            url : api_url + "refreshToken",
+            contentType: "application/json",
+            beforeSend : (request) => request.setRequestHeader("Authorization", "Bearer " + refreshToken),
+            success: (data) => {
+                this.setAccessToken(data['access_token'])
+                this.setInfo(callback)
+            },
+            error: (message) => console.log(message)
         })
     }
 

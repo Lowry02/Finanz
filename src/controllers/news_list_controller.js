@@ -4,7 +4,7 @@ import $ from "jquery"
 import { api_url } from "../App"
 
 class NewsListController {
-    constructor(generalNews = {}, personalNews = {}, savedNews = {}, createdNews = {}, dailiNews = {}, categories = {}, state = undefined, overrideState = undefined) {
+    constructor(generalNews = {}, personalNews = {}, savedNews = {}, createdNews = {}, dailiNews = {}, categories = {}, created_news_index = 1, state = undefined, overrideState = undefined,) {
         this.generalNews = generalNews
         this.personalNews = personalNews
         this.savedNews = savedNews
@@ -13,6 +13,7 @@ class NewsListController {
         this.categories = categories
         this.overrideState = overrideState
         this.state = state
+        this.created_news_index = created_news_index
         this.GENERAL_NEWS_TAG = "general"
         this.PERSONAL_NEWS = "personal"
         this.SAVED_NEWS_TAG = "saved"
@@ -30,18 +31,19 @@ class NewsListController {
 
     updateInfo() {
         if(this.state != undefined)
-            this.state(new NewsListController(this.generalNews, this.personalNews, this.savedNews, this.createdNews, this.dailiNews, this.categories, this.state, this.overrideState))
+            this.state(new NewsListController(this.generalNews, this.personalNews, this.savedNews, this.createdNews, this.dailiNews, this.categories, this.created_news_index, this.state, this.overrideState))
         else if(this.overrideState != undefined)
             this.overrideState()
     }
 
-    load({generalNews, personalNews, savedNews, createdNews, dailiNews, categories, state, overrideState}) {
+    load({generalNews, personalNews, savedNews, createdNews, dailiNews, categories, created_news_index, state, overrideState}) {
         this.generalNews = generalNews
         this.personalNews = personalNews
         this.savedNews = savedNews
         this.createdNews = createdNews
         this.dailiNews = dailiNews
         this.categories = categories
+        this.created_news_index = created_news_index
         this.state = state
         this.overrideState = overrideState
     }
@@ -135,34 +137,39 @@ class NewsListController {
     }
 
     loadCreatedNews(n = 10) {
-        console.log(this.__getNewsList(this.createdNews, n))
         // this.setCreatedNews(list)
         let accessToken = window.localStorage.getItem('accessToken')
-
-        $.ajax({
-            type: "GET",
-            url: api_url + "news/articles/modifiable",
-            accepts: "json",
-            contentType: "json",
-            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
-            data: {
-                page: 1,
-            },
-            success: (data) => {
-                let list = data['news_list']
-                let newsList = {}
-                for(let news of list) {
-                    let newNews = new NewsController()
-                    newNews.setId(news['slug'])
-                    newNews.setTitle(news['title'])
-                    newNews.setOverrideState((() => this.updateInfo()).bind(this))
-                    // chiedere di implementare ora e categoria
-                    newsList[news['slug']] = newNews
-                }
-                this.setCreatedNews(newsList)
-            },
-            error: (message) => console.log(message)
-        })
+        
+        if(this.created_news_index != null) {
+            $.ajax({
+                type: "GET",
+                url: api_url + "news/articles/modifiable",
+                accepts: "json",
+                contentType: "json",
+                beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                data: {
+                    page: this.created_news_index,
+                },
+                success: (data) => {
+                    this.created_news_index = data['next_page']
+    
+                    let list = data['news_list']
+                    let newsList = {...this.getCreatedNews()}
+                    for(let news of list) {
+                        news = news['content']
+                        let newNews = new NewsController()
+                        
+                        newNews.setId(news['slug'])
+                        newNews.setTitle(news['title'])
+                        newNews.setOverrideState((() => this.updateInfo()).bind(this))
+                        // chiedere di implementare ora e categoria
+                        newsList[news['slug']] = newNews
+                    }
+                    this.setCreatedNews(newsList)
+                },
+                error: (message) => console.log(message)
+            })
+        }
     }
     
     loadDailyNews(n = 10) {

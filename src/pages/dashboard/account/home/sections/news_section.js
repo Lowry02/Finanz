@@ -8,7 +8,7 @@ import {Row, Col} from "react-bootstrap"
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { IconButton } from "@material-ui/core";
+import $ from "jquery"
 
 function NewsSection(props) {
     let windowInfo = props.windowInfo
@@ -46,6 +46,18 @@ function NewsSection(props) {
     // opens create news page
     function createNewNews() {
         navigate(routes.news_creation.path)
+    }
+
+    // used to load modules automatically on scroll
+    async function manageInfiniteScroll(e) {
+        let list = e.target
+        let listScrollHeight = list.clientHeight
+        let listOffsetTop = $('#new_continer').offset().top
+        let lastElementOffsetTop = $('#new_continer .list_item').last().offset().top
+
+        if(lastElementOffsetTop < listOffsetTop + listScrollHeight) {
+            await news.loadCreatedNews() // TODO: change in base of section name
+        }
     }
 
     return <div id="news_section">
@@ -101,7 +113,7 @@ function NewsSection(props) {
         }
         
         
-        <div className="items_container">
+        <div className="items_container" id="new_continer">
             {
                 !windowInfo.mobileMode ? 
                     <div className="header">
@@ -123,7 +135,7 @@ function NewsSection(props) {
                     ""
             }
             <hr/>
-            <div className="list">
+            <div className="list" onScroll={manageInfiniteScroll}>
                 {
                     section == SAVED_SECTION ?
                     news && Object.values(news.getSavedNews()).map((item) => <ListItem content={item} handleDelete={handleDelete} handleEdit={handleEdit}/>)
