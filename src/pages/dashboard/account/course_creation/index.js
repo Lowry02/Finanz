@@ -21,6 +21,9 @@ import "./style.css"
 import EditCategories from '../edit_categories'
 import Popup from "../../../../components/popup"
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 
 function CourseCreation(props) {
     const [content, setContent] = useState(new CourseCreationController())
@@ -64,8 +67,8 @@ function CourseCreation(props) {
         content.setState(setContent)
         content.loadArgs()
         if(state != null) {
-            let courseInfo = state['course']
-            content.load({course: courseInfo})
+            let courseid = state['course']
+            content.course.loadById(courseid)
         }
     }, [])
 
@@ -91,7 +94,6 @@ function CourseCreation(props) {
                         onChange={(e) => loadWallpaper(e)}/>
                     </>
                 }
-                
             </div>
             <br />
             <Row>
@@ -115,38 +117,26 @@ function CourseCreation(props) {
                                 variant="outlined"
                                 value={content.course.getDescription()}
                                 onChange={(e) => content.course.setDescription(e.target.value)}/>
+                            <br/>
+                            <TextField
+                                className="my_input"
+                                margin="normal"
+                                label="Video presentazione(Iframe)"
+                                fullWidth={true}
+                                variant="outlined"
+                                value={content.course.getPresentationVideo()}
+                                onChange={(e) => content.course.setPresentationVideo(e.target.value)}/>
+                            <TextField
+                                className="my_input"
+                                margin="normal"
+                                label="Video ID"
+                                fullWidth={true}
+                                variant="outlined"
+                                value={content.course.getPresentationVideoId()}
+                                onChange={(e) => content.course.setPresentationVideoId(e.target.value)}/>
                         </div>
                         <br />
-                        <div className="wallpaper_container block">
-                            {
-                                content.course.getPresentationVideo() == "" ?
-                                <>
-                                <label className="load_video" htmlFor="presentation_video_input">
-                                    <img src={video_icon} className="img-fluid bounce" />
-                                    <h6>Video di presentazione</h6>
-                                </label>
-                                <input
-                                id="presentation_video_input"
-                                accept="video/*"
-                                type="file"
-                                style={{display: 'none'}}
-                                onChange={(e) => laodPresentationVideo(e)}/>
-                                </> :
-                                <video className="video" controls={true}>
-                                    <source src={content.getPresentationVideo()} type="video/mp4"/>
-                                </video>
-                            }
-
-                        </div>
                         <br />
-                        {/* <div className="block">
-                            <h5 className="mb-3">Syllabus</h5>
-                            <MarkupEditor
-                            content={content.course.getSyllabus()}
-                            setContent={(value) => content.course.setSyllabus(value)}
-                            block={false}/>
-                        </div>
-                        <br /> */}
                         <div className="block">
                             {
                                 selectedChapter == undefined ?
@@ -154,11 +144,11 @@ function CourseCreation(props) {
                                     <h5 className="mb-3">Contenuto</h5>
                                     <div className="chapters_container">
                                         {
-                                            Object.keys(content.course.getContent()).map(
-                                                (chapterId) =>  
+                                            Object.values(content.course.getContent()).sort((a,b) => a['position'] > b['position'] ? 1 : -1).map(
+                                                (chapter) =>  
                                                 <ChapterLayout
-                                                key={chapterId}
-                                                id={chapterId}
+                                                key={chapter['id']}
+                                                id={chapter['id']}
                                                 content={content}
                                                 selectedChapter={selectedChapter}
                                                 setSelectedChapter={setSelectedChapter}
@@ -192,7 +182,7 @@ function CourseCreation(props) {
                         <TextField
                             className="my_input"
                             margin="normal"
-                            label="Offerto da"
+                            label="Autore(nome utente)"
                             fullWidth={true}
                             variant="outlined"
                             value={content.course.getOfferedBy()}
@@ -244,6 +234,17 @@ function ChapterLayout(props) {
         content.course.removeChapter(id)
     }
 
+    function handleOnDragEnd(result) {
+        let sInd = result.source?.index
+        let dInd = result.destination?.index
+        if(sInd != undefined && dInd != undefined) content.changeLessonOrder(id, sInd, dInd)
+    }
+
+    function handleChapterChangeOrder(e, direction) {
+        e.stopPropagation()
+        content.changeChapterOrder(id, direction)
+    }
+
     return (
         <>
             {
@@ -258,6 +259,10 @@ function ChapterLayout(props) {
                                 <DeleteIcon onClick={(e) => handleChapterDelete(e, id)}/>
                                 <ModeEditIcon />
                             </IconButton>
+                            <div>
+                                <ArrowLeftIcon onClick={(e) => handleChapterChangeOrder(e, -1)} className="orange_icon"/>
+                                <ArrowRightIcon onClick={(e) => handleChapterChangeOrder(e, 1)} className="orange_icon"/>
+                            </div>
                         </div>
                     </CardContent>
                 </Card> :
@@ -278,21 +283,40 @@ function ChapterLayout(props) {
                     <br />
                     <br />
                     <div className="lessons_container">
-                        {
-                            Object.keys(content.course.getLessonsByChapter(id)).map(
-                                (lessonId) => 
-                                    <LessonLayout
-                                    key={lessonId}
-                                    lessonId={lessonId}
-                                    chapterId={id}
-                                    content={content}
-                                    selectedLesson={selectedLesson}
-                                    setSelectedLesson={setSelectedLesson}
-                                    windowInfo={windowInfo}
-                                    />
-                            )
-
-                        }
+                        <DragDropContext onDragEnd={handleOnDragEnd}>
+                            <Droppable droppableId="lessons_container">
+                                {
+                                    (provided) => (
+                                        <div {...provided.droppableProps} ref={provided.innerRef}>
+                                            {
+                                                Object.values(content.course.getLessonsByChapter(id)).sort((a,b) => a['position'] > b['position'] ? 1 : -1).map(
+                                                    (lesson) => 
+                                                        <Draggable key={lesson['id']} draggableId={lesson['id']} index={Number(content.course.getLessonPosition(id, lesson['id']))}>
+                                                            {
+                                                                (innerProvided) => (
+                                                                    <div {...innerProvided.draggableProps} {...innerProvided.dragHandleProps} ref={innerProvided.innerRef} >
+                                                                        <LessonLayout
+                                                                        key={lesson['id']}
+                                                                        lessonId={lesson['id']}
+                                                                        chapterId={id}
+                                                                        content={content}
+                                                                        selectedLesson={selectedLesson}
+                                                                        setSelectedLesson={setSelectedLesson}
+                                                                        windowInfo={windowInfo}
+                                                                        />
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        </Draggable>
+                                                )
+                    
+                                            }
+                                            {provided.placeholder}
+                                        </div>
+                                    ) 
+                                }
+                            </Droppable>
+                        </DragDropContext>
                     </div>
                     <br />
                     <Card
@@ -363,29 +387,23 @@ function LessonLayout(props) {
                             value={content.course.getLessonDescription(chapterId, lessonId)}
                             onChange={(e) => content.course.setLessonDescription(chapterId, lessonId, e.target.value)}/>
                         <br />
+                        <TextField
+                            className="my_input"
+                            margin="normal"
+                            label="Video(Iframe)"
+                            fullWidth={true}
+                            variant="outlined"
+                            value={content.course.getLessonVideo(chapterId, lessonId)}
+                            onChange={(e) => content.course.setLessonVideo(chapterId, lessonId, e.target.value)}/>
+                        <TextField
+                            className="my_input"
+                            margin="normal"
+                            label="Video ID"
+                            fullWidth={true}
+                            variant="outlined"
+                            value={content.course.getLessonVideoId(chapterId, lessonId)}
+                            onChange={(e) => content.course.setLessonVideoId(chapterId, lessonId, e.target.value)}/>
                         <br />
-                        <div className="wallpaper_container block">
-                            {
-                                content.course.getLessonVideo(chapterId, lessonId) == "" ?
-                                <> 
-                                    <label className="load_video" htmlFor="lesson_video">
-                                        <img src={video_icon} className="img-fluid bounce" />
-                                        <h6>Video della lezione</h6>
-                                    </label>
-                                    <input
-                                    id="lesson_video"
-                                    accept="video/*"
-                                    type="file"
-                                    style={{display: 'none'}}
-                                    onChange={(e) => loadLessonVideo(e, chapterId, lessonId)}
-                                    />
-                                </> : 
-                                <video className="video" controls={true}>
-                                    <source src={content.course.getLessonVideo(chapterId, lessonId)} />
-                                </video>
-                            }
-                            
-                        </div>
                         <br />
                         <div className="block">
                             <h5>Contenuto</h5>
@@ -463,7 +481,6 @@ function LessonLayout(props) {
                                             <source src={content.course.getLessonVideo(chapterId, lessonId)} />
                                         </video>
                                     }
-                                    
                                 </div>
                                 <br />
                                 <div className="block">

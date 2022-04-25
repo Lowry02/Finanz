@@ -238,14 +238,16 @@ class CreateModuleController {
         return exist
     }
 
-    async publish() {
+    async publish(messageFunction = (message) => {}) {
         let updateMode = false
         if(this.module.getId() != "")
             updateMode = await this.moduleExist()
+
+        messageFunction({error: false, message: updateMode ? "Aggiorno il modulo" : "Creo il modulo"})
         
         // create academy
         let academySlug = await this.createModule(updateMode['exist'], updateMode['categoryChanged'])
-        if(academySlug == undefined) throw TypeError()
+        if(academySlug == undefined) throw Error(updateMode ? "Errore nella modifica" : "Errore nella creazione")
 
         updateMode = updateMode['exist']
         let modules = this.module.getModules()
@@ -253,38 +255,53 @@ class CreateModuleController {
         for(let moduleId of Object.keys(modules)) {
             // create module            
             let moduleSlug = await this.postModules(academySlug, moduleId, updateMode)
+            if(moduleSlug == undefined) throw Error("Errore nella pubblicazione della nota - " + modules[moduleSlug]['title'])
+
+            messageFunction({error: false, message: updateMode ? "Aggiorno la nota - " + modules[moduleSlug]['title'] : "Creo la nota - " + modules[moduleSlug]['title']})
+
             let pages = this.module.getAllPages(moduleSlug)
             for(let pageId of Object.keys(pages)) {
                 if(this.module.getPageType(moduleSlug, pageId) == "quiz") {
                     // create quiz
-                    
+                    console.log(pages[pageId]['content'].question.getTitle())
                     let error = await this.postQuiz(moduleSlug, moduleSlug, pageId, updateMode)
-                    if(error == undefined) throw TypeError()
+                    if(error == undefined) throw Error("Errore nella pubblicazione di un quiz - " + pages[pageId]['content'].question.getTitle())
+                    messageFunction({error: false, message: updateMode ? "Aggiorno il quiz - " + pages[pageId]['content'].question.getTitle() : "Creo il quiz - " + pages[pageId]['content'].question.getTitle()})
                 } else {
                     // create text page
+                    let title = pages[pageId]['title']
                     let error = await this.postText(moduleSlug, moduleSlug, pageId, updateMode)
-                    if(error == undefined) throw TypeError()
+                    if(error == undefined) throw Error("Errore nella pubblicazione della pagina - " + title)
+                    messageFunction({error: false, message: updateMode ? "Aggiorno la pagina - " + title : "Creo la pagina - " + title})
                 }
             }
         }
 
         let accessToken = window.localStorage.getItem('accessToken')
         
+        messageFunction({error: false, message: "Elimino le note"})
+
         // deleting notes
         let serverNotes = await this.module.getNotes(this.module.getId(), false)
         let localNotes = Object.keys(this.module.getModules())
 
         for(let noteSlug of serverNotes) {
             if(!localNotes.includes(noteSlug)) {
+                let error = false
                 await $.ajax({
                     type: "DELETE",
                     url: api_url + "academy/note/" + noteSlug,
                     contentType: "json",
                     accepts: "json",
                     beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                    error: () => error = true
                 })
+                
+                if(error) throw Error("Errore eliminazione nota - " + noteSlug)
             }
         }
+
+        messageFunction({error: false, message: "Elimino le pagine"})
 
         // deleting pages
         for(let noteId of localNotes) {
@@ -295,6 +312,7 @@ class CreateModuleController {
             
             // stops when there aren't more pages
             while(pageSlug != undefined) {
+                let error = false
                 page = await this.module.getPageFromServer(noteId, pageNumber, false)
                 pageSlug = page?.id
                 
@@ -306,7 +324,10 @@ class CreateModuleController {
                         contentType: "json",
                         accepts: "json",
                         beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                        error: () => error = true
                     })
+
+                    if(error) throw Error("Errore eliminazione pagina - " + pageSlug)
                 }
 
                 pageNumber++
@@ -392,8 +413,6 @@ class CreateModuleController {
 
                 if(moduleId != moduleSlug) delete modules[moduleId]
 
-                console.log(modules)
-
                 this.module.setModules(modules)
             },
         })
@@ -422,7 +441,7 @@ class CreateModuleController {
         }
 
         // create quiz
-        let quizSlug = await pageContent.publish(updateMode)
+        let quizSlug = await pageContent.publish()
         
         if(quizSlug == undefined) return false
         else {

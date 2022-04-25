@@ -45,7 +45,7 @@ function CoursesSection(props) {
     }
 
     function handleEdit(item) {
-        navigate(routes.course_creation.path, { state : { course : item } })
+        navigate(routes.course_creation.path, { state : { course : item.id } })
     }
 
     // opens create new course page

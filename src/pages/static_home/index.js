@@ -12,7 +12,7 @@ function StaticHome() {
         <div id="static_home">
             <div className="container">
                 <br/>
-                <h1 className="m-0">Beta testing Finanz v1.4.0</h1>
+                <h1 className="m-0">Beta testing Finanz v1.4.2</h1>
                 <h3 className="allert ">Il sito non è ancora pronto per telefoni e tablet</h3>
                 <Col md="6">
                     <p className="thin">Per comunicarmi la vostra opinione ho create questo file. Vi basterà accedere e inserire ciò che notate nelle apposite tabelle</p>

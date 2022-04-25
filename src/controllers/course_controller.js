@@ -2,6 +2,8 @@ import CourseModel from "../models/course"
 import QuestionCreationController from "./question_creation_controller"
 import {courseExample} from "../test_data/course"
 import QuestionController from "./question_controller"
+import $ from "jquery"
+import {api_url} from "../App"
 
 class CourseController {
     constructor(course = new CourseModel(), state = undefined, overrideState = undefined) {
@@ -42,11 +44,77 @@ class CourseController {
         this.setContent(content)
     }
 
-    loadById(courseId, creationMode = true) {
-        // DA IMPLEMENTARE
-        let info = JSON.parse(JSON.stringify(courseExample))
+    async loadById(courseId, creationMode = true) {
+        // getting general info
+        let info = await this.getGeneralInfo(courseId)
+        if(info == undefined) throw Error()
 
-        this.load(info, creationMode)
+        // setting general info 
+        let course = info['course']
+        let chapters = info['chapters']
+
+        let argument = {
+            id: course['argument']['slug'],
+            title: course['argument']['title'],
+            description: course['argument']['description'],
+        }
+
+        this.setArgument(argument)
+        this.setId(course['slug'])
+        this.setWallpaper(course['coverImageLink'])
+        this.setTitle(course['title'])
+        this.setDescription(course['description'])
+        this.setPresentationVideo(course['trailerIframe'])
+        this.setPresentationVideoId(course['trailerId'])
+
+        // setting chapters
+        for(let chapter of chapters) {
+            this.addChapter(chapter)
+
+            // getting lessons per chapter
+            let lessons = Object.values(chapter['lessons'])
+
+            for(let lesson of lessons) {
+                let lessonSlug = lesson['slug']
+                let lessonInfo = await this.getLessonFromServer(lessonSlug)
+
+                this.addLesson(chapter['slug'], lessonInfo)
+            }
+
+        }
+    }
+    
+    // get course title, description, chapters and argument
+    async getGeneralInfo(courseId) {
+        let accessToken = window.localStorage.getItem('accessToken')
+        let info = undefined
+
+        await $.ajax({
+            type: "GET",
+            url: api_url + "course/" + courseId,
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: (data) => info = data
+        })
+
+        return info
+    }
+
+    async getLessonFromServer(lessonId) {
+        let accessToken = window.localStorage.getItem('accessToken')
+        let info = undefined
+
+        await $.ajax({
+            type: "GET",
+            url: api_url + "course/lesson/" + lessonId,
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: (data) => info = data['lesson']
+        })
+
+        return info
     }
     
     updateInfo() {
@@ -71,6 +139,10 @@ class CourseController {
     }
     setPresentationVideo(presentationVideo, _auto_save = true) {
         this.course.setPresentationVideo(presentationVideo)
+        if(_auto_save) this.updateInfo()
+    }
+    setPresentationVideoId(presentationVideoId, _auto_save = true) {
+        this.course.setPresentationVideoId(presentationVideoId)
         if(_auto_save) this.updateInfo()
     }
     setProfessors(professors, _auto_save = true) {
@@ -127,6 +199,7 @@ class CourseController {
     getTitle() { return this.course.getTitle() }
     getArgument() { return this.course.getArgument() }
     getPresentationVideo() { return this.course.getPresentationVideo() }
+    getPresentationVideoId() { return this.course.getPresentationVideoId() }
     getProfessors() { return this.course.getProfessors() }
     getSyllabus() { return this.course.getSyllabus() }
     getDescription() { return this.course.getDescription() }
@@ -141,15 +214,29 @@ class CourseController {
     getId() { return this.course.getId() }
     getComments() { return this.course.getCommentts() }
 
-    addChapter() {
+    addChapter(info = undefined) {
         let _content = this.course.getContent()
+        
+        // generating random id
         let newId = "_0"
         while(Object.keys(_content).includes(newId)) newId = "_" + Math.random() * 10
-        _content[newId] = {
-            title: "Capitolo " + newId,
-            lessons: {},
-            position: Object.keys(_content).length + 1
+        let title = "Capitolo " + newId
+        let lessons = {}
+        let position = Object.keys(_content).length + 1
+
+        if(info != undefined) {
+            newId = info['slug']
+            title = info['title']
+            position = info['order']
         }
+
+        _content[newId] = {
+            id: newId,
+            title: title,
+            lessons: lessons,
+            position: position
+        }
+        
         this.setContent(_content)
     }
 
@@ -177,17 +264,40 @@ class CourseController {
         else return {}
     }
 
-    addLesson(chapterId) {
+    addLesson(chapterId, info = undefined) {
         let _chapterContent = this.getChapter(chapterId)
         let newId = "_0"
         while(Object.keys(_chapterContent['lessons']).includes(newId)) newId = "_" + Math.random() * 10
+        let title = "Lezione " + newId
+        let description = ""
+        let video = ""
+        let videoId = ""
+        let text = ""
+        let position = Object.keys(_chapterContent['lessons']).length + 1
+        let quiz = {}
+        let isFree = true
+
+        if(info != undefined) {
+            newId = info['slug']
+            title = info['title']
+            description = info['description']
+            video = info['videoIframe']
+            videoId = info['videoId']
+            text = info['text']
+            position = info['order']
+            isFree = info['isFree']
+        }
+
         _chapterContent['lessons'][newId] = {
-            title: "Lezione " + newId,
-            description: "",
-            video: "",
-            text: "",
-            position: Object.keys(_chapterContent['lessons']).length + 1,
-            quiz: {}
+            id: newId,
+            title: title,
+            description: description,
+            video: video,
+            videoId: videoId,
+            text: text,
+            position: position,
+            quiz: quiz,
+            isFree: isFree
         }
         let _content = this.getContent()
         _content[chapterId] = _chapterContent
@@ -244,6 +354,12 @@ class CourseController {
         else return ""
     }
 
+    getLessonVideoId(chapterId, lessonId) {
+        if(this.getLesson(chapterId, lessonId) != undefined)
+            return this.getLesson(chapterId, lessonId)['videoId']
+        else return ""
+    }
+
     getLessonText(chapterId, lessonId) {
         if(this.getLesson(chapterId, lessonId) != undefined)
             return this.getLesson(chapterId, lessonId)['text']
@@ -290,6 +406,10 @@ class CourseController {
 
     setLessonVideo(chapterId, lessonId, video) {
         this.setLessonContent(chapterId, lessonId, 'video', video)
+    }
+
+    setLessonVideoId(chapterId, lessonId, videoId) {
+        this.setLessonContent(chapterId, lessonId, 'videoId', videoId)
     }
 
     setLessonText(chapterId, lessonId, text) {
@@ -350,6 +470,7 @@ class CourseController {
         let content = JSON.parse(JSON.stringify(this.getContent()))
 
         return {
+            id: this.getId(),
             title : this.getTitle(),
             argument : this.getArgument(),
             wallpaper : this.getWallpaper(),

@@ -107,29 +107,29 @@ function ModuleLayout(props) {
                     {
                         (provided) => (
                             <div {...provided.droppableProps} ref={provided.innerRef}>
-                            {
-                                Object.keys(content.module.getAllPages(id)).sort((a,b) => content.module.getPage(id, a)['position'] > content.module.getPage(id, b)['position'] ? 1 : -1).map((pageId, i, _) => {
-                                    return (
-                                        <Draggable key={pageId} draggableId={pageId} index={Number.parseInt(content.module.getPage(id, pageId)['position'])}>
-                                            {
-                                                (innerProvided) => (
-                                                    <div {...innerProvided.draggableProps} {...innerProvided.dragHandleProps} ref={innerProvided.innerRef} >
-                                                        <PageLayout
-                                                            i={i}
-                                                            content={content} 
-                                                            selectedPage={selectedPage}
-                                                            setSelectedPage={setSelectedPage}
-                                                            pageId={pageId}
-                                                            moduleId={id}
-                                                            windowInfo={windowInfo}
-                                                            />
-                                                    </div>
-                                                )
-                                            }
-                                        </Draggable>
-                                    )
-                                })
-                            }
+                                {
+                                    Object.keys(content.module.getAllPages(id)).sort((a,b) => content.module.getPage(id, a)['position'] > content.module.getPage(id, b)['position'] ? 1 : -1).map((pageId, i, _) => {
+                                        return (
+                                            <Draggable key={pageId} draggableId={pageId} index={Number.parseInt(content.module.getPage(id, pageId)['position'])}>
+                                                {
+                                                    (innerProvided) => (
+                                                        <div {...innerProvided.draggableProps} {...innerProvided.dragHandleProps} ref={innerProvided.innerRef} >
+                                                            <PageLayout
+                                                                i={i}
+                                                                content={content} 
+                                                                selectedPage={selectedPage}
+                                                                setSelectedPage={setSelectedPage}
+                                                                pageId={pageId}
+                                                                moduleId={id}
+                                                                windowInfo={windowInfo}
+                                                                />
+                                                        </div>
+                                                    )
+                                                }
+                                            </Draggable>
+                                        )
+                                    })
+                                }
                                 {provided.placeholder}
                             </div>
                         )

@@ -3,6 +3,7 @@ import CourseCreation from "./course_creation"
 import ModuleCreation from "./module_creation"
 import AccountHome from "./home"
 import WebinarCreation from "./webinar_creation"
+import SchoolCreation from "./school_creation"
 
 const _base_url = "/dashboard/account"
 
@@ -31,6 +32,11 @@ let routes = {
         path: _base_url + '/webinar_creation',
         url: '/webinar_creation',
         component: (props) => <WebinarCreation {...props} />
+    },
+    school_creation: {
+        path: _base_url + '/school_creation',
+        url: '/school_creation',
+        component: (props) => <SchoolCreation {...props} />
     }
 }
 

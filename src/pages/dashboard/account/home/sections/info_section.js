@@ -5,9 +5,15 @@ import { IconButton } from '@mui/material';
 import {Row, Col} from "react-bootstrap"
 import { FormGroup, FormControlLabel, Checkbox } from '@mui/material';
 import Popup from '../../../../../components/popup';
+import Modal from '@mui/material/Modal';
 import InfoIcon from '@mui/icons-material/Info';
 import Popover from '@mui/material/Popover';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Box from '@mui/material/Box';
+import Fade from '@mui/material/Fade';
+import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
+import CloseIcon from '@mui/icons-material/Close';
 
 function InfoSection(props) {
     let user = props.user
@@ -18,6 +24,7 @@ function InfoSection(props) {
     const [anchorEl, setAnchorEl] = useState(null) // popover(code roles)
     const createdCodesLoaded = useRef(false)
     const [contentEdited, setContentEdited] = useState(false) // update user info
+    const [openModal, setOpenModal] = useState(false) // used on redeem_code
 
     const rolesToAssign = {
         "normal-user" : [{name: "Utente normale", slug: "normal-user"}],
@@ -66,13 +73,15 @@ function InfoSection(props) {
 
     function redeemCode() {
         if(user) {
-            user.redeemCode().then(() => user.refreshToken().then(() => user.setCodiceInvito("")))
-                             .catch((data) => setPopupStatus({error: true, message: "Codice non valido"}))
+            user.redeemCode().then(() => user.refreshToken().then(() => {
+                user.setCodiceInvito("")
+                setOpenModal(true)
+            }))
+            .catch((data) => setPopupStatus({error: true, message: "Codice non valido"}))
         }
     }
 
     useEffect(() => {
-        
         if(!createdCodesLoaded.current) {
             createRoleList()
             user.getCreatedCodesFromServer()
@@ -92,7 +101,8 @@ function InfoSection(props) {
             <div className="m-3 centered">
                 <h4 className="name">{user && user.getSurname()} {user && user.getName()}</h4>
                 <p className="username thin">{user && user.getUsername()}</p>
-                <p>{user && user.getRole().map(item => item['slug'] + " - ")}</p>
+                <h6>I tuoi ruoli</h6>
+                <p>{user && user.getRole().map(item => <Chip label={item['slug']} style={{ color: "white", background: "var(--details_color)", margin: 2}}/>)}</p>
             </div>
         </div>
         <Row className="mt-3">
@@ -234,7 +244,7 @@ function InfoSection(props) {
                             <h6>Codici non usati</h6>
                             {
                                 user && user.getCreatedCodes().map((code) => (
-                                    code?.usage != 0 ? 
+                                    code?.usages == 0 ? 
                                     <div className="display_inline">
                                         <TextField
                                             className="my_input"
@@ -293,7 +303,6 @@ function InfoSection(props) {
                             }
                         </Col>
                     }
-                    
                 </Row>
             </div>
         </Col>
@@ -301,6 +310,33 @@ function InfoSection(props) {
             Object.keys(popupStatus).length ?
             <Popup isError={popupStatus['error']} message={popupStatus['message']} removeFunction={() => setPopupStatus({})}/> :
             ""
+        }
+        {
+            <Modal
+            aria-labelledby="transition-modal-title"
+            aria-describedby="transition-modal-description"
+            open={openModal}
+            onClose={() => setOpenModal(false)}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 500,
+            }}
+            className="centered"
+            >
+                <Fade in={openModal}>
+                    <Box className="modal_redeem_code">
+                        <Typography id="transition-modal-title" variant="h4" component="h1" className="text-center">
+                        Hai fatto passi avanti!
+                        </Typography>
+                        <br/>
+                        <Typography id="transition-modal-description" sx={{ mt: 2 }}>
+                        { user && user.getRole().map(item => <Chip label={item['slug']} style={{ color: "white", background: "var(--details_color)", margin: 2}}/>) }
+                        </Typography>
+                        <br/>
+                        <CloseIcon className="close_modal" onClick={() => setOpenModal(false)}/>
+                    </Box>
+                </Fade>
+            </Modal>
         }
     </div>
 }

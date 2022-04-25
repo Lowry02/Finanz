@@ -103,6 +103,27 @@
     font-weight: 500;
 }
 
+.modal_redeem_code {
+    background: green;
+    display: grid;
+    place-content: center;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: var(--default_shadow);
+    background: var(--third_bkg);
+    color: white;
+    position: relative;
+}
+
+.modal_redeem_code .close_modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
 #account_page #info_section .avatar_container {
     width: 120px;
     height: 120px;
@@ -131,6 +152,25 @@
 #account_page #question_section .header,
 #account_page #question_section .header .display_inline {
     place-items: center;
+}
+
+#account_page #school_section .MuiTabs-indicator {
+    background: var(--details_color);
+}
+
+#account_page #school_section .css-1h9z7r5-MuiButtonBase-root-MuiTab-root.Mui-selected {
+    color: var(--details_color) !important;
+}
+
+#account_page #school_section .css-1h9z7r5-MuiButtonBase-root-MuiTab-root {
+    color: white;
+}
+
+#account_page #school_section .accordion {
+    background: var(--third_bkg);
+    border: 1px solid var(--details_color);
+    color: white;
+    border-radius: 4px;
 }
 
 @media screen and (max-width: 768px) {

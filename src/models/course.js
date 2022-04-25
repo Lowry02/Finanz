@@ -6,6 +6,7 @@ class CourseModel {
         this.wallpaper = ""
         this.description = ""
         this.presentationVideo = ""
+        this.presentationVideoId = ""
         this.professors = []
         this.offeredBy = "" //
         this.syllabus = ""
@@ -18,11 +19,12 @@ class CourseModel {
         this.comments = []
     }
 
-    load({id = "", title = "", argument = "", description = "", presentationVideo = "", professors = "", syllabus = "", publishDate = "", content = {}, time = "", star = "", wallpaper = "", offeredBy = "", author = "", n_video = 0, comments = []}) {
+    load({id = "", title = "", argument = "", description = "", presentationVideo = "", presentationVideoId = "", professors = "", syllabus = "", publishDate = "", content = {}, time = "", star = "", wallpaper = "", offeredBy = "", author = "", n_video = 0, comments = []}) {
         this.id = id
         this.title = title
         this.argument = argument
         this.presentationVideo = presentationVideo
+        this.presentationVideoId = presentationVideoId
         this.professors = professors
         this.syllabus = syllabus
         this.description = description
@@ -42,6 +44,7 @@ class CourseModel {
     setTitle(title) { this.title = title }
     setArgument(argument) { this.argument = argument }
     setPresentationVideo(presentationVideo) { this.presentationVideo = presentationVideo }
+    setPresentationVideoId(presentationVideoId) { this.presentationVideoId = presentationVideoId }
     setProfessors(professors) { this.professors = professors }
     setSyllabus(syllabus) { this.syllabus = syllabus }
     setDescription(description) { this.description = description }
@@ -60,6 +63,7 @@ class CourseModel {
     getTitle() { return this.title }
     getArgument() { return this.argument }
     getPresentationVideo() { return this.presentationVideo }
+    getPresentationVideoId() { return this.presentationVideoId }
     getProfessors() { return this.professors }
     getSyllabus() { return this.syllabus }
     getDescription() { return this.description }

@@ -150,7 +150,7 @@ class CreateNewsController {
             formData.append("picture", urlToFile(this.news.getWallpaper()))
         }
 
-        $.ajax({
+        await $.ajax({
             type: type,
             url: api_url + url,
             accepts: "application/json",

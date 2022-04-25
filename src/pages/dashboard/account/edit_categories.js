@@ -104,6 +104,7 @@ function EditCategories(props) {
                                 onClick={() => selectItem(questionCreator.question.getChoices()[id])}
                                 className="display_inline space_between">
                                     <p className="m-0">{questionCreator.question.getChoices()[id]['title']}</p>
+                                    <p className="m-0">{questionCreator.question.getChoices()[id]?.description}</p>
                                     <DeleteIcon onClick={(e) => {
                                         e.stopPropagation()
                                         onDelete(id, () => {

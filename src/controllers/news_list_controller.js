@@ -156,7 +156,6 @@ class NewsListController {
                     let list = data['news_list']
                     let newsList = {...this.getCreatedNews()}
                     for(let news of list) {
-                        news = news['content']
                         let newNews = new NewsController()
                         
                         newNews.setId(news['slug'])
@@ -195,8 +194,19 @@ class NewsListController {
             delete this.savedNews[newsId]
         else if(tag == this.PERSONAL_NEWS)
             delete this.personalNews[newsId]
-        
+
         this.updateInfo()
+
+        let accessToken = window.localStorage.getItem('accessToken')
+
+        $.ajax({
+            type: "DELETE",
+            url: api_url + "news/article/" + newsId,
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: console.log('ciao')
+        })
     }
 
     getNewsById(newsId) {

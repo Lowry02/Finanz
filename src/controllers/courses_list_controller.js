@@ -1,5 +1,7 @@
 import { courseExample } from "../test_data/course"
 import CourseController from "./course_controller"
+import $ from "jquery"
+import { api_url } from "../App"
 
 class CoursesListController {
     constructor(allCourses = {}, savedCourses = {}, coursesInProgress = {}, createdCourses = {}, coursePerCategory = {}, categories = {}, state = undefined, overrideState= undefined) {
@@ -122,8 +124,31 @@ class CoursesListController {
     }
 
     loadCreatedCourses(n = 10) {
-        let list = this.__getCoursesList(this.createdCourses, n)
-        this.setCreatedCourses(list)
+        // let list = this.__getCoursesList(this.createdCourses, n)
+        // this.setCreatedCourses(list)
+        let accessToken = window.localStorage.getItem('accessToken')
+
+        $.ajax({
+            type: "GET",
+            url: api_url + "courses",
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success:(data) => {
+                let _list = data['courses']
+                let list = {}
+
+                for(let item of _list) {
+                    let newCourse = new CourseController()
+                    newCourse.setOverrideState((() => this.updateInfo()).bind(this))
+                    newCourse.setTitle(item['title'])
+                    newCourse.setId(item['slug'])
+                    list[item['slug']] = newCourse
+                }
+
+                this.setCreatedCourses(list)
+            }
+        })
     }
 
     loadCoursesPerCategory(n = 10, category) {
@@ -152,7 +177,7 @@ class CoursesListController {
         this.setCategories(list)
     }
 
-    removeCourse(courseId, tag) {
+    async removeCourse(courseId, tag) {
         if(tag == this.CREATED_COURSES) {
             delete this.allCourses[courseId]
             delete this.savedCourses[courseId]
@@ -165,7 +190,19 @@ class CoursesListController {
             delete this.savedCourses[courseId]
         else if(tag == this.IN_PROGRESS_COURSE)
             delete this.coursesInProgress[courseId]
+
+        let accessToken = window.localStorage.getItem('accessToken')
         
+        $.ajax({
+            type: "DELETE",
+            url: api_url + "course/" + courseId,
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+        })
+
+        console.log(this.createdCourses)
+
         this.updateInfo()
     }
 }

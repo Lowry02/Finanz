@@ -2,6 +2,8 @@ import { push } from "draft-js/lib/EditorState"
 import webinarData from "../test_data/webinar"
 import WebinarController from "./webinar"
 import moment from "moment"
+import $ from "jquery"
+import { api_url } from "../App"
 
 class WebinarList {
     constructor(list = [], createdWebinar = [], savedWebinar = [], state = undefined, overrideState = undefined) {
@@ -92,27 +94,52 @@ class WebinarList {
         this.updateInfo()
     }
 
-    loadCreatedWebinar(n = 10) {
-        let list = []
+    async loadCreatedWebinar(n = 10) {
+        let accessToken = window.localStorage.getItem('accessToken')
+        let error = false
+        let info = undefined
 
-        for(let i = 0; i < n; i++) {
-            let webinarExample = new WebinarController()
-            webinarExample.setId(webinarData.id)
-            webinarExample.setTitle(webinarData.title)
-            webinarExample.setDescription(webinarData.description)
-            webinarExample.setDate(webinarData.date)
-            webinarExample.setAuthors(webinarData.authors)
-            webinarExample.setWallpaper(webinarData.wallpaper)
-            list.push(webinarExample)
+        await $.ajax({
+            type: "GET",
+            url: api_url + "webinars",
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: (data) => info = data['webinar'],
+            error: () => error = true
+        })
+        
+        if(error) throw Error("Errore nell'ottenere i webinar creati")
+        // loading webinars
+        for(let webinar of info) {
+            let newWebinar = new WebinarController()
+            newWebinar.setId(webinar['slug'])
+            newWebinar.setTitle(webinar['title'])
+            this.createdWebinar.push(newWebinar)
         }
-        this.createdWebinar = list
+
         this.updateInfo()
     }
 
-    deleteWebinar(id) {
-        this.list = this.list.map((webinar) => { if(webinar.getId() != id) return webinar})
-        this.createdWebinar = this.createdWebinar.map((webinar) => { if(webinar.getId() != id) return webinar})
-        this.savedWebinar = this.savedWebinar.map((webinar) => { if(webinar.getId() != id) return webinar})
+    async deleteWebinar(webinar) {
+        let accessToken = window.localStorage.getItem('accessToken')
+        let error = false
+
+        console.log(webinar)
+
+        await $.ajax({
+            type: "DELETE",
+            url: api_url + "webinar/" + webinar.getId(),
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            error: () => error = true
+        })
+
+        if(error) throw Error("Errore nell'eliminazione")
+        // updating list
+        let webinarIndex = this.createdWebinar.indexOf(webinar)
+        this.createdWebinar.splice(webinarIndex, 1)
         this.updateInfo()
     }
 }

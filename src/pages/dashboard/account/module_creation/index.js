@@ -67,14 +67,19 @@ function ModuleCreation(props) {
             } else setPopupContent(isError)
         } else {
             setPopupContent({error : false, message : "Pubblicazione in corso..."})
-            content.publish().then(() => {
-                                        window.localStorage.removeItem("trash")
-                                        window.localStorage.removeItem("data")
-                                        setShowDeleteDraft(false)
-                                        setPopupContent({ error: false, message: "Pubblicazione completata"})
-                                        setSelectedId(null)
-                                    })
-                             .catch(() => setPopupContent({error: true, message: "Errore, riprovare"}))
+            content.publish((message) => setPopupContent(message))
+            .then(() => {
+                window.localStorage.removeItem("trash")
+                window.localStorage.removeItem("data")
+                setShowDeleteDraft(false)
+                setPopupContent({ error: false, message: "Pubblicazione completata"})
+                setTimeout(() => setPopupContent({ error: false, message: "Pubblicazione completata"}), 1000)
+                setSelectedId(null)
+            })
+            .catch((error) => {
+                console.warn(error)
+                setPopupContent({error: true, message: "Errore, riprovare"})
+            })
         }
     }
 
@@ -138,7 +143,6 @@ function ModuleCreation(props) {
                         onChange={(e) => loadWallpaper(e)}/>
                     </>
                 }
-                
             </div>
             <br />
             <Row>

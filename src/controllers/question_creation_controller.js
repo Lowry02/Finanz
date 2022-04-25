@@ -86,7 +86,7 @@ class QuestionCreationController {
         this.question.setChoices(_choices)
     }
 
-    async postQuestion(updateMode) {
+    async postQuestion(updateMode, quizType = "academy") {
         let accessToken = window.localStorage.getItem('accessToken')
         let quizSlug = undefined
 
@@ -95,10 +95,28 @@ class QuestionCreationController {
 
         if(updateMode) {
             requestType = "PUT"
-            requestLink = "quiz/" + this.question.getId()
+            if(quizType == "course") {
+                // course quiz
+                requestLink = "course/quiz/" + this.question.getId()
+            } else if(quizType == "academy"){
+                // normal quiz
+                requestLink = "quiz/" + this.question.getId()
+            } else if(quizType == "school") {
+                // normal quiz
+                requestLink = "school/quiz/" + this.question.getId()
+            }
         } else {
             requestType = "POST"
-            requestLink = "quiz"
+            if(quizType == "course") {
+                // course quiz
+                requestLink = "/course/quiz"
+            } else if(quizType == "academy") {
+                // normal quiz
+                requestLink = "quiz"
+            } else if(quizType == "school") {
+                // normal quiz
+                requestLink = "school/quiz"
+            }
         }
 
         // used to send file
@@ -110,9 +128,21 @@ class QuestionCreationController {
 
         // deleting image
         if(this.question.getImage() == "" && updateMode) {
+            let deleteLink = ""
+            if(quizType == "course") {
+                // course quiz
+                deleteLink = "course/quiz/" + this.question.getId() +  "/image"
+            } else if(quizType == "academy") {
+                // acadmy quiz
+                deleteLink = "/quiz/" + this.question.getId() +  "/image"
+            } else if(quizType == "school") {
+                // school quiz
+                deleteLink = "school/quiz/" + this.question.getId() +  "/image"
+            }
+
             $.ajax({
                 type: "DELETE",
-                url: api_url + "/quiz/" + this.question.getId() +  "/image",
+                url: api_url + deleteLink,
                 accepts: "application/json",
                 contentType: false,
                 processData: false,
@@ -142,7 +172,7 @@ class QuestionCreationController {
         return quizSlug
     }
 
-    async postAnswer(questionSlug, answerId, updateMode) {
+    async postAnswer(questionSlug, answerId, updateMode, quizType = "academy") {
         let accessToken = window.localStorage.getItem('accessToken')
         let answerSlug = undefined
         
@@ -151,10 +181,28 @@ class QuestionCreationController {
         
         if(updateMode) {
             requestType = "PUT"
-            requestLink = "quiz/answer/" + answerId
+            if(quizType == "course") {
+                // quiz course
+                requestLink = "course/quiz/answer/" + answerId
+            } else if(quizType == "academy") {
+                // academy quiz
+                requestLink = "quiz/answer/" + answerId
+            } else if(quizType == "school") {
+                // school quiz
+                requestLink = "/school/quiz/answer/" + answerId
+            }
         } else {
             requestType = "POST"
-            requestLink = "quiz/" + questionSlug + "/answers"
+            if(quizType == "course") {
+                // quiz course
+                requestLink = "course/quiz/" + questionSlug + "/answer"
+            } else if(quizType == "academy") {
+                // normal quiz
+                requestLink = "quiz/" + questionSlug + "/answers"
+            } else if(quizType == "school") {
+                // school quiz
+                requestLink = "/school/quiz/" + questionSlug + "/answers"
+            }
         }
 
         await $.ajax({
@@ -177,9 +225,18 @@ class QuestionCreationController {
         return answerSlug
     }
 
-    async publish(updateMode = false) {
+    async publish(quizType = "academy") {
+        // quizType validity check
+        let acceptedQuizType = ["academy", "course", "school"]
+        if(!acceptedQuizType.includes(quizType)) {
+            console.warn("quizType is not valid - " + quizType)
+            throw Error("Internal error")
+        }
+
+        let updateMode = this.question.getId() != ""
+
         // creating question
-        let questionSlug = await this.postQuestion(updateMode)
+        let questionSlug = await this.postQuestion(updateMode, quizType)
         if(questionSlug == undefined) throw Error()
 
         // posting answers
@@ -187,7 +244,7 @@ class QuestionCreationController {
             if(answerId[0] != "_" && updateMode) updateMode = true
             else updateMode = false
 
-            let answerSlug = await this.postAnswer(questionSlug, answerId, updateMode)
+            let answerSlug = await this.postAnswer(questionSlug, answerId, updateMode, quizType)
             if(answerSlug == undefined) throw Error()
             
             // updating answers object
@@ -198,15 +255,28 @@ class QuestionCreationController {
         let accessToken = window.localStorage.getItem('accessToken')
 
         // deleting answers
-        let quizInfo = await this.question.loadById(this.question.getId())
+        let quizInfo = await this.question.loadById(this.question.getId(), quizType)
         let localAnsers = Object.keys(this.question.getChoices())
         let serverAnswers = Object.values(quizInfo['answers']).map(item => item?.slug)
+        console.log(serverAnswers)
+
+        let requestLink = ""
+        if(quizType == "academy") {
+            // academy quiz
+            requestLink = "quiz/answer/"
+        } else if(quizType == "course") {
+            // course quiz
+            requestLink = "course/quiz/answer/"
+        } else if(quizType == "school") {
+            // school quiz
+            requestLink = "school/quiz/answer/"
+        }
 
         for(let answerId of serverAnswers) {
             if(!localAnsers.includes(answerId)) {
                 await $.ajax({
                     type: "DELETE",
-                    url: api_url + "quiz/answer/" + answerId,
+                    url: api_url + requestLink + answerId,
                     accepts: "application/json",
                     contentType: "application/json",
                     beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
@@ -216,7 +286,6 @@ class QuestionCreationController {
                 if(questionSlug == undefined) throw Error()
             }
         }
-
 
         return questionSlug
     }

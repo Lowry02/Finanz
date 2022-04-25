@@ -33,7 +33,7 @@ function WebinarSection(props) {
     useEffect(() => {   
         if(firstLoad && webinar != undefined) {
             webinar.loadCreatedWebinar()
-            webinar.loadSavedWebinar(3)
+            webinar.loadSavedWebinar()
             setFirstLoad(false)
         }
     }, [webinar])
@@ -72,10 +72,8 @@ function WebinarSection(props) {
                                 <h6>Titolo</h6>
                             </Col>
                             <Col md="3">
-                                <h6>Data</h6>
                             </Col>
                             <Col md="3">
-                                <h6>Autori</h6>
                             </Col>
                             <Col md="3">
                                 <h6>Modifica</h6>
@@ -89,9 +87,9 @@ function WebinarSection(props) {
             <div className="list">
                 {
                     section == SAVED_SECTION ?
-                    webinar && Object.values(webinar.getSavedWebinar()).map((item) => <ListItem content={item}/>)
+                    webinar && Object.values(webinar.getSavedWebinar()).map((item) => <ListItem content={item} webinarList={webinar} routes={routes}/>)
                     : section == CREATED_SECTION ?
-                    webinar && Object.values(webinar.getCreatedWebinar()).map((item) => <ListItem content={item}/>)
+                    webinar && Object.values(webinar.getCreatedWebinar()).map((item) => <ListItem content={item} webinarList={webinar} routes={routes}/>)
                     : ""
                 }
             </div>
@@ -101,8 +99,21 @@ function WebinarSection(props) {
 
 function ListItem(props) {
     let content = props.content
+    let webinarList = props.webinarList
+    let routes = props.routes
+    let navigate = useNavigate()
 
-    return <div className="list_item bounce">
+    function deleteWebinar(e) {
+        e.stopPropagation()
+        webinarList.deleteWebinar(content)
+    }
+
+    // opens create webinar page
+    function editWebinar() {
+        navigate(routes.webinar_creation.path, { state : { webinarId : content.getId() }})
+    }
+
+    return <div className="list_item bounce" onClick={editWebinar}>
         <Row>
             <Col md="3">
                 <p className="title">{content && content.getTitle()}</p>
@@ -115,7 +126,7 @@ function ListItem(props) {
             </Col>
             <Col md="3">
                 <div className="display_inline">
-                    <DeleteIcon className="orange_icon m-1" />
+                    <DeleteIcon className="orange_icon m-1" onClick={(e) => deleteWebinar(e)}/>
                     <EditIcon className="orange_icon m-1" />
                 </div>
             </Col>

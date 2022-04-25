@@ -14,6 +14,7 @@ import "./style.css"
 import { Accordion, AccordionDetails } from '@mui/material';
 import { AccordionSummary } from '@material-ui/core';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import SchoolSection from './sections/school_section';
 
 function AccountHome(props) {
     let navigate = useNavigate()
@@ -27,6 +28,7 @@ function AccountHome(props) {
     const ACCADEMY_SECTION = "accademy"
     const COURSE_SECTION = "corsi"
     const WEBINAR_SECTION = "webinar"
+    const SCHOOL_SECTION = "school"
     const STATISTIC_SECTION = "statistiche"
     const QUESTION_SECTION = "domande"
 
@@ -37,6 +39,7 @@ function AccountHome(props) {
         [ACCADEMY_SECTION] : () => <AccademySection {...props} />,
         [COURSE_SECTION] : () => <CoursesSection {...props} />,
         [WEBINAR_SECTION] : () => <WebinarSection {...props} />,
+        [SCHOOL_SECTION] : () => <SchoolSection {...props} />,
         [STATISTIC_SECTION] : () => <StatisticSection {...props} />,
         [QUESTION_SECTION] : () => <QuestionSection {...props} />,
     }
@@ -83,6 +86,11 @@ function AccountHome(props) {
                             className={section == WEBINAR_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
                             onClick={() => setSection(WEBINAR_SECTION)}>
                                 Webinar
+                            </p>
+                            <p 
+                            className={section == SCHOOL_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
+                            onClick={() => setSection(SCHOOL_SECTION)}>
+                                Scuola
                             </p>
                             <p 
                             className={section == STATISTIC_SECTION ? "menu_item bounce selected" : "menu_item bounce"}

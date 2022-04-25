@@ -362,7 +362,8 @@ class UserController {
                         let roles = codeObj['roles']
                         let roleNames = ""
                         for(let role of roles) roleNames += role['name'] + ", "
-                        list.push({code: code, roles: roleNames.slice(0, -2)}) // removes comma
+                        let usages = codeObj['usages']
+                        list.push({code: code, roles: roleNames.slice(0, -2), usages: usages}) // removes comma
                     }
                 }
                 this.user.setCreatedCodes(list)

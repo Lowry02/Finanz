@@ -17,14 +17,33 @@ class QuestionController {
         this.updateInfo()
     }
 
-    async loadById(quizSlug) {
+    async loadById(id, quizType = "academy") {
+        // checking quizType validity 
+        let acceptedQuizType = ["academy", "course", "school"]
+        if(!acceptedQuizType.includes(quizType)) {
+            console.warn("quizType is not valid - " + quizType)
+            throw Error("Internal error")
+        }
+
         // TODO: (if necessary) settare parametri
         let accessToken = window.localStorage.getItem("accessToken")
         let quizInfo = {}
+        let requestLink = ""
+
+        if(quizType == "course") {
+            // course quiz
+            requestLink = "course/quiz/" + id
+        } else if(quizType == "academy"){
+            // nromal quiz
+            requestLink = "/quiz/" + id
+        } else if(quizType == "school") {
+            // school quiz
+            requestLink = "school/quiz/" + id
+        }
         
         await $.ajax({
             type: "GET",
-            url: api_url + "/quiz/" + quizSlug,
+            url: api_url + requestLink,
             accepts: "json",
             contentType: "json",
             beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
