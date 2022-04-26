@@ -218,6 +218,14 @@ class QuestionCreationController {
             }),
             success: (data) => {
                 answerSlug = data['slug']
+                // updating selected choices
+                if(this.question.getSelectedChoices().includes(answerId)) {
+                    let auto_save = false
+                    let answerIndex = this.question.getSelectedChoices().indexOf(answerId)
+                    this.question.removeSelectedChoice(answerId)
+                    this.question.addSelectedChoice(answerSlug)
+                    
+                }
             },
             error: (message) => console.log(message)
         })
@@ -249,7 +257,7 @@ class QuestionCreationController {
             
             // updating answers object
             this.question.getChoices()[answerSlug] = this.question.getChoices()[answerId]
-            if(answerId != answerSlug)delete this.question.getChoices()[answerId]
+            if(answerId != answerSlug) delete this.question.getChoices()[answerId]
         }
 
         let accessToken = window.localStorage.getItem('accessToken')
@@ -258,7 +266,6 @@ class QuestionCreationController {
         let quizInfo = await this.question.loadById(this.question.getId(), quizType)
         let localAnsers = Object.keys(this.question.getChoices())
         let serverAnswers = Object.values(quizInfo['answers']).map(item => item?.slug)
-        console.log(serverAnswers)
 
         let requestLink = ""
         if(quizType == "academy") {

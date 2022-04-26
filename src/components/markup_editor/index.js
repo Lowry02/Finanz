@@ -25,6 +25,7 @@ function MarkupEditor(props) {
       } else {
         loadInitialValue.current = false
       }
+      console.log(currentValue.toString('markdown'))
     }, [currentValue])
 
     return (

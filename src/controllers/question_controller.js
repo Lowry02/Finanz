@@ -130,7 +130,8 @@ class QuestionController {
     }
 
     addSelectedChoice(id, _auto_save = true) {
-        if(id in this.getChoices()) {
+        // if(id in this.getChoices()) {
+        if(id != undefined) {
             let _temp = this.getSelectedChoices()
             if(this.getAcceptedChoices())
                 if(this.getSelectedChoices().length + 1 > this.getAcceptedChoices()) {

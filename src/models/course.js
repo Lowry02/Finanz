@@ -8,7 +8,7 @@ class CourseModel {
         this.presentationVideo = ""
         this.presentationVideoId = ""
         this.professors = []
-        this.offeredBy = "" //
+        this.offeredBy = [] //
         this.syllabus = ""
         this.publishDate = ""
         this.content = {}

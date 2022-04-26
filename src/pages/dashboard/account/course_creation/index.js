@@ -30,6 +30,7 @@ function CourseCreation(props) {
     const [selectedChapter, setSelectedChapter] = useState(undefined)
     const [openDialog, setOpenDialog] = useState(false)
     const [popupContent, setPopupContent] = useState()
+    const [authorField, setAuthorField] = useState("")
     let { state } = useLocation()
 
     let windowInfo = props.windowInfo
@@ -55,12 +56,23 @@ function CourseCreation(props) {
         setPopupContent()
     }
 
-    function publish() {
+    async function publish() {
         let isError = content.checkContentValidity()
-        setPopupContent(isError)
-        if(isError['error']) {
-            content.publish()
-        } 
+        setPopupContent({error: false, message: "Pubblicazione in corso..."})
+        if(!isError['error']) {
+            content.publish((message) => setPopupContent(message))
+            .then(() => {
+                setPopupContent({error: false, message: "Pubblicazione completata"})
+                setTimeout(() => setPopupContent({error: false, message: "Pubblicazione completata"}), 1000)
+                setSelectedChapter(undefined)
+            })
+            .catch((message) => {
+                setPopupContent({error: true, message: "Errore, " + message?.responseJSON?.message})
+                console.warn(message)
+            })
+        } else {
+            setPopupContent(isError)
+        }
     }
 
     useEffect(() => {
@@ -179,18 +191,33 @@ function CourseCreation(props) {
                 <Col md="3">
                     <div className="info_container block">
                         <h5>Informazioni news</h5>
+                        <br/>
+                        <h6>Autori(nome utente)</h6>
+                        <div>
+                            {
+                                content.course.getOfferedBy().map(item => (
+                                    <div className="space_between">
+                                        <p>{item}</p>
+                                        <DeleteIcon className="orange_icon" onClick={() => content.deleteAuthor(item)}/>
+                                    </div>
+                                ))
+                            }
+                        </div>
                         <TextField
                             className="my_input"
                             margin="normal"
-                            label="Autore(nome utente)"
+                            label="Nome utente"
                             fullWidth={true}
                             variant="outlined"
-                            value={content.course.getOfferedBy()}
-                            onChange={(e) => content.course.setOfferedBy(e.target.value)}/>
+                            value={authorField}
+                            onChange={(e) => setAuthorField(e.target.value)}
+                            onKeyDown={(e) => {
+                                if(e.key === "Enter") {
+                                    content.addAuthor(authorField)
+                                    setAuthorField("")
+                                }
+                            }}/>
                         <br />
-                        <br />
-                        <h6>Professori</h6>
-                        {/* <MultipleChoicesQuestion question={content.getCategories()}/>  */}
                         <br />
                         <div className="space_between">
                             <h6 className="mb-3">Argomento</h6>

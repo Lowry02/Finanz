@@ -134,6 +134,17 @@ class CourseCreationController {
         })
     }
 
+    addAuthor(username) {
+        this.course.getOfferedBy().push(username)
+        this.updateInfo()
+    }
+
+    deleteAuthor(username) {
+        let index = this.course.getOfferedBy().indexOf(username)
+        this.course.getOfferedBy().splice(index, 1)
+        this.updateInfo()
+    }
+
     async postCourse(updateMode) {
         let accessToken = window.localStorage.getItem('accessToken')
         let slug = undefined
@@ -365,19 +376,57 @@ class CourseCreationController {
         return error
     }
 
-    async publish() {
+    async deleteCourseAuthor(courseId, author) {
+        let accessToken = window.localStorage.getItem('accessToken')
+        let error = false
+
+        await $.ajax({
+            type: "DELETE",
+            url: api_url + "course/" + courseId + "/author/" + author,
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: () => error = false,
+            error: () => error = true
+        })
+
+        return error
+    }
+
+    async publish(messageFunction = () => {}) {
+        let accessToken = window.localStorage.getItem('accessToken')
+
         // check if exist
         let updateMode = await this.courseExist()
 
         // course creation
+        messageFunction({error: false, message: "Pubblicazione corso"})
         let courseSlug = await this.postCourse(updateMode)
         if(courseSlug == undefined) throw Error()
 
         // link course to author
-        let error = await this.linkCourseToAuthor(courseSlug, this.course.getOfferedBy())
-        if(error) throw Error("Errore nel collegamento dell'autore")
+        messageFunction({error: false, message: "Collego autori al corso"})
+        for(let username of this.course.getOfferedBy()) {
+            messageFunction({error: false, message: "Collego " + username})
+            let error = await this.linkCourseToAuthor(courseSlug, username)
+            if(error) throw Error("Errore nel collegamento dell'autore")
+        }
+
+        // deleting course author
+        messageFunction({error: false, message: "Elimino i vecchi autori"})
+        let authors = (await this.course.getGeneralInfo(courseSlug))['course']['authors']
+        for(let author of authors) {
+            let username = author['username']
+            if(!this.course.getOfferedBy().includes(username)) {
+                messageFunction({error: false, message: "Elimino " + username})
+                let error = await this.deleteCourseAuthor(courseSlug, username)
+                if(error) throw Error("Nome utente non esistente(" + username + ")")
+            }
+        }
 
         // deleting chapters
+        messageFunction({error: false, message: "Elimino i vecchi capitoli e lezioni"})
+
         if(updateMode) {
             let localChaptersSlug = Object.keys(this.course.getContent())
             let serverCourseInfo = await this.course.getGeneralInfo(courseSlug)
@@ -387,19 +436,47 @@ class CourseCreationController {
                 
                 // delete chapter and update localContent
                 if(!localChaptersSlug.includes(chapterSlug)) {
+                    messageFunction({error: false, message: "Elimino " + chapterSlug})
                     let error = await this.deleteChapter(chapterSlug)
                     if(error) throw Error("Errore nell'eliminazione di una capitlo - " + chapter['title'])
                     delete this.course.getContent()[chapterSlug]
                 } else {
                     // delete lessons per chapter
                     let localLessons = this.course.getLessonsByChapter(chapterSlug)
-                    let serverLessons = chapter['lessons'].map(item => item['slug'])
-                    for(let lessonId of serverLessons) {
+                    let serverLessons = chapter['lessons']
+                    let serverLessonsSlug = serverLessons.map(item => item['slug'])
+                    for(let lessonId of serverLessonsSlug) {
                         // delete and update localContent
                         if(!Object.keys(localLessons).includes(lessonId)) {
+                            messageFunction({error: false, message: "Elimino " + lessonId})
                             let error = await this.deleteLesson(lessonId)
                             if(error) throw Error("Errore nell'eliminazione di una lezione - " + chapter['lessons'][lessonId]['title'])
                             delete this.course.getLessonsByChapter(chapterSlug)[lessonId]
+                        } else {
+                            let serverQuiz = (await this.course.getLessonFromServer(lessonId))
+                            if(serverQuiz == undefined) continue
+                            serverQuiz = serverQuiz['quiz']
+                            let quizSlugs = serverQuiz.map(item => item['slug'])
+                            let localQuiz = Object.values(this.course.getLessonQuiz(chapterSlug, lessonId)).map(item => item.question.getId())
+                            // deleting quiz
+                            messageFunction({error: false, message: "Elimino quiz"})
+                            for(let quizId of quizSlugs) {
+                                if(!localQuiz.includes(quizId)) {
+                                    messageFunction({error: false, message: "Elimino quiz + " + quizId})
+                                    let error = false
+                                    await $.ajax({
+                                        type: "DELETE",
+                                        url: api_url + "/course/lesson/" + lessonId + "/quiz/" + quizId,
+                                        accepts: "application/json",
+                                        contentType: "application/json",
+                                        beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                                        error: () => error = true
+                                    })
+                                    if(error) throw Error("Errore nell'eliminazione di un quiz")
+                                    // updating local content
+                                    delete this.course.getLesson(chapterSlug, lessonId)['quiz'][quizId]
+                                }
+                            }
                         }
                     }
                 }
@@ -421,12 +498,10 @@ class CourseCreationController {
                 let lessonQuiz = this.course.getLessonQuiz(chapterSlug, lessonId)
 
                 let quizSlugs = []
-                // TODO : posting quiz per lesson
                 for(let quiz of Object.values(lessonQuiz)) {
                     let updateMode = false
-                    let courseQuiz = true
                     if(quiz.question.getId() != "") updateMode = true
-                    let quizSlug = await quiz.publish(updateMode, courseQuiz)
+                    let quizSlug = await quiz.publish("course")
                     quizSlugs.push(quizSlug)
                 }
 
@@ -442,8 +517,6 @@ class CourseCreationController {
                 if(lessonSlug == undefined) throw Error()
             }
         }
-
-        console.log('fine')
     }
 
     setArgs(args, _auto_save = true) {
@@ -496,33 +569,38 @@ class CourseCreationController {
     }
 
     checkContentValidity() {
-       // wallpaper check 
-       if(this.course.getWallpaper() == "") return { error : true, message : "Wallpaper non inserito"}
-       // title check
-       if(this.course.getTitle().replaceAll(" ", "") == "") return { error : true, message : "Titolo non inserito"}
-       // description check
-       if(this.course.getDescription().replaceAll(" ", "") == "") return { error : true, message : "Descrizione non inserita"}
-       // video check
-       if(this.course.getPresentationVideo() == "") return { error : true, message : "Video di presentazione non inserito"}
-       // syllabus check
-       if(this.course.getSyllabus().replaceAll(" ", "") == "") return { error : true, message : "Syllabus non inserito"}
-       // argument check
-       if(this.getArgs().getSelectedChoices().length == 0) return { error : true, message : "Argomento non inserito"}
-       // page checks
-       for(let chapterId of Object.keys(this.course.getContent())) {
-        // chapter title check
-        if(this.course.getChapterTitle(chapterId).replaceAll(" ", "") == "") return { error : true, message : "Titolo di un capitolo non inserito"}
-        // lesson checks
-        for(let lessonId of Object.keys(this.course.getLessonsByChapter(chapterId))) {
-            // lesson title check
-            if(this.course.getLessonTitle(chapterId, lessonId).replaceAll(" ", "") == "") return { error : true, message : "Titolo di una lezione non inserito"}
-            // lesson description check
-            if(this.course.getLessonDescription(chapterId, lessonId).replaceAll(" ", "") == "") return { error : true, message : "Descrizione di una lezione non inserita"}
-            // lesson video check
-            if(this.course.getLessonVideo(chapterId, lessonId) == "") return { error : true, message : "Video di una lezione non inserito"}
-            // lesson content check (NOT WORKING)
-            // if(this.course.getLessonText(chapterId, lessonId) == "") return { error : true, message : "Testo di una lezione non inserito"}
-
+        // wallpaper check 
+        if(this.course.getWallpaper() == "") return { error : true, message : "Wallpaper non inserito"}
+        // title check
+        if(this.course.getTitle().replaceAll(" ", "") == "") return { error : true, message : "Titolo non inserito"}
+        // description check
+        if(this.course.getDescription().replaceAll(" ", "") == "") return { error : true, message : "Descrizione non inserita"}
+        // video check
+        if(this.course.getPresentationVideo() == "") return { error : true, message : "Video di presentazione non inserito"}
+            // video check
+        if(this.course.getPresentationVideoId() == "") return { error : true, message : "Id del video di presentazione non inserito"}
+        // argument check
+        if(this.getArgs().getSelectedChoices().length == 0) return { error : true, message : "Argomento non inserito"}
+        // page checks
+        for(let chapterId of Object.keys(this.course.getContent())) {
+            // chapter title check
+            if(this.course.getChapterTitle(chapterId).replaceAll(" ", "") == "") return { error : true, message : "Titolo di un capitolo non inserito"}
+            // lesson checks
+            for(let lessonId of Object.keys(this.course.getLessonsByChapter(chapterId))) {
+                // lesson title check
+                if(this.course.getLessonTitle(chapterId, lessonId).replaceAll(" ", "") == "") return { error : true, message : "Titolo di una lezione non inserito"}
+                // lesson description check
+                if(this.course.getLessonDescription(chapterId, lessonId).replaceAll(" ", "") == "") return { error : true, message : "Descrizione di una lezione non inserita"}
+                // lesson video check
+                if(this.course.getLessonVideo(chapterId, lessonId) == "") return { error : true, message : "Video di una lezione non inserito"}
+                // lesson video id
+                if(this.course.getLessonVideoId(chapterId, lessonId) == "") return { error : true, message : "Id video di una lezione non inserito"}
+                // quiz check
+                let quizList = Object.values(this.course.getLessonQuiz(chapterId, lessonId))
+                for(let quiz of quizList) {
+                    if(quiz.question.getTitle().replaceAll(" ", "") == "")
+                        return { error : true, message : "Alcuni quiz non hanno titolo"} 
+                }
         }
        }
        return { error : false, message : "Tutto apposto" }

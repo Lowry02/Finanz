@@ -66,6 +66,12 @@ class CourseController {
         this.setDescription(course['description'])
         this.setPresentationVideo(course['trailerIframe'])
         this.setPresentationVideoId(course['trailerId'])
+        // setting authors account
+        for(let author of course['authors']) {
+            let username = author['username']
+            this.getOfferedBy().push(username)
+            this.updateInfo()
+        }
 
         // setting chapters
         for(let chapter of chapters) {
@@ -79,8 +85,7 @@ class CourseController {
                 let lessonInfo = await this.getLessonFromServer(lessonSlug)
 
                 this.addLesson(chapter['slug'], lessonInfo)
-            }
-
+            } 
         }
     }
     
@@ -286,6 +291,25 @@ class CourseController {
             text = info['text']
             position = info['order']
             isFree = info['isFree']
+            // creating quiz object
+            for(let quizItem of info['quiz']) {
+                let newQuiz = new QuestionCreationController()
+                newQuiz.setOverrideState((() => this.updateInfo()).bind(this))
+                newQuiz.question.setId(quizItem['slug'])
+                newQuiz.question.setTitle(quizItem['question'])
+                let answers = quizItem['answers']
+                // setting answers
+                for(let answer of answers) {
+                    newQuiz.question.addChoice({
+                        title: answer['answer'],
+                        description: answer['description']
+                    }, answer['slug'])
+                    if(answer['isCorrect'] != undefined && answer['isCorrect']) {
+                        newQuiz.question.addSelectedChoice(answer['slug'])
+                    }
+                }
+                quiz[quizItem['slug']] = newQuiz
+            }
         }
 
         _chapterContent['lessons'][newId] = {
