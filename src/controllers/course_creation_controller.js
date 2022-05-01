@@ -22,9 +22,11 @@ class CourseCreationController {
     updateInfo() {
         if(this.state != undefined) {
             // linking module argument to argument selection
+            console.log("QUI", this.course.getArgument())
             if(this.getArgs().getSelectedChoices().length == 0) {
                 if(this.course.getArgument() != "") {
-                    this.getArgs()?.addSelectedChoice(this.course.getArgument()['id'], false)
+                    let id = this.course.getArgument()['id'] == undefined ? this.course.getArgument() : this.course.getArgument()['id']
+                    this.getArgs()?.addSelectedChoice(id, false)
                 }
             } else {
                 let argument = this.getArgs().getSelectedChoices()[0]

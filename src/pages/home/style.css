@@ -1,11 +1,18 @@
 :root {
   --home_bkg: #0E0E0E;
+  --my_gray: #202020;
 }
 
 #home {
   background: var(--home_bkg);
   color: white;
   overflow-x: hidden;
+  min-height: 100vh;
+}
+
+#home a {
+  text-decoration: none;
+  color: white;
 }
 
 #home .button {
@@ -25,6 +32,10 @@
   opacity: 0;
 }
 
+#home b {
+  color: var(--details_color);
+}
+
 #home .ball::before {
   content: "";
   width: 600px;
@@ -41,7 +52,7 @@
 }
 
 #home .main_title {
-  font-size: 4vw;
+  font-size: 3.5vw;
 }
 
 #home .title {
@@ -102,8 +113,9 @@
 #home .navbar .nav_item::after {
   content: "";
   width: 0px;
-  height: 5px;
+  height: 9px;
   border-radius: 10px;
+  border-width: 2px;
   background: var(--details_color);
   position: absolute;
   bottom: 0;
@@ -111,8 +123,10 @@
   transition: 0.3s;
 }
 
-#home .navbar .nav_item:hover::after {
+#home .navbar .nav_item:hover::after,
+#home .navbar .nav_item.selected::after {
   width: 30px;
+  border: 2px solid var(--home_bkg);
 }
 
 #home .main_image_home {
@@ -184,7 +198,8 @@
 }
 
 #home .offer .sub_title {
-  color: var(--home_bkg);
+  color: white;
+  width: fit-content;
 }
 
 #home .offer .sub_title::after {
@@ -252,7 +267,7 @@
   margin-top: 10px;
   margin-bottom: 10px;
   width: 200px;
-  height: 200px;
+  height: 150px;
   overflow: hidden;
 }
 
@@ -290,6 +305,14 @@
   margin: 30px;
 }
 
+#home .subscription #month_price::after {
+  content: "al mese";
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--details_color);
+  margin-left: 5px;
+}
+
 #home .subscription .sub_title {
   color: var(--home_bkg);
 }
@@ -300,7 +323,7 @@
 
 #home .subscription .block {
   padding: 30px;
-  max-width: 300px;
+  /* max-width: 300px; */
   width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -311,6 +334,12 @@
   position: relative;
   font-weight: 500;
 }
+
+#home .subscription .block .description .mini_title {
+  color: var(--details_color);
+  margin-bottom: 0;
+}
+
 
 #home .subscription .block .description.disabled {
   padding-left: 30px;
@@ -328,6 +357,18 @@
   width: 20px;
   height: 20px;
   background: var(--details_color);
+  border-radius: 100%;
+}
+
+
+#home .subscription .block .description::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 8px;
+  width: 14px;
+  height: 14px;
+  background: var(--third_bkg);
   border-radius: 100%;
 }
 
@@ -353,6 +394,56 @@
   background: var(--third_bkg);
   color: white;
   margin-bottom: 10px;
+}
+
+#home .info_section {
+  background: var(--third_bkg);
+  height: 100%;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  border-radius: 20px;
+  margin: 30px;
+  z-index: 3;
+  position: relative;
+}
+
+#home #about_us {
+  z-index: 3;
+  position: relative;
+}
+
+#home #about_us * {
+  color: white;
+}
+
+#home #about_us .title_orange {
+  color: var(--details_color);
+}
+
+#home #about_us .mission .vertical_middle{
+  color: var(--details_color);
+  display: grid;
+  place-content: center;
+  justify-content: right;
+  text-align: right;
+  border-right: 1px solid var(--details_color);
+}
+
+#home #about_us .approach .section_title{
+  color: var(--details_color);
+  margin-bottom: 10px;
+}
+
+#home #about_us .css-ha3bif-MuiTimelineItem-root:before {
+  display: none;
+}
+
+.Mui-selected {
+  color: var(--details_color) !important;
+}
+
+.MuiTabs-indicator {
+  background-color: var(--details_color) !important;
 }
 
 @keyframes smooth_movement {
@@ -420,12 +511,17 @@
     margin-bottom: 10px;
   }
 
+  #home .courses .certificate {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   #home .courses .certificate.odd {
-    margin-left: -100px;
+    /* margin-left: -100px; */
   }
 
   #home .courses .certificate.even {
-    margin-left: 100px;
+    /* margin-left: 100px; */
   }
 
   #home .subscription .block {

@@ -13,6 +13,7 @@ import QuestionCreator from '../../../../../components/question_creator';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from "react-router";
+import Popup from '../../../../../components/popup';
 
 function SchoolSection() {
   // sections tag
@@ -23,7 +24,7 @@ function SchoolSection() {
   const [currentSection, setCurrentSection] = useState(SCHOOL_LIST_TAG)
   const [schoolList, setSchoolList] = useState(new SchoolListController())
   const [searchValue, setSearchValue] = useState("")
-
+  const [popupContent, setPopupContent] = useState({})
   // redirect to school creation page
   function createSchool() {
     navigate(routes.school_creation.path)
@@ -31,7 +32,7 @@ function SchoolSection() {
 
   // redirect to school creation page
   function editSchool(school) {
-    navigate(routes.school_creation.path, { state : { school : school.exportInfo }})
+    navigate(routes.school_creation.path, { state : { school : school.exportInfo() }})
   }
 
   // delete quiz from quiz list
@@ -46,10 +47,16 @@ function SchoolSection() {
     schoolList.deleteSchool(schoolId)
   }
 
-  function publishQuestion() {
-    schoolList.publishQuiz()
+  async function publishQuiz(quiz) {
+    setPopupContent({ error: false, message: "Pubblicazione in corso..."})
+    quiz.publish("school")
+    .then(() => setPopupContent({ error: false, message: "Pubblicazione completata"}))
+    .catch((message) => {
+      setPopupContent({ error: true, message: "Errore"})
+      console.warn(message)
+    })
   }
-  
+
   // setting up schoolList and getting from server
   useEffect(() => {
     schoolList.setState(setSchoolList)
@@ -139,7 +146,7 @@ function SchoolSection() {
                       <AccordionDetails>
                         <QuestionCreator question={quiz}/>
                         <div className="centered">
-                        <button className="button" onClick={() => quiz.publish("school")}>Salva</button>
+                        <button className="button" onClick={() => publishQuiz(quiz)}>Salva</button>
                         </div>
                       </AccordionDetails>
                       <br/>
@@ -155,7 +162,15 @@ function SchoolSection() {
             </div>
           </>
       }
-      
+      {
+        popupContent['error'] != undefined ?
+          <Popup
+            error={popupContent['error']}
+            message={popupContent['message']}
+            removePopup={() => setPopupContent({})}
+            />
+          : ""
+      }
     </div>
   )
 }

@@ -95,10 +95,8 @@ class SchoolListController {
       let schoolIndex = this.list.indexOf(school)
       this.list.splice(schoolIndex, 1)
       this.updateInfo()
-      console.log('eliminato') 
     }
   }
-
 
   // API
   async loadList() {

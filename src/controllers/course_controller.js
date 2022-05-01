@@ -17,19 +17,30 @@ class CourseController {
     setOverrideState(callback) { this.overrideState = callback }
 
     load(info, creationMode = true) {
-        this.course.load(info)
         let content = JSON.parse(JSON.stringify(info['content']))
+        this.course.load(info)
+
+        content = info['content']
 
         if(content != undefined) {
             for(let chapterId in content) {
                 for(let lessonId in this.getLessonsByChapter(chapterId)) {
                     for(let quizId in this.getLessonQuiz(chapterId, lessonId)) {
                         let quizObj = this.getSpecificQuiz(chapterId, lessonId, quizId)
+                        if(quizObj['question'] != undefined) quizObj = quizObj['question']
                         let quizController
-                        if(creationMode) { // da rivedere
+                        if(creationMode) {
                             quizController = new QuestionCreationController()
                             quizController.setOverrideState((() => this.updateInfo()).bind(this))
-                            quizController.load({question: quizObj, correctChoices: undefined})
+                            quizController.question.setId(quizObj['question']['id'])
+                            quizController.question.setTitle(quizObj['question']['title'])
+                            quizController.question.setImage(quizObj['question']['image'])
+                            
+                            for(let answerId of Object.keys(quizObj['question']['choices'])) {
+                                quizController.question.addChoice(quizObj['question']['choices'][answerId], answerId)
+                            }
+
+                            quizController.question.setSelectedChoices(quizObj['selectedChoices'])
                         } else {
                             quizController = new QuestionController()
                             quizController.setOverrideUpdateInfo((() => this.updateInfo()).bind(this))
@@ -42,6 +53,7 @@ class CourseController {
         }
 
         this.setContent(content)
+        this.updateInfo()
     }
 
     async loadById(courseId, creationMode = true) {
@@ -500,6 +512,7 @@ class CourseController {
             wallpaper : this.getWallpaper(),
             description : this.getDescription(),
             presentationVideo : this.getPresentationVideo(),
+            presentationVideoId : this.getPresentationVideoId(),
             professors : this.getProfessors(),
             offeredBy : this.getOfferedBy(),
             syllabus : this.getSyllabus(),
@@ -507,6 +520,9 @@ class CourseController {
             content : content,
             time : this.getTime(),
             star : this.getStar(),
+            author : this.getAuthor(),
+            n_video : this.getNVideo(),
+            comments : this.getComments(),
         }
     }
     

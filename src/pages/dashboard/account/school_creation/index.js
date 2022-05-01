@@ -32,6 +32,7 @@ function SchoolCreation() {
   // setting up 
   useEffect(() => {
     school.setState(setSchool)
+    console.log(state)
     if(state != undefined) {
       let schoolObj = state['school']
       // edit mode

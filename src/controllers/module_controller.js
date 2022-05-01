@@ -74,6 +74,7 @@ class ModuleController {
                 let argument = data['argument_slug']
                 let difficultyLevel = data['difficulty']
                 let wallpaper = data['coverImageLink']
+                let position = data['order']
 
                 this.setId(moduleId)
                 this.setTitle(title)
@@ -81,6 +82,7 @@ class ModuleController {
                 this.setArgument(argument)
                 this.setDifficultyLevel(difficultyLevel)
                 this.setWallpaper(wallpaper)
+                this.setPosition(position)
             },
             error: (message) => console.log(message)
         })
@@ -169,6 +171,7 @@ class ModuleController {
     getTitle() {return this.module.getTitle()}
     getDescription() {return this.module.getDescription()}
     getDifficultyLevel() {return this.module.getDifficultyLevel()}
+    getPosition() {return this.module.getPosition()}
     getModules() {return this.module.getModules()}
     getPublishDate() {return this.module.getPublishDate()}
     getNModules() {return this.module.getNModules()}
@@ -205,6 +208,10 @@ class ModuleController {
     }
     setDifficultyLevel(difficultyLevel, _auto_save = true) {
         this.module.setDifficultyLevel(difficultyLevel)
+        if(_auto_save) this.updateInfo()
+    }
+    setPosition(position, _auto_save = true) {
+        this.module.setPosition(position)
         if(_auto_save) this.updateInfo()
     }
     setModules(modules, _auto_save = true) {
@@ -312,13 +319,11 @@ class ModuleController {
         if(info != undefined) {
             title = info['title']
             newId = info['pageId']
-            console.log(newId)
             position = info['position']
             wallpaper = info['wallpaper']
             
             // create page from info
             if(type == "quiz") {
-                console.log(info)
                 let quiz = info['quiz']
                 let quizTitle = quiz['question']
                 let quizId = quiz['slug']
@@ -332,7 +337,6 @@ class ModuleController {
                     let answerId = answer['slug']
                     let answerTitle = answer['answer']
                     let answerDescription = answer['description']
-                    console.log(answerDescription)
                     _questionCreationController.addItem({
                         title: answerTitle,
                         description: answerDescription
@@ -354,7 +358,6 @@ class ModuleController {
             while(Object.keys(newModule.pages).includes(newId)) newId = "_" + Math.random() * 10
         }
 
-        console.log(newModule)
         newModule.pages[newId] = {
             id: newId,
             wallpaper: wallpaper,
@@ -411,6 +414,7 @@ class ModuleController {
             title : this.getTitle(),
             description : this.getDescription(),
             difficultyLevel : this.getDifficultyLevel(),
+            position: this.getPosition(),
             modules : modules,
         }
     }

@@ -5,6 +5,7 @@ class Module {
         this.socialPage = ""
         this.argument = ""
         this.difficultyLevel = ""
+        this.position = 1
         this.n_modules = 0
         this.time = 30
         this.wallpaper = ""
@@ -12,10 +13,9 @@ class Module {
         this.description = ""
         this.modules = {}
         this.publishDate = ""
-        this.position = 0
     }
 
-    load({id = "", author = "", socialPage = "", argument = "", wallpaper = "", title = "", description = "", difficultyLevel = "", modules = {}, publishDate = "", n_modules = "", time = 30, position = 0}) {
+    load({id = "", author = "", socialPage = "", argument = "", wallpaper = "", title = "", description = "", difficultyLevel = "", position = 1, modules = {}, publishDate = "", n_modules = "", time = 30}) {
         this.id = id
         this.author = author
         this.socialPage = socialPage
@@ -24,6 +24,7 @@ class Module {
         this.title = title
         this.description = description
         this.difficultyLevel = difficultyLevel
+        this.position = position
         this.modules = modules
         this.publishDate = publishDate
         this.n_modules = n_modules
@@ -39,6 +40,7 @@ class Module {
     getTitle() {return this.title}
     getDescription() {return this.description}
     getDifficultyLevel() {return this.difficultyLevel}
+    getPosition() {return this.position}
     getModules() {return this.modules}
     getPublishDate() { return this.publishDate }
     getNModules() { return this.n_modules }
@@ -53,6 +55,7 @@ class Module {
     setTitle(title) {this.title = title}
     setDescription(description) {this.description = description}
     setDifficultyLevel(difficultyLevel) {this.difficultyLevel = difficultyLevel}
+    setPosition(position) {this.position = position}
     setModules(modules) {this.modules = modules}
     setPublishDate(publishDate) { this.publishDate = publishDate }
     setNModules(n_modules) { this.n_modules = n_modules }

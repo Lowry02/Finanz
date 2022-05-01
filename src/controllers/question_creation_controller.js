@@ -122,7 +122,7 @@ class QuestionCreationController {
         // used to send file
         let formData = new FormData()
         formData.append('question', this.question.getTitle())
-        if(this.question.getImage().slice(0,5) != "https") {
+        if(this.question.getImage() && this.question.getImage().slice(0,5) != "https") {
             formData.append('picture', urlToFile(this.question.getImage()))
         }
 

@@ -110,6 +110,8 @@ class WebinarList {
         })
         
         if(error) throw Error("Errore nell'ottenere i webinar creati")
+        this.createdWebinar = []
+        
         // loading webinars
         for(let webinar of info) {
             let newWebinar = new WebinarController()

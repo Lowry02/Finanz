@@ -31,6 +31,8 @@ function CourseCreation(props) {
     const [openDialog, setOpenDialog] = useState(false)
     const [popupContent, setPopupContent] = useState()
     const [authorField, setAuthorField] = useState("")
+    const [firstLoad, setFirstLoad] = useState(true)
+    const [showDeleteDraft, setShowDeleteDraft] = useState(true)
     let { state } = useLocation()
 
     let windowInfo = props.windowInfo
@@ -65,6 +67,7 @@ function CourseCreation(props) {
                 setPopupContent({error: false, message: "Pubblicazione completata"})
                 setTimeout(() => setPopupContent({error: false, message: "Pubblicazione completata"}), 1000)
                 setSelectedChapter(undefined)
+                window.localStorage.removeItem("course_data")
             })
             .catch((message) => {
                 setPopupContent({error: true, message: "Errore, " + message?.responseJSON?.message})
@@ -75,14 +78,45 @@ function CourseCreation(props) {
         }
     }
 
-    useEffect(() => {
+    function deleteDraft() {
+        window.localStorage.removeItem('course_data')
+        window.location.reload()
+    }
+
+    // loading content
+    useEffect(async () => {
         content.setState(setContent)
         content.loadArgs()
+        // managing edit mode
         if(state != null) {
-            let courseid = state['course']
-            content.course.loadById(courseid)
+            let courseId = state['course']
+            let draftId = JSON.parse(window.localStorage.getItem('course_data'))?.id
+            console.log(draftId)
+            if(draftId == courseId) {
+                let course_info = JSON.parse(window.localStorage.getItem('course_data'))
+                content.course.load(course_info)
+                setShowDeleteDraft(true)
+                setPopupContent({error: false, message: "Caricamento ultima modifica"})
+            } else {
+                content.course.loadById(courseId)
+                setShowDeleteDraft(false)
+            }
+        } else if(window.localStorage.getItem('course_data') != undefined) {
+            // managing draft
+            let course_info = JSON.parse(window.localStorage.getItem('course_data'))
+            content.course.load(course_info)
+            setShowDeleteDraft(true)
+            setPopupContent({error: false, message: "Caricamento ultima modifica"})
         }
+        setFirstLoad(false)
     }, [])
+
+    useEffect(() => {
+        // saving data to local storage(don't lose data on refresh)
+        if(!firstLoad) {
+            window.localStorage.setItem("course_data", JSON.stringify(content.course.exportInfo()))
+        }
+    }, [content])
 
     return (
         <div className="creation" id="course_creation">
@@ -233,7 +267,15 @@ function CourseCreation(props) {
                         onUpdate={(slug, title, description, image, callback) => content.updateArgument(slug, title, description, callback)}/>
                         <MultipleChoicesQuestion question={content.getArgs()}/>
                         <hr />
-                        <button className="button" onClick={() => publish()}>Pubblica</button>
+                        <div className="display_inline">
+                            <button className="button" onClick={() => publish()}>Pubblica</button>
+                            {
+                                showDeleteDraft ?
+                                <button className="button" onClick={() => deleteDraft()}>Elimina bozza</button> : 
+                                ""
+                            }
+                            </div>
+
                     </div>
                 </Col>
             </Row>

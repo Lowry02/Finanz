@@ -26,10 +26,9 @@ let routes = {
         component : (props) => <TestPage {...props} />
     },
     "homepage" : {
-        path : "/home",
-        url : "/home",
+        path : "/home/",
+        url : "/home/*",
         component : (props) => <Home {...props} />
     },
-
 }
 export default routes

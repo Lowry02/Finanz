@@ -101,7 +101,7 @@ class CoursesListController {
         for(let i = length; i < length + l; i++) {
             let newCourse = new CourseController()
             newCourse.setOverrideState((() => this.updateInfo()).bind(this))
-            newCourse.load(courseExample)
+            // newCourse.load(courseExample)
             newCourse.setId(i)
             list[i] = newCourse
         }

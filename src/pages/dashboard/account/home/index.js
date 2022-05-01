@@ -139,6 +139,11 @@ function AccountHome(props) {
                                         Webinar
                                     </p>
                                     <p 
+                                    className={section == SCHOOL_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
+                                    onClick={() => setSection(SCHOOL_SECTION)}>
+                                        Scuola
+                                    </p>
+                                    <p 
                                     className={section == STATISTIC_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
                                     onClick={() => setSection(STATISTIC_SECTION)}>
                                         Statistiche

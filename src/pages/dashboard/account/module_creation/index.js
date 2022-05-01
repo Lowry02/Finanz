@@ -221,6 +221,17 @@ function ModuleCreation(props) {
                         className={windowInfo.mobileMode ? "my_input " : "my_input"}
                         fullWidth={true}
                         multiline={true}
+                        type={"number"}
+                        label="Posizione"
+                        variant="outlined"
+                        value={content.module.getPosition()}
+                        onChange={(e) => content.module.setPosition(e.target.value)}/>
+                        <br/>
+                        <br/>
+                        <TextField
+                        className={windowInfo.mobileMode ? "my_input " : "my_input"}
+                        fullWidth={true}
+                        multiline={true}
                         select
                         label="Difficoltà"
                         variant="outlined"

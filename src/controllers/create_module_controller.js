@@ -263,10 +263,10 @@ class CreateModuleController {
             for(let pageId of Object.keys(pages)) {
                 if(this.module.getPageType(moduleSlug, pageId) == "quiz") {
                     // create quiz
-                    console.log(pages[pageId]['content'].question.getTitle())
+                    let quizTitle = pages[pageId]['content'].question.getTitle()
                     let error = await this.postQuiz(moduleSlug, moduleSlug, pageId, updateMode)
                     if(error == undefined) throw Error("Errore nella pubblicazione di un quiz - " + pages[pageId]['content'].question.getTitle())
-                    messageFunction({error: false, message: updateMode ? "Aggiorno il quiz - " + pages[pageId]['content'].question.getTitle() : "Creo il quiz - " + pages[pageId]['content'].question.getTitle()})
+                    messageFunction({error: false, message: updateMode ? "Aggiorno il quiz - " + quizTitle : "Creo il quiz - " + quizTitle})
                 } else {
                     // create text page
                     let title = pages[pageId]['title']
@@ -358,6 +358,7 @@ class CreateModuleController {
         formData.append('title', this.module.getTitle())
         formData.append('description', this.module.getDescription())
         formData.append('difficulty', this.module.getDifficultyLevel())
+        formData.append('order', this.module.getPosition())
         if(this.module.getWallpaper().slice(0, 5) != "https") {
             formData.append('picture', urlToFile(this.module.getWallpaper(), '_name_.jpg'))
         }
