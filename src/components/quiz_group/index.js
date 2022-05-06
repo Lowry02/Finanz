@@ -9,7 +9,6 @@ import DoneIcon from '@mui/icons-material/Done';
 
 function QuizGroup(props) {
     let questions = props.questions
-    console.log(questions)
 
     const [currentQuizId, setCurrentQuizId] = useState(0)
     const [currentQuiz, setCurrentQuiz] = useState(new QuestionController())
@@ -27,6 +26,12 @@ function QuizGroup(props) {
         setCurrentQuiz(Object.values(questions)[currentQuizId]) 
     }, [questions])
 
+    useEffect(() => {
+        // send answer
+        console.log(currentQuiz)
+    }, [currentQuiz.selectedChoices])
+    
+
     return (
         <>
         {
@@ -42,7 +47,6 @@ function QuizGroup(props) {
                             <ArrowBackIcon />
                         </IconButton>
                     }
-                    
                 </Col>
                 <Col xs="8">
                     <div className="centered">

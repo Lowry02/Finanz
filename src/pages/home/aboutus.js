@@ -13,7 +13,10 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { Link } from 'react-router-dom';
 
-function AboutUs() {
+function AboutUs(props) {
+  let windowInfo = props.windowInfo
+  let mobileMode = windowInfo.mobileMode
+  
   // seciton state
   const [currentSection, setCurrentSection] = useState(0)  
 
@@ -40,13 +43,13 @@ function AboutUs() {
   }, [])
 
   return (
-    <div className="info_section">
+    <div className="info_section animate">
       <Container id="about_us">
         <br/>
         <h1 className="main_title text-center animate">Chi siamo</h1>
 
           {/* TABBAR */}
-        <Tabs value={currentSection} onChange={changeSection} centered className="animate">
+        <Tabs centered variant={mobileMode ? "scrollable" : "standard"} value={currentSection} onChange={changeSection} className="animate">
           <Tab label={"Mission"} value={0}/>
           <Tab label={"Il nostro approccio"} value={1}/>
           <Tab label={"Contattaci"} value={2}/>

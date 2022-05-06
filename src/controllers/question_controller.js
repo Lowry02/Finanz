@@ -55,6 +55,23 @@ class QuestionController {
         return quizInfo
     }
 
+    async sendUserAnswer(id) {
+        let accessToken = window.localStorage.getItem("accessToken")
+        let isCorrect = false
+
+        await $.ajax({
+            type: "POST",
+            url: api_url + "/quiz/answer/" + id +"/user_answer",
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: (data) => isCorrect = data['message']['isCorrect']
+        })
+
+        console.log(isCorrect)
+        return isCorrect
+    }
+
     setOverrideUpdateInfo(callback) {
         this.overrideUpdateInfo = callback
     }

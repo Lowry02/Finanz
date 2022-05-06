@@ -195,28 +195,90 @@ class AccademyListController {
         this.setInfoPersonalModules(info)
     }
 
-    loadModulesPerCategory(n = 10, category) {
-        let list = Object.values(this.__getModulesList(this.modulesInProgress, n))
-        let prev_list = this.modulesPerCategory[category] ? this.modulesPerCategory[category] : []
-        list = [...prev_list, list]
-        this.modulesPerCategory[category] = list
-        this.updateInfo()
+    async loadModulesPerCategory(category) {
+        let modulesPerCategory = this.getModulesPerCategory()
+        let modules = modulesPerCategory[category]
+        let error = false
+
+        if(modules == undefined && category != undefined) {
+            // make request
+            let accessToken = window.localStorage.getItem('accessToken')
+
+            try {
+                await $.ajax({
+                    type: "GET",
+                    url: api_url + "/academy/argument/" + category +"/modules",
+                    accepts: "json",
+                    contentType: "json",
+                    beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                    success: (data) => {
+                        console.log(data)
+                        let list = data['module_list']
+                        if(list != undefined) {
+                            let modules = {}
+
+                            for(let module of list) {
+                                let newAcademy = new ModuleController()
+                                newAcademy.setId(module['slug'])
+                                newAcademy.setTitle(module['title'])
+                                newAcademy.setWallpaper(module['coverImageLink'])
+                                newAcademy.setAuthor(module['author']['personalData']['surname'] + " " + module['author']['personalData']['name'] )
+                                modules[module['slug']] = newAcademy
+                            }
+
+                            this.modulesPerCategory[category] = modules
+                            console.log(this.modulesPerCategory)
+                            this.updateInfo()
+                        } else {
+                            console.warn("list not found in response")
+                        }
+                    }
+                })
+            } catch {
+                error = true
+            }
+        }
+
+        return error
     }
 
-    loadCategories() {
-        let list = {
-            1 : "Nuovi",
-            2 : "Finanza",
-            3 : "Marketing",
-            4 : "Python",
-            5 : "Altro",
-            6 : "Nuovi",
-            7 : "Finanza",
-            8 : "Marketing",
-            9 : "Python",
-            10 : "Altro"
+    async loadCategories() {
+        let accessToken = window.localStorage.getItem('accessToken')
+        let error = false
+
+        try {
+            await $.ajax({
+                type: "GET",
+                url: api_url + "/academy/arguments",
+                accepts: "json",
+                contentType: "json",
+                beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                success: (data) => {
+                    let args = data['arguments']
+                    console.log(args)
+                    if(args != undefined) {
+                        let list = {}
+                        for(let arg of args) {
+                            let slug = arg['slug']
+                            let title = arg['title']
+                            let description = arg['description']
+                            list[slug] = {
+                                title: title,
+                                description: description
+                            }
+                            this.setCategories(list)
+                        }
+                    } else {
+                        console.warn("No arguments in request")
+                    }
+                },
+                error: (message) => console.log(message)
+            })
+        } catch {
+            error = true
         }
-        this.setCategories(list)
+
+        return error
     }
 
     removeModule(courseId, tag) {

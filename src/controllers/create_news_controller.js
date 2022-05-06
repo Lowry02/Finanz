@@ -110,7 +110,7 @@ class CreateNewsController {
 
     isContentValid() {
         // wallpaper check
-        // if(this.news.getWallpaper() == "") return { error : true, message : "Wallpaper non inserito"}
+        if(this.news.getWallpaper() == "") return { error : true, message : "Wallpaper non inserito"}
         // title check
         if(this.news.getTitle().replace(" ", "") == "") return { error : true, message : "Titolo non inserito"}
         // description check

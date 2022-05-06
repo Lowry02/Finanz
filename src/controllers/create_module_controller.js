@@ -199,6 +199,7 @@ class CreateModuleController {
         // assigning position to each page
         pages.forEach((page, i) => page['position'] = i + 1)
         this.updateInfo()
+        console.log(this.module.getAllPages(moduleId))
     }
 
     async moduleExist() {

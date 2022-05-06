@@ -25,10 +25,12 @@ class ModuleController {
                     let quiz
                     if(creation_mode) {
                         quiz = new QuestionCreationController()
+                        quiz.question.setAcceptedChoices(1)
                         quiz.setOverrideState((() => this.updateInfo()).bind(this))
-                        quiz.load({question: {...quizObj.question.question, selectedChoices: [...quizObj.question.selectedChoices]}, correctChoices : undefined})
+                        quiz.question.load({question: {...quizObj.question.question, selectedChoices: [...quizObj.question.selectedChoices]}, correctChoices : undefined})
                     } else {
                         quiz = new QuestionController()
+                        quiz.setAcceptedChoices(1)
                         quiz.setOverrideUpdateInfo((() => this.updateInfo()).bind(this))
                         quiz.load({...quizObj.question})
                     }
@@ -40,20 +42,16 @@ class ModuleController {
     }
 
     // getting info from API
-    async loadById(moduleId) {
+    async loadById(moduleId, fullGet = true) {
         // getting module info
         this.getModuleInfo(moduleId)
         // get notes
         let notesId = await this.getNotes(moduleId)
-        // get pages per notes
-        for(let noteId of notesId) {
-            let pageNumber = 1
-            let next = true
 
-            // stops when there aren't no more pages
-            while(next) {
-                next = await this.getPageFromServer(noteId, pageNumber)
-                pageNumber++
+        // get pages per notes
+        if(fullGet) {
+            for(let noteId of notesId) {
+                this.loadNote(noteId)
             }
         }
     }
@@ -83,6 +81,7 @@ class ModuleController {
                 this.setDifficultyLevel(difficultyLevel)
                 this.setWallpaper(wallpaper)
                 this.setPosition(position)
+                this.setAuthor()
             },
             error: (message) => console.log(message)
         })
@@ -156,11 +155,56 @@ class ModuleController {
         return next
     }
 
+    async loadNote(noteId, updateMode = false) {
+        let pageNumber = 1
+        let next = true
+
+        // stops when there aren't no more pages
+        while(next) {
+            next = await this.getPageFromServer(noteId, pageNumber)
+            pageNumber++
+        }
+
+        if(updateMode) this.updateInfo()
+    }
+
+    async setChapterFinished(moduleId) {
+        let accessToken = window.localStorage.getItem("accessToken")
+
+        $.ajax({
+            type: "POST",
+            url: api_url + "academy/note/" + moduleId +"/finish",
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+        })
+    }
+
     updateInfo() {
         if(this.state != undefined) 
             this.state(new ModuleController(this.module, this.state))
         else if(this.overrideState != undefined) 
             this.overrideState()
+    }
+
+    async loadCompletedNotes(moduleId = this.getId()) {
+        let accessToken = window.localStorage.getItem("accessToken")
+        let info = []
+        
+        await $.ajax({
+            type: "GET",
+            url: api_url + "academy/module/" + moduleId + "/notes/finished",
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: (data) => {
+                let notes = data['notes'].sort((a,b) => a['position'] > b['position'] ? -1 : 1)
+                let notesId = notes.map((item) => item['slug'])
+                this.setCompletedNotes(notesId)
+            }
+        })
+
+        return info
     }
 
     getId() {return this.module.id}
@@ -177,6 +221,7 @@ class ModuleController {
     getNModules() {return this.module.getNModules()}
     getTime() {return this.module.getTime()}
     getPosition() {return this.module.getPosition()}
+    getCompletedNotes() {return this.module.getCompletedNotes()}
 
     setId(id, _auto_save = true) {
         this.module.setId(id)
@@ -251,6 +296,11 @@ class ModuleController {
         if(_auto_save) this.updateInfo()
     }
 
+    setCompletedNotes(completedModule, _auto_save = true) {
+        this.module.setCompletedNotes(completedModule)
+        if(_auto_save) this.updateInfo()
+    }
+
     getModuleById(id) {
         return this.getModules()[id]
     }
@@ -295,12 +345,12 @@ class ModuleController {
         } else {
             // create module from info
             newId = data['id']
-            delete data['id']
             _format = data
         }
         
         newModules[newId] = _format
         this.setModules(newModules)
+        console.log(_format)
         this.updateInfo()
     }
 
@@ -332,6 +382,7 @@ class ModuleController {
                 _questionCreationController.question.setId(quizId)
                 _questionCreationController.question.setTitle(quizTitle)
                 _questionCreationController.question.setImage(quizImage)
+                _questionCreationController.question.setAcceptedChoices(1)
 
                 for(let answer of quizAnswers) {
                     let answerId = answer['slug']

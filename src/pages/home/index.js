@@ -54,7 +54,7 @@ function Home(props) {
       </Routes>
 
       {/* INFO SECTION */}
-      <div className="info_section">
+      <div className="info_section animate">
         <Container>
           <Row>
             <Col md="3">

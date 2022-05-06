@@ -156,8 +156,8 @@ class UserController {
         return new Date() > new Date(this.getBirthday())
     }
     
-    isValidEmail() {
-        return String(this.getEmail())
+    isValidEmail(email = this.getEmail()) {
+        return String(email)
         .toLowerCase()
         .match(
             /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -200,6 +200,44 @@ class UserController {
             f()
     }
 
+    async isUsernameValid(username = this.getUsername()) {
+        let accessToken = this.getAccessToken()
+        let isValid = false
+
+        await $.ajax({
+            type : "POST",
+            url : api_url + "check_username",
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend : (request) => request.setRequestHeader("Authorization", "Bearer " + accessToken),
+            data: JSON.stringify({
+                username: username
+            }),
+            success: (data) => isValid = data['isValid']
+        })
+
+        return isValid
+    }
+
+    async isPasswordValid(password = this.getPassword()) {
+        let accessToken = this.getAccessToken()
+        let isValid = false
+
+        await $.ajax({
+            type : "POST",
+            url : api_url + "check_password",
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend : (request) => request.setRequestHeader("Authorization", "Bearer " + accessToken),
+            data: JSON.stringify({
+                password: password
+            }),
+            success: (data) => isValid = data['isPasswordValid']
+        })
+
+        return isValid
+    }
+
     async areCredentialsCorrect(username, password, callback) {
         return $.ajax({
             type : "POST",
@@ -216,7 +254,6 @@ class UserController {
                 this.setAccessToken(accessToken, auto_update)
                 this.setRefreshToken(refreshToken, auto_update)
                 await this.setInfo(() => callback(isError, data))
-                console.log("prima io")
             },
             error : (message) => {
                 let isError = true
@@ -224,6 +261,27 @@ class UserController {
                 callback(isError, data)
             }
         })
+    }
+
+    async activateUser(code) {
+        let accessToken = this.getAccessToken()
+        let error = false
+
+        try {
+            await $.ajax({
+                type : "POST",
+                url : api_url + "user/activate_user/" + code,
+                accepts: "application/json",
+                contentType: "application/json",
+                beforeSend : (request) => request.setRequestHeader("Authorization", "Bearer " + accessToken),
+                success: () => error = false,
+                error: () => error = true
+            })
+        } catch {
+            error = true
+        }
+
+        return error
 
     }
 
@@ -397,6 +455,45 @@ class UserController {
             success: (data) => list = data['roles']
         })
         return list
+    }
+
+    // used to restore password
+    async sendMail(email) {
+        let access_token = window.localStorage.getItem('accessToken')
+
+        return $.ajax({
+            type : "POST",
+            url : api_url + "recover_password/send_mail",
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend : (request) => request.setRequestHeader("Authorization", "Bearer " + access_token),
+            data: JSON.stringify({
+                email: email
+            })
+        })
+    }
+
+    async recoverPassword(password, confirmPassword, code) {
+        let access_token = window.localStorage.getItem('accessToken')
+        let error = false
+
+        try {
+            await  $.ajax({
+                type : "POST",
+                url : api_url + "recover_password/" + code,
+                accepts: "application/json",
+                contentType: "application/json",
+                beforeSend : (request) => request.setRequestHeader("Authorization", "Bearer " + access_token),
+                data: JSON.stringify({
+                    password: password,
+                    confirm_password: confirmPassword,
+                }),
+            })
+        } catch {
+            error = true
+        }
+
+        return error
     }
 }
 

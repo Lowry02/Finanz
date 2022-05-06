@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { IconButton } from '@mui/material'
+import { Fade, IconButton } from '@mui/material'
 
 import "./style.css"
 
@@ -10,9 +10,21 @@ function MultipleChoiceQuestion(props) {
     let question = deletable ? props.question.question : props.question
     let questionCreator = deletable ? props.question : null
 
-    function addRemoveChoice(id) {
+    const [correctAnswer, setCorrectAnswer] = useState({isCorrect: false, message: ""})
+    const [answerGiven, setanswerGiven] = useState(false)
+
+    async function addRemoveChoice(id) {
         if(question.isChoiceSelected(id)) question.removeSelectedChoice(id)
-        else question.addSelectedChoice(id)
+        else {
+            question.addSelectedChoice(id)
+            if(!deletable) {
+                // send user answer
+                let isCorrect = await question.sendUserAnswer(id)
+                setCorrectAnswer({isCorrect: isCorrect, message: question.getChoices()[id]['description']})
+                setanswerGiven(true)
+                setTimeout(() => setanswerGiven(false), 4000)
+            }
+        }
     }
 
     function handleDelete(e, id) {
@@ -20,8 +32,14 @@ function MultipleChoiceQuestion(props) {
         questionCreator.deleteItem(id)
     }
 
+    useEffect(() => {
+        setanswerGiven(false)
+    }, [question])
+    
+
     return (
-        <div>
+        <div className={!deletable ? "multiple_choice centered" : "multiple_choice"}>
+            {!deletable ? <p>{question.getTitle()}</p> : ""}
             {
                 Object.keys(question.getChoices()).map((id) => 
                     <div key={id}>
@@ -53,10 +71,19 @@ function MultipleChoiceQuestion(props) {
                                     }
                                 </>
                             }
-                            
                         </div>
                     </div>
                 )
+            }
+            {
+                !deletable && answerGiven ?
+                <Fade in={!deletable && answerGiven} style={{ transitionDuration: "800ms" }}>
+                    <div className="verify_answer">
+                        <h1>{ correctAnswer['isCorrect'] ? "Corretto!" : "Errato!" }</h1>
+                        <p>{correctAnswer['message']}</p>
+                    </div>
+                </Fade> :
+                ""
             }
         </div>
     )

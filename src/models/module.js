@@ -13,9 +13,10 @@ class Module {
         this.description = ""
         this.modules = {}
         this.publishDate = ""
+        this.completedNotes = []
     }
 
-    load({id = "", author = "", socialPage = "", argument = "", wallpaper = "", title = "", description = "", difficultyLevel = "", position = 1, modules = {}, publishDate = "", n_modules = "", time = 30}) {
+    load({id = "", author = "", socialPage = "", argument = "", wallpaper = "", title = "", description = "", difficultyLevel = "", position = 1, modules = {}, publishDate = "", n_modules = "", time = 30, completedNotes = []}) {
         this.id = id
         this.author = author
         this.socialPage = socialPage
@@ -30,6 +31,7 @@ class Module {
         this.n_modules = n_modules
         this.time = time
         this.position = position
+        this.completedNotes = completedNotes
     }
 
     getId() {return this.id} 
@@ -46,6 +48,7 @@ class Module {
     getNModules() { return this.n_modules }
     getTime() { return this.time }
     getPosition() { return this.position }
+    getCompletedNotes() { return this.completedNotes }
 
     setId(id) {this.id = id}
     setAuthor(author) {this.author = author}
@@ -61,7 +64,7 @@ class Module {
     setNModules(n_modules) { this.n_modules = n_modules }
     setTime(time) { this.time = time }
     setPosition(position) { this.position = position }
-
+    setCompletedNotes(completedNotes) { this.completedNotes = completedNotes }
 }
 
 export default Module

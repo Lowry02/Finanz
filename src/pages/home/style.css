@@ -250,6 +250,9 @@
 #home .offer .offer_content .block {
   background: var(--details_color);
   text-align: center;
+  height: 100%;
+  display: grid;
+  place-content: center;
 }
 
 #home .courses {
@@ -434,8 +437,15 @@
   margin-bottom: 10px;
 }
 
-#home #about_us .css-ha3bif-MuiTimelineItem-root:before {
+#home #about_us .css-ha3bif-MuiTimelineItem-root:before,
+.css-1rcbby2::before {
   display: none;
+}
+
+#home .info_section.animate {
+  transition: 1s;
+  transition-delay: 0.1s;
+  opacity: 0;
 }
 
 .Mui-selected {
@@ -526,6 +536,10 @@
 
   #home .subscription .block {
     margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  #home .margin-bottom {
     margin-bottom: 10px;
   }
 }

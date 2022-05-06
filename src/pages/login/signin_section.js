@@ -16,6 +16,7 @@ function SigninSection(props) {
     const [languageQuestion, setLanguageQuestion] = useState(new QuestionController())
     const [meetingQuestion, setMeetingQuestion] = useState(new QuestionController())    // come ci avete conosciuti
     const [currentSection, setCurrentSection] = useState(0)
+    const [loading, setLoading] = useState(false)
     const [showPopup, setShowPopup] = useState(false)
     const [status, setStatus] = useState({
         error: null,
@@ -24,37 +25,57 @@ function SigninSection(props) {
     const [section, setSection] = useState([
         (props) => <NameSurnameBirthday {...props}/>,
         (props) => <EmailUsernamePassword {...props} />,
+        (props) => <ActivationSection {...props} />
+
         // NOTE: experience question added in the useEffect
         // NOTE: insert code section added in the useEffect
     ])
 
     async function scrollQuestion(n) {
-        if(0 <= currentSection + n < section.length) {
+        if(0 <= currentSection + n <= section.length) {
             if(n == 1) {
                 if(!status.error) {
+                    let error = false
+                    if(currentSection == 1) {
+                        setLoading(true)
+                        let isValid = await user.isUsernameValid()
+                        
+                        if(!isValid) {
+                            setStatus({error: true, description: "Nome utente gia esistente"})
+                            setShowPopup(true)
+                        } else {
+                            isValid = await user.isPasswordValid()
+                            if(!isValid) {
+                                setStatus({error: true, description: "Password non valida"})
+                                setShowPopup(true)
+                            }
+                        }
 
-                    // signin and login
-                    if(currentSection + n == section.length) {
-                        let error
-                        await user.signIn().then(() => error = {error: false, description: "Utente registrato"})
-                                           .catch(() => error = {error: true, description: "Nome o email già esistenti"})
+                        if(isValid) error = false
+                    }
+
+                    // signin 
+                    if(currentSection + n == section.length - 1) {
+                        setLoading(true)
+                        await user.signIn()
+                        .then(() => error = {error: false, description: "Utente registrato"})
+                        .catch(() => error = {error: true, description: "Nome o email già esistenti"})
                         
                         // try to login
-                        if(!error['error']) {
-                            await user.areCredentialsCorrect(user.getUsername(), user.getPassword(), () => {})
-                        }
-                        
-                        setStatus(error)
-                        setShowPopup(true)   
-                    }
+                        // if(!error['error']) await user.areCredentialsCorrect(user.getUsername(), user.getPassword(), () => {})
 
-                    // code check
-                    if(currentSection + n == section.length) {
-                        // if(!error['error']) {
-                        //     setTimeout(() => navigate(routes.dashboard.path, {state: {user : user.exportInfo()}}), 1000)
-                        // }
+                        setStatus(error)
+                        setShowPopup(true)
+                        
+                        error = error['error']
                     }
-                    else setCurrentSection(currentSection + n)
+                    
+                    if(currentSection + n == section.length) {
+                        setIsSigninIn(false)
+                    }
+                    
+                    if(!error) setCurrentSection(currentSection + n)
+                    setLoading(false)
                 } else setShowPopup(true)
             } else setCurrentSection(currentSection + n)
         }
@@ -71,17 +92,17 @@ function SigninSection(props) {
             },
             acceptedChoices: 1
         })
-        section.push((props) => <Language {...props} />)
+        // section.push((props) => <Language {...props} />)
         experienceQuestion.setState(setExperienceQuestion)
         experienceQuestion.load(() => {
             let i = 0
             for(let question of experienceQuestion.getQuestions()) {
-                section.push((props) => <ExperienceQuestionLayout question={question} {...props} />)
+                // section.push((props) => <ExperienceQuestionLayout question={question} {...props} />)
                 i++;
             }
             setSection(section)
         })
-        meetingQuestion.setState(setMeetingQuestion)
+        // meetingQuestion.setState(setMeetingQuestion)
         meetingQuestion.load({
             id: null,
             title: "COme hai conosciuto Nova?",
@@ -94,7 +115,7 @@ function SigninSection(props) {
             },
             acceptedChoices: 1
         })
-        section.push((props) => <MeetingQuestionSection {...props} />)
+        // section.push((props) => <MeetingQuestionSection {...props} />)
         // section.push((props) => <InvitationCodeLayout {...props} />)
         setSection(section)
     }, [])
@@ -113,13 +134,17 @@ function SigninSection(props) {
                 <button className="button bounce" onClick={() => scrollQuestion(-1)}>Indietro</button> :
                 ""
             }
-            <button className="button bounce" onClick={() => scrollQuestion(1)}>
-                {
-                    currentSection >= section.length - 1 ?
-                    "Fine" : 
-                    "Avanti"
-                }
-            </button>
+            {
+                loading ?
+                <div className="centered"><div className="loading"></div></div> : 
+                <button className="button bounce" onClick={() => scrollQuestion(1)}>
+                    {
+                        currentSection >= section.length - 1 ?
+                        "Fine" : 
+                        "Avanti"
+                    }
+                </button>
+            }
             <p className="thin_orange" onClick={() => {
                     setIsSigninIn(false)
                     user.makeUserFieldEmpty()
@@ -258,8 +283,17 @@ function EmailUsernamePassword(props) {
         value={passwordConfirm}
         onChange={(e) => setPasswordConfirm(e.target.value)}
         />
-        <br />
+        <p className="description" style={{ color: "var(--details_color)", fontSize: "12px"}}>* la password deve essere lunga almeno 8 caratteri e deve contenere: maiuscole, minuscole, numeri, e caratteri speciali(_, @, $, .)</p>
     </>
+}
+
+function ActivationSection() {
+    return (
+        <div className="activation_section">
+            <h1>Registrazione completata!</h1>
+            <p className="description">Ti abbiamo inviato una mail per attivare il tuo account!</p>
+        </div>
+    )
 }
 
 function Language(props) {

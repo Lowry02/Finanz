@@ -45,7 +45,7 @@ function Home(props) {
       <Container>
         {/* MAIN SECTION */}
         <Row className="main_section">
-          <Col md="6" className="centered">
+          <Col md="6" className="centered" style={{ mixBlendMode: "plus-lighter"}}>
             <Fade in={true} style={{ transitionDelay: `0.3s` }} timeout={1000}>
               <div>
                 <h1 className="main_title">Il primo metodo</h1>
@@ -611,19 +611,19 @@ function OfferSection() {
                 <br/>
                 <p className="description"> Una percorso formativo personalizzato per imparare attraverso lezioni brevi e scorrevoli tutto quello che c'è da sapere sull'economia, la finanza, gli investimenti e molto altro</p>
                 <Row>
-                  <Col xl="4">
+                  <Col xl="4" className="margin-bottom">
                     <div class="block">
                       {/* <h5>Titolo 1</h5> */}
                       <p class="description">Una percorso formativo personalizzato per imparare attraverso lezioni brevi e scorrevoli tutto quello che c'è da sapere sull'economia, la finanza, gli investimenti e molto altro</p>
                     </div>
                   </Col>
-                  <Col xl="4">
+                  <Col xl="4" className="margin-bottom">
                     <div class="block">
                       {/* <h5>Titolo 1</h5> */}
                       <p class="description">Accesso illimitato e gratuito da qualsiasi dispositivo, senza limiti di tempo, per studiare secondo i tuoi ritmi e necessità</p>
                     </div>
                   </Col>
-                  <Col xl="4">
+                  <Col xl="4" className="margin-bottom">
                     <div class="block">
                       {/* <h5>Titolo 1</h5> */}
                       <p class="description"> Tanti quiz, approfondimenti ed esempi realistici che assicurano una comprensione chiara ed immediata, alla portata di tutti</p>

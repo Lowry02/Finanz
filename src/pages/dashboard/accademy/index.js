@@ -3,6 +3,7 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import { Row, Col } from "react-bootstrap"
 import AccademyCard from '../../../components/accademy_card'
+import { Skeleton } from '@mui/material';
 
 import "./style.css"
 import { Fade } from '@mui/material'
@@ -35,24 +36,29 @@ function AccademyPage(props) {
         } else setGeneralSectionContent({})
     }
 
-    useEffect(() => {
+    useEffect(async () => {
         if(firstLoad && accademy != undefined) {
-            accademy.loadModulesPerCategory(10, 'Nuovi')
-            accademy.loadModulesPerCategory(10, 'I più seguiti')
-            accademy.loadModulesPerCategory(10, 'Da vedere')
-            accademy.loadPersonalModules()
-            accademy.loadInfoPersonalModules()
-            accademy.loadCategories()
-            console.log(accademy.getCategories())
-            setSelectedCategory(Object.keys(accademy.getCategories())[0])
-            setGeneralNewsInfo()
-            setFirstLoad(false)
+            let error = await accademy.loadCategories()
+            if(error) {
+                // TODO: animation
+                console.warn("ERRORE")
+            } else {
+                let selectedCategory = Object.keys(accademy.getCategories())[0]
+                setSelectedCategory(selectedCategory)
+                accademy.loadModulesPerCategory(selectedCategory)
+                setFirstLoad(false)
+            }
         }
     }, [accademy])
 
-    useEffect(() => {
-        setFadeIn(false)
+    useEffect(async () => {
+        // setFadeIn(false)
         setTimeout(() => setFadeIn(true), 300)
+
+        let error = await accademy.loadModulesPerCategory(selectedCategory)
+        if(error) {
+            // TODO: animation
+        }
     }, [selectedCategory])
 
     return (
@@ -69,43 +75,56 @@ function AccademyPage(props) {
                 }
             </div>
             <div id="categories">
-                <ScrollContainer
-                isMobile={windowInfo.mobileMode}
-                direction="horizontal"
-                margin={0}>
                 {
-                    accademy && Object.keys(accademy.getCategories()).map((key) => {
-                        if(key == "general")
-                            return <div
-                                    className={selectedSection == GENERAL_SECTION_FLAG ? "category_item bounce selected" : "category_item bounce"}
-                                    onClick={() => setSelectedSection(GENERAL_SECTION_FLAG)}>
-                                        <h5>Panoramica</h5>
-                                    </div>
-                        else if( key == "personal")
-                            return <div
-                                    className={selectedSection == PERSONAL_SECTION_FLAG ? "category_item bounce selected" : "category_item bounce"}
-                                    onClick={() => setSelectedSection(PERSONAL_SECTION_FLAG)}>
-                                        <h5>Scelti per Te</h5>
-                                    </div>
-                        else return <div
-                                className={selectedCategory == key ? "category_item bounce selected" : "category_item bounce"}
-                                onClick={() => {
-                                    setSelectedSection(CATEGORY_SECTION_FLAG)
-                                    setSelectedCategory(key)
-                                    accademy.loadModulesPerCategory(10, key)
-                                }}>
-                                    <h5>{accademy.getCategories()[key]}</h5>
-                                </div>
-                    })
+                    firstLoad ?
+                    <ScrollContainer
+                    isMobile={windowInfo.mobileMode}
+                    direction="horizontal"
+                    margin={0}>
+                        <Skeleton height="170px" width="200px" className="m-2"/>
+                        <Skeleton height="170px" width="200px" className="m-2"/>
+                        <Skeleton height="170px" width="200px" className="m-2"/>
+                        <Skeleton height="170px" width="200px" className="m-2"/>
+                    </ScrollContainer> : 
+                    <ScrollContainer
+                    isMobile={windowInfo.mobileMode}
+                    direction="horizontal"
+                    margin={0}>
+                    { 
+                        accademy && Object.keys(accademy.getCategories()).map((key) => {
+                            if(key == "general")
+                                return <div
+                                        className={selectedSection == GENERAL_SECTION_FLAG ? "category_item bounce selected" : "category_item bounce"}
+                                        onClick={() => setSelectedSection(GENERAL_SECTION_FLAG)}>
+                                            <h5>Panoramica</h5>
+                                        </div>
+                            else if( key == "personal")
+                                return <div
+                                        className={selectedSection == PERSONAL_SECTION_FLAG ? "category_item bounce selected" : "category_item bounce"}
+                                        onClick={() => setSelectedSection(PERSONAL_SECTION_FLAG)}>
+                                            <h5>Scelti per Te</h5>
+                                        </div>
+                            else return <Fade in={true} style={{ transitionDuration: "800ms"}}>
+                                            <div
+                                            className={selectedCategory == key ? "category_item bounce selected" : "category_item bounce"}
+                                            onClick={() => {
+                                                setSelectedSection(CATEGORY_SECTION_FLAG)
+                                                setSelectedCategory(key)
+                                            }}>
+                                                <h5>{accademy.getCategories()[key]['title']}</h5>
+                                            </div>
+                                        </Fade>
+                        })
+                    }
+                    </ScrollContainer>
                 }
-                </ScrollContainer>
             </div>
             <div className="content_container">
                 <Fade in={fadeIn} timeout={300}>
                     <div>
                         <FiremanPole
-                        modulesList={accademy && accademy.getPersonalModules()}
-                        modulesInfo={accademy && accademy.getInfoPersonalModules()}/>
+                        modulesList={accademy && accademy.getModulesPerCategory()[selectedCategory]}
+                        modulesInfo={accademy && accademy.getCategories()[selectedCategory]?.description}/>
                     </div>
                 </Fade>
             </div>
@@ -143,56 +162,72 @@ function FiremanPole(props) {
     const [surveyAnswer, setSurveyAnswer] = useState(null)
 
     return (
-        <Fade in={true} timeout={1000}>
-            <Row className="mt-3">
-                <Col md="5" id="right_bar" className="order-md-2">
-                    <div className="program_info block">
-                        <h1>{modulesInfo && "Ragiungerai i tuoi obbiettivi in " + modulesInfo['time']}</h1>
-                        <p className="description">{modulesInfo && "Alla fine del tuo percorso potrai stupire chiunque tu voglia parlando di " + modulesInfo['args']}</p>
-                    </div>
-                    <br/>
-                    <div className="survey block">
-                        <h5>Quanto pensi che questo programma si addica alle tue necessità?</h5>
-                        <div className="centered">
-                            <div className="display_inline">
-                                {
-                                    [1,2,3,4,5].map((number) => 
-                                        <div
-                                        keys={number}
-                                        className={"number centered bounce " + (surveyAnswer == number ? "selected" : "")}
-                                        onClick={() => setSurveyAnswer(surveyAnswer == number ? null : number)}>
-                                            <h5 className="m-0">{number}</h5>
-                                        </div>
-                                    )
-                                }
+        <Fade in={true} >
+            {
+                modulesList && Object.keys(modulesList).length ?
+                <>
+                    <Row className="mt-3">
+                        <Col md="5" id="right_bar" className="order-md-2">
+                            <div className="program_info block">
+                                <h1>Informazioni sul percorso</h1>
+                                <p className="description">{modulesInfo && modulesInfo}</p>
                             </div>
-                        </div>
-                    </div>
-                    <br/>
-                </Col>
-                <Col md="7" className="personal_courses order-md-1">
-                    {
-                        modulesList && Object.keys(modulesList).map((id, index) =>
-                            <Row>
-                                <Col xs="2" className="timeline">
-                                    <div className="course_number">
-                                        <h5 className="m-0">{index + 1}</h5>
+                            <br/>
+                            <div className="survey block">
+                                <h5>Quanto pensi che questo programma si addica alle tue necessità?</h5>
+                                <div className="centered">
+                                    <div className="display_inline">
+                                        {
+                                            [1,2,3,4,5].map((number) => 
+                                                <div
+                                                keys={number}
+                                                className={"number centered bounce " + (surveyAnswer == number ? "selected" : "")}
+                                                onClick={() => setSurveyAnswer(surveyAnswer == number ? null : number)}>
+                                                    <h5 className="m-0">{number}</h5>
+                                                </div>
+                                            )
+                                        }
                                     </div>
-                                </Col>
-                                <Col xs="10" keys={id}>
-                                    <AccademyCard
-                                    windowInfo={windowInfo}
-                                    content={modulesList[id]}
-                                    layout="default"/>
-                                    <br />
-                                </Col>
-                            </Row>
-                        )
-                    }
-                    <br/>
-                    <br/>
-                </Col>
-            </Row>
+                                </div>
+                            </div>
+                            <br/>
+                        </Col>
+                        <Col md="7" className="personal_courses order-md-1">
+                            {
+                                modulesList && Object.keys(modulesList).map((id, index) =>
+                                    <Row>
+                                        <Col xs="2" className="timeline">
+                                            <div className="course_number">
+                                                <h5 className="m-0">{index + 1}</h5>
+                                            </div>
+                                        </Col>
+                                        <Col xs="10" keys={id}>
+                                            <AccademyCard
+                                            windowInfo={windowInfo}
+                                            content={modulesList[id]}
+                                            layout="default"/>
+                                            <br />
+                                        </Col>
+                                    </Row>
+                                )
+                            }
+                            <br/>
+                            <br/>
+                        </Col>
+                    </Row>
+                </> :
+                <Row>
+                    <Col md="7">
+                        <Skeleton variant="rectangular" height="500px"/>
+                        <Skeleton variant="rectangular" height="500px"/>
+                    </Col>
+                    <Col md="5">
+                        <Skeleton variant="rectangular" height="500px"/>
+                        <Skeleton variant="rectangular" height="500px"/>
+                    </Col>
+                </Row>
+
+            }
         </Fade>
     )
 }

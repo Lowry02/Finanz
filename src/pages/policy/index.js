@@ -1,0 +1,45 @@
+import React from 'react'
+import { Container } from 'react-bootstrap'
+
+import "./style.css"
+
+function Policy() {
+  return (
+    <div id="policy">
+      <br/>
+      <Container className="block">
+        <br/>
+        <h1>INFORMATIVA RESA AI SENSI DEGLI ART. 13-14 DEL GDPR (GENERAL DATA PROTECTION REGULATION) 2016/679</h1>
+        <p>La presente informativa sulla privacy riguarda la vostra partecipazione e tutte le attività collegate alle community di NOVA CAPITAL SRL Società Benefit – o in forma abbreviata NOVA CAPITAL SRL SB. Il suo scopo è spiegare i motivi per cui i dati personali forniti vengono trattati, il modo in cui sono raccolti, gestiti, protetti tali dati, quale uso è fatto delle informazioni ricavate e quali diritti è possibile esercitare al riguardo. In particolare, per l’instaurazione e l’esecuzione dei rapporti con Voi in corso, la nostra organizzazione è in possesso di Vostri dati, acquisiti anche verbalmente, direttamente o tramite terzi, qualificati come personali dal Regolamento Europe 2016/679 dal (GDPR).
+            Secondo la normativa indicata, tale trattamento sarà improntato ai principi di correttezza, liceità, trasparenza e di tutela della Vostra riservatezza e dei Vostri diritti.
+            Ai sensi dell'articolo 13 del GDPR 2016/679, pertanto, Vi forniamo le seguenti informazioni:</p>
+        <h3>Natura dei dati trattati</h3>
+        <p>Trattiamo i vostri dati personali normali per permettervi di partecipare alle iniziative e alle attività della community NOVA CAPITAL SRL Società Benefit – o in forma abbreviata NOVA CAPITAL SRL SB Non verranno trattati dati particolari.
+            La base giuridica è costituita dagli artt. 6, comma 1 lett  a (consenso), b (esecuzione contratto), f (Interesse legittimo del titolare).</p>
+        <h5>Finalità del trattamento e durata</h5>
+        <p>La raccolta e l'utilizzo dei dati ci consentono di determinare l'appartenenza di un utente alla community, di contattare gli utenti per questioni relative alle attività online e offline nell'ambito della community stessa, per conoscere gli specifici interessi  e per garantire la loro partecipazione alle varie iniziative.
+            I dati sono trattati per le seguenti finalità: adempiere ad obblighi precontrattuali, contrattuali e fiscali derivanti da rapporti con voi in essere; adempiere agli obblighi previsti dalla legge, da un regolamento, dalla normativa comunitaria o da un ordine dell’Autorità; inviare comunicazioni sulle attività della community; esercitare i diritti del Titolare, ad esempio il diritto di difesa in giudizio; raccogliere dati relativi alle modalità di utilizzo della nostra app, per fornire servizi di specifico interesse. Non siamo in possesso di Vostri dati qualificabili come particolari o di natura giudiziaria (artt.9 e 10 del GDPR). 
+            Ove il soggetto che conferisce i dati sia minorenne, tale trattamento è lecito soltanto se e nella misura in cui il consenso – ove necessario - sia prestato dal titolare della responsabilità genitoriale per il quale sono acquisiti i dati identificativi. 
+            I dati vengono trattati per tutta la durata prevista da obblighi legali e fiscali e per la gestione di attività o eventi a cui parteciperete. Il Titolare tratterà i dati personali per il tempo necessario per adempiere alle finalità di cui sopra e nel rispetto degli obblighi di legge.</p>
+        <h3>Obbligo o facoltà di conferire i dati</h3>
+        <p> Per quanto concerne i dati che siamo obbligati a conoscere, al fine di adempiere agli obblighi previsti da leggi, il loro mancato conferimento da parte Vostra comporta l’impossibilità di instaurare o proseguire il rapporto, nei limiti in cui tali dati sono necessari all’esecuzione dello stesso.</p>
+        <h3>Ambito di conoscenza dei Vostri dati</h3>
+        <p> le seguenti categorie di soggetti possono venire a conoscenza dei Vostri dati, in qualità di responsabili o incaricati del trattamento, nominati dalla scrivente associazione titolare del trattamento: soci, consiglieri, uffici di segreteria interni; addetti alla contabilità ed alla fatturazione.</p>
+        <h3>Comunicazione e diffusione</h3>
+        <p> i Vostri dati non verranno da noi diffusi a soggetti indeterminati mediante la loro messa a disposizione o consultazione. I Vostri dati potranno da noi essere comunicati, per quanto di loro rispettiva e specifica competenza, ad Enti ed in generale ad ogni soggetto pubblico o privato rispetto al quale vi sia per noi obbligo (o facoltà riconosciuta da norme di legge o di normativa secondaria o comunitaria) o necessità di comunicazione, nonché a soggetti nostri consulenti, nei limiti necessari per svolgere il loro incarico presso la nostra organizzazione, previo nostra lettera di incarico che imponga il dovere di riservatezza e sicurezza.</p>
+        <h3>Trasferimento dati in paesi fuori dall’Unione Europea</h3>
+        <p> Solo ove necessario i Dati Personali potranno essere trasferiti all’estero in paesi extra-europei il cui livello di protezione dei dati è stato ritenuto adeguato dalla commissione Europea ai sensi dell’art. 45 del GDPR oppure previa sottoscrizione delle clausole contrattuali standard (Standard Contractual Clauses) adottate/approvate dalla Commissione Europea ai sensi dell’art.  46, 2 lett. C) e d) oppure previa adozione delle altre garanzie di cui agli art.  46 e 47 del GDPR.</p>
+        <h3>I Vostri diritti</h3>
+        <p>Nella Vostra qualità di interessato, avete i diritti di cui all’art. 15 GDPR e precisamente i diritti di:  i. ottenere la conferma dell'esistenza o meno di dati personali che Ti riguardano, anche se non ancora registrati, e la loro comunicazione in forma intelligibile; ii. ottenere l'indicazione: a) dell'origine dei dati personali; b) delle finalità e modalità del trattamento; c) della logica applicata in caso di trattamento effettuato con l'ausilio di strumenti elettronici; d) degli estremi identificativi del titolare, dei responsabili e del rappresentante designato ai sensi dell'art. 3, comma 1, GDPR; e) dei soggetti o delle categorie di soggetti ai quali i dati personali possono essere comunicati o che possono venirne a conoscenza in qualità di rappresentante designato nel territorio dello Stato, di responsabili o incaricati; iii. ottenere: a) l'aggiornamento, la rettificazione ovvero l'integrazione dei dati; b) la cancellazione, la trasformazione in forma anonima o il blocco dei dati trattati in violazione di legge, compresi quelli di cui non è necessaria la conservazione in relazione agli scopi per i quali i dati sono stati raccolti o successivamente trattati; c) l'attestazione che le operazioni di cui alle lettere a) e b) sono state portate a conoscenza, anche per quanto riguarda il loro contenuto, di coloro ai quali i dati sono stati comunicati o diffusi, eccettuato il caso in cui tale adempimento si rivela impossibile o comporta un impiego di mezzi manifestamente sproporzionato rispetto al diritto tutelato; iv. opporsi, in tutto o in parte: a) per motivi legittimi al trattamento dei dati personali che Vi riguardano, ancorché pertinenti allo scopo della raccolta; b) al trattamento di dati personali che Vi riguardano a fini di invio di materiale pubblicitario o di vendita diretta o per il compimento di ricerche di mercato o di comunicazione commerciale, mediante l’uso di sistemi automatizzati di chiamata senza l’intervento di un operatore mediante email e/o mediante modalità di marketing tradizionali mediante telefono e/o posta cartacea. Ove applicabili, avrete altresì i diritti di cui agli artt. 16-21 GDPR (Diritto di rettifica, diritto all’oblio, diritto di limitazione di trattamento, diritto alla portabilità dei dati, diritto di opposizione), nonché il diritto di reclamo all’Autorità Garante. In qualsiasi momento potrete  ottenere conferma dell'esistenza o meno di dati personali che Vi riguardano e la comunicazione di tali dati e delle finalità su cui si basa il trattamento.  Inoltre, potrete ottenere la cancellazione, la trasformazione in forma anonima o il blocco dei dati trattati in violazione di legge, nonché l'aggiornamento, la rettificazione o, qualora sussista un Vostro interesse in merito, l'integrazione dei dati.  Potrete opporvi, per motivi legittimi, al trattamento. Vi chiediamo cortesemente di segnalare tempestivamente all’Ufficio di riferimento della società ogni eventuale variazione dei Vostri dati personali in modo da poter ottemperare alla normativa vigente, che richiede che i dati raccolti siano esatti e, quindi, aggiornati.
+          Titolare e responsabile del trattamento: titolare del trattamento è NOVA CAPITAL SRL, con sede in Vanzaghello (MI) Via Albarina n. 11/b.
+          Per esercitare i diritti previsti, tra i quali la modifica e la cancellazione dei dati, si prega di inviare comunicazione al seguente indirizzo e-mail:  <a href="mailto:info@finan-z.com">info@finan-z.com</a> </p>
+        <h3>Nova Capital SRL Società</h3>
+        <h3>Benefit</h3>
+        <br/>
+      </Container>
+      <br/>
+    </div>
+  )
+}
+
+export default Policy

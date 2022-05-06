@@ -52,6 +52,14 @@
     border-radius: 5px;
 }
 
+#registration .content.animate::before,
+#registration .content.animate::after {
+    animation-name: rotation;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-delay: 800ms;
+}
+
 #registration .button {
     background: var(--details_color);
     border: none;
@@ -60,6 +68,10 @@
     margin-top: 10px;
     margin-bottom: 20px;
     overflow: hidden;
+}
+
+#registration .thin {
+    font-weight: 100;
 }
 
 #registration .thin_orange {
@@ -71,4 +83,12 @@
 #registration .thin_orange:hover {
     text-decoration: underline;
     cursor: pointer;
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(45deg);
+    } to {
+        transform: rotate(405deg);
+    }
 }

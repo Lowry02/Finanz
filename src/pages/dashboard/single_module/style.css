@@ -249,6 +249,22 @@
     transform: scale(0.98);
 }
 
+#module_pages .markdown_content img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+}
+
+
+#module_pages .markdown_content {
+    font-weight: 200;
+}
+
+#module_pages .markdown_content p br{
+    display: none;
+}
+
 @media screen and (max-width: 768px) {
     #single_module .lessons_container .lesson_item {
         max-width: 100%;
@@ -257,5 +273,9 @@
 
     #single_module .side_bar {
         margin-top: 20px;
+    }
+
+    #single_module .content_container .info_container .lessons_container .lesson_item {
+        width: 100%;
     }
 }

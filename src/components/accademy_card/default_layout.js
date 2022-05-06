@@ -24,12 +24,12 @@ function DefaultAccademyCard(props) {
                         </Col>
                         <Col>
                             <div className="orange_rect">
-                                <h6>{content.getTime()} minuti</h6>
+                                <h6>Difficoltà {content.getDifficultyLevel()}</h6>
                             </div>
                         </Col>
                         <Col>
                             <div className="orange_rect">
-                                <h6>Difficoltà {content.getDifficultyLevel()}</h6>
+                                <h6>{content.getAuthor()}</h6>
                             </div>
                         </Col>
                     </Row>
