@@ -14,8 +14,11 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import ImagePicker from "../../../../media/icons/image_picker.png"
 import CloseIcon from '@mui/icons-material/Close';
+import ConfirmAction from '../../../../components/confirm_action';
 
 function ModuleLayout(props) {
+    const defaultConfirmInfo = {confirm: undefined, refute: undefined}
+
     let id = props.id
     let content = props.module
     let selectedId = props.selectedId
@@ -24,10 +27,11 @@ function ModuleLayout(props) {
 
     const [selectedPage, setSelectedPage] = useState(null)
     const [startTransition, setStartTransition] = useState(false)
+    const [confirmInfo, setConfirmInfo] = useState(defaultConfirmInfo)
 
     function handleDeleteModule(e) {
         e.stopPropagation()
-        content.deleteModule(id)
+        setConfirmInfo({confirm: () => content.deleteModule(id), refute: undefined})
     }
     
     function handleOnDragEnd(result) {
@@ -122,6 +126,7 @@ function ModuleLayout(props) {
                                                                 pageId={pageId}
                                                                 moduleId={id}
                                                                 windowInfo={windowInfo}
+                                                                confirmInfo={{setConfirmInfo : setConfirmInfo, confirmInfo: confirmInfo}}
                                                                 />
                                                         </div>
                                                     )
@@ -155,6 +160,7 @@ function ModuleLayout(props) {
                 </Row>
             </Collapse>
         }
+        <ConfirmAction action={confirmInfo} closeFunction={() => setConfirmInfo(defaultConfirmInfo)}/>
         </>
     )
 }
@@ -167,6 +173,7 @@ function PageLayout(props) {
     let selectedPage = props.selectedPage
     let setSelectedPage = props.setSelectedPage
     let windowInfo = props.windowInfo
+    let {setConfirmInfo, confirmInfo} = props.confirmInfo
     
     let type = content.module.getPageType(moduleId, pageId)
     const [openPanel, setOpenPanel] = useState(false)
@@ -201,7 +208,7 @@ function PageLayout(props) {
                                     className="orange_icon"
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        content.deletePage(moduleId, pageId)
+                                        setConfirmInfo({confirm: () => content.deletePage(moduleId, pageId), refute: undefined})
                                     }}/>
                                 </div>
                             </AccordionSummary>
@@ -248,7 +255,8 @@ function PageLayout(props) {
                                 className="orange_icon"
                                 onClick={(e) => {
                                     e.stopPropagation()
-                                    content.deletePage(moduleId, pageId)
+                                    setConfirmInfo({confirm: () => content.deletePage(moduleId, pageId), refute: undefined})
+                                    
                                 }}/>
                             </div>
                             <SwipeableDrawer

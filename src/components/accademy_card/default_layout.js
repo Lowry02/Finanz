@@ -19,7 +19,7 @@ function DefaultAccademyCard(props) {
                     <Row>
                         <Col>
                             <div className="orange_rect">
-                                <h6>{content.getNModules()} Moduli</h6>
+                                <h6>{content.getNModules()} completato</h6>
                             </div>
                         </Col>
                         <Col>
@@ -29,7 +29,7 @@ function DefaultAccademyCard(props) {
                         </Col>
                         <Col>
                             <div className="orange_rect">
-                                <h6>{content.getAuthor()}</h6>
+                                <h6>Di {content.getAuthor()}</h6>
                             </div>
                         </Col>
                     </Row>

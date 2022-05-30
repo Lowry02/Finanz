@@ -11,9 +11,12 @@ class NewsModel{
         this.wallpaper = ""
         this.socialPage = ""
         this.comments = []
+        this.comment_page_index = 1
+        this.isSaved = false
+        this.isLiked = false
     }
 
-    load({id = "", title = "", description = "", publishDate = "", author = "", category = {}, content = "", wallpaper = "", socialPage = "", comments = []}) {
+    load({id = "", title = "", description = "", publishDate = "", author = "", category = {}, content = "", wallpaper = "", socialPage = "", comments = [], comment_page_index = 1, isSaved = false, isLiked = false}) {
         this.id = id
         this.title = title
         this.description = description
@@ -24,6 +27,9 @@ class NewsModel{
         this.wallpaper = wallpaper
         this.socialPage = socialPage
         this.comments = comments
+        this.comment_page_index = comment_page_index
+        this.isSaved = isSaved  
+        this.isLiked = isLiked
     }
 
     // Setter
@@ -37,9 +43,13 @@ class NewsModel{
     setWallpaper(wallpaper) { this.wallpaper = wallpaper }
     setSocialPage(socialPage) { this.socialPage = socialPage }
     setComments(comments) { this.comments = comments }
+    setCommentPageIndex(comment_page_index) { this.comment_page_index = comment_page_index }
+    setIsSaved(isSaved) { this.isSaved = isSaved }
+    setIsLiked(isLiked) { this.isLiked = isLiked }
     
     // Getter
     getComments() { return this.comments}
+    getCommentPageIndex() { return this.comment_page_index}
     getId() { return this.id }
     getTitle() { return this.title }
     getDescription() { return this.description }
@@ -49,6 +59,8 @@ class NewsModel{
     getContent() { return this.content }
     getWallpaper() { return this.wallpaper }
     getSocialPage() { return this.socialPage }
+    getIsSaved() { return this.isSaved }
+    getIsLiked() { return this.isLiked }
 
     calcPubblicationTime() {}
 }

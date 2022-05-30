@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import QuestionController from '../../controllers/question_controller'
 import MultipleChoiceQuestion from '../multiple_choice_question'
 import { Row, Col } from "react-bootstrap"
@@ -13,24 +13,32 @@ function QuizGroup(props) {
     const [currentQuizId, setCurrentQuizId] = useState(0)
     const [currentQuiz, setCurrentQuiz] = useState(new QuestionController())
 
+    const firstLoad = useRef(true)
+
     function handleSwitch(i) {
-        let newId = (currentQuizId + i) % Object.values(questions).length
-        setCurrentQuizId(newId)
+        let currentIndex = Object.keys(questions).indexOf(currentQuizId)
+        if(currentIndex >= 0) {
+            let newId = Object.keys(questions)[currentIndex + i]
+            if(newId != undefined) setCurrentQuizId(newId)
+        }
     }
 
     useEffect(() => {
-        setCurrentQuiz(Object.values(questions)[currentQuizId])
+        if(currentQuizId != 0) setCurrentQuiz(questions[currentQuizId].question)
     }, [currentQuizId])
 
     useEffect(() => {
-        setCurrentQuiz(Object.values(questions)[currentQuizId]) 
+        if(Object.keys(questions).length != 0) {
+            if(firstLoad.current) {
+                let firstId = Object.keys(questions)[0]
+                if(firstId != undefined) {
+                    setCurrentQuizId(firstId)
+                    setCurrentQuiz(questions[firstId].question) 
+                    firstLoad.current = false
+                }
+            }
+        }
     }, [questions])
-
-    useEffect(() => {
-        // send answer
-        console.log(currentQuiz)
-    }, [currentQuiz.selectedChoices])
-    
 
     return (
         <>
@@ -39,7 +47,7 @@ function QuizGroup(props) {
             <Row>
                 <Col className="centered">
                     {
-                        currentQuizId == 0 ?
+                        currentQuizId == Object.keys(questions)[0] ?
                         "" :
                         <IconButton
                         className="orange_icon"
@@ -50,13 +58,13 @@ function QuizGroup(props) {
                 </Col>
                 <Col xs="8">
                     <div className="centered">
-                        <h6 className="mb-3">{currentQuiz.getTitle()}</h6>
+                        {/* <h6 className="mb-3">{currentQuiz.getTitle()}</h6> */}
                         <MultipleChoiceQuestion question={currentQuiz} /> 
                     </div>
                 </Col>
                 <Col className="centered">
                     {
-                        currentQuizId == Object.values(questions).length - 1 ?
+                        currentQuizId == Object.keys(questions)[Object.keys(questions).length - 1] ?
                         <IconButton
                         className="orange_icon">
                             <DoneIcon />

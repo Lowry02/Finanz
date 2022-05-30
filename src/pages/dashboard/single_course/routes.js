@@ -4,7 +4,7 @@ import SingleChapter from "./single_chapter"
 import SingleLesson from "./single_lesson"
 
 // const _base_url = routes.single_course.path
-const _base_url = "/dashboard/single_course/"
+const _base_url = "/dashboard/courses/"
 
 let course_routes = {
     home : {

@@ -2,9 +2,10 @@ import { exampleNews, exampleCategories } from "../test_data/news"
 import NewsController from "./news_controller"
 import $ from "jquery"
 import { api_url } from "../App"
+import { ConstructionOutlined } from "@mui/icons-material"
 
 class NewsListController {
-    constructor(generalNews = {}, personalNews = {}, savedNews = {}, createdNews = {}, dailiNews = {}, categories = {}, created_news_index = 1, state = undefined, overrideState = undefined,) {
+    constructor(generalNews = {}, personalNews = {}, savedNews = {}, createdNews = {}, dailiNews = {}, categories = {}, created_news_index = 1, state = undefined, overrideState = undefined, index_per_category = {}, news_per_category = {}, saved_news_index = 1) {
         this.generalNews = generalNews
         this.personalNews = personalNews
         this.savedNews = savedNews
@@ -18,6 +19,9 @@ class NewsListController {
         this.PERSONAL_NEWS = "personal"
         this.SAVED_NEWS_TAG = "saved"
         this.CREATED_NEWS_TAG = "created"
+        this.saved_news_index = saved_news_index
+        this.index_per_category = index_per_category
+        this.news_per_category = news_per_category
     }
 
     setState(state) {
@@ -31,12 +35,55 @@ class NewsListController {
 
     updateInfo() {
         if(this.state != undefined)
-            this.state(new NewsListController(this.generalNews, this.personalNews, this.savedNews, this.createdNews, this.dailiNews, this.categories, this.created_news_index, this.state, this.overrideState))
+            this.state(new NewsListController(this.generalNews, this.personalNews, this.savedNews, this.createdNews, this.dailiNews, this.categories, this.created_news_index, this.state, this.overrideState, this.index_per_category, this.news_per_category, this.saved_news_index))
         else if(this.overrideState != undefined)
             this.overrideState()
     }
 
-    load({generalNews, personalNews, savedNews, createdNews, dailiNews, categories, created_news_index, state, overrideState}) {
+    async loadNewsPerCategory(category = "general") {
+        let accessToken = window.localStorage.getItem("accessToken")
+
+        let page = this.index_per_category[category] !== undefined ? this.index_per_category[category] : 1
+        
+        if(page != null) {
+            console.log(this.index_per_category)
+            let info = { page: page }
+
+            if(category != "" && category != "general") info['category'] = category
+
+            $.ajax({
+                type: "GET",
+                url: api_url + "news/articles",
+                accepts: "application/json",
+                contentType: "json",
+                beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                data: info,
+                success: (data) => {
+                    let nextPage = data['next_page']
+                    this.index_per_category[category] = nextPage
+
+                    if(this.news_per_category[category] == undefined) this.news_per_category[category] = []
+                    
+                    let newsList = data['news_list']
+                    for(let item of Object.values(newsList)) {
+                        let content = item['content']
+                        let newNews = new NewsController()
+                        newNews.setOverrideState((() => this.updateInfo()).bind(this))
+                        newNews.setAuthor(content.author['personalData']['surname'] + " " + content.author['personalData']['name'])
+                        newNews.setId(content['slug'])
+                        newNews.setWallpaper(content['coverImageLink'])
+                        newNews.setTitle(content['title'])
+
+                        this.news_per_category[category].push(newNews)
+                        // aggiungere autore
+                    }
+                    this.updateInfo()
+                }
+            })
+        }
+    }
+
+    load({generalNews, personalNews, savedNews, createdNews, dailiNews, categories, created_news_index, state, overrideState, index_per_category, news_per_category, saved_news_index}) {
         this.generalNews = generalNews
         this.personalNews = personalNews
         this.savedNews = savedNews
@@ -46,6 +93,9 @@ class NewsListController {
         this.created_news_index = created_news_index
         this.state = state
         this.overrideState = overrideState
+        this.index_per_category = index_per_category
+        this.news_per_category = news_per_category
+        this.saved_news_index = saved_news_index
     }
 
     getGeneralNews() {
@@ -73,7 +123,11 @@ class NewsListController {
     }
 
     getNewsPerCategory(category, n = 10) {
-        return this.__getNewsList(this.personalNews, n)
+        return this.news_per_category[category] != undefined ? this.news_per_category[category] : []
+    }
+
+    getSavedNewsIndex() {
+        return this.saved_news_index
     }
 
     setGeneralNews(generalNews) {
@@ -106,6 +160,12 @@ class NewsListController {
         this.updateInfo()
     }
 
+    setSavedNewsIndex(saved_news_index) {
+        this.saved_news_index = saved_news_index
+        this.updateInfo()
+    }
+
+
     __getNewsList(obj, l) {
         let list = {}
         let length = Object.keys(obj).length
@@ -131,9 +191,39 @@ class NewsListController {
         this.setPersonalNews(list)
     }
 
-    loadSavedNews(n = 10) {
-        let list = this.__getNewsList(this.savedNews, n)
-        this.setSavedNews(list)
+    async loadSavedNews(n = 10) {
+        // this.setCreatedNews(list)
+        let accessToken = window.localStorage.getItem('accessToken')
+                
+        if(this.saved_news_index != null) {
+            $.ajax({
+                type: "GET",
+                url: api_url + "news/article/saves",
+                accepts: "json",
+                contentType: "json",
+                beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                data: {
+                    page: this.saved_news_index,
+                },
+                success: (data) => {
+                    this.saved_news_index = data['next_page']
+
+                    let list = data['news_list']
+                    let newsList = {...this.getSavedNews()}
+                    for(let news of list) {
+                        let newNews = new NewsController()
+                        
+                        newNews.setId(news['slug'])
+                        newNews.setTitle(news['title'])
+                        newNews.setOverrideState((() => this.updateInfo()).bind(this))
+                        // chiedere di implementare ora e categoria
+                        newsList[news['slug']] = newNews
+                    }
+                    this.setSavedNews(newsList)
+                },
+                error: (message) => console.log(message)
+            })
+        }
     }
 
     loadCreatedNews(n = 10) {
@@ -152,7 +242,7 @@ class NewsListController {
                 },
                 success: (data) => {
                     this.created_news_index = data['next_page']
-    
+
                     let list = data['news_list']
                     let newsList = {...this.getCreatedNews()}
                     for(let news of list) {
@@ -177,8 +267,28 @@ class NewsListController {
     }
 
     loadCategories() {
-        let categories = exampleCategories
-        this.setCategories(categories)
+        let accessToken = window.localStorage.getItem("accessToken")
+
+        $.ajax({
+            type: "GET",
+            url: api_url + "news/categories",
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: (data) => {
+                let categories = data['categories']
+                if(categories != undefined) {
+                    for(let category of Object.values(categories)) {
+                        let title = category['title']
+                        let slug = category['slug']
+
+                        this.categories[slug] = title
+                    }
+
+                    this.updateInfo()
+                }
+            }
+        })
     }
 
     removeNews(newsId, tag) {
@@ -205,7 +315,7 @@ class NewsListController {
             accepts: "json",
             contentType: "json",
             beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
-            success: console.log('ciao')
+            success: () => console.log('ciao')
         })
     }
 

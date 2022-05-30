@@ -1,50 +1,35 @@
-import React, {useState, useEffect} from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-
-import InfoSection from './sections/info_section';
-import NewsSection from './sections/news_section';
-import AccademySection from './sections/accademy_section';
-import CoursesSection from './sections/courses_section';
-import WebinarSection from './sections/webinar_section';
-import QuestionSection from './sections/question_section';
-
+import React, {useState} from 'react'
+import { useNavigate } from 'react-router-dom'
 import {Row, Col} from "react-bootstrap"
 import routes from '../routes';
 import "./style.css"
 import { Accordion, AccordionDetails } from '@mui/material';
 import { AccordionSummary } from '@material-ui/core';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import SchoolSection from './sections/school_section';
+
+import { default as internal_routes } from "./routes"
+import CustomRouter from '../../../../components/custom_router';
+import { Route, useParams } from 'react-router';
 
 function AccountHome(props) {
     let navigate = useNavigate()
+    let params = useParams()
+    let section = params['*']
     let user = props.user
     let windowInfo = props.windowInfo
     const [openMobileMenu, setOpenMobileMenu] = useState(false)
 
     // sections name
-    const INFO_SECTION = "info"
+    const INFO_SECTION = ""
+    const PAYMENTS = "payments"
     const NEWS_SECTION = "news"
-    const ACCADEMY_SECTION = "accademy"
-    const COURSE_SECTION = "corsi"
+    const ACCADEMY_SECTION = "academy"
+    const COURSE_SECTION = "course"
     const WEBINAR_SECTION = "webinar"
     const SCHOOL_SECTION = "school"
     const STATISTIC_SECTION = "statistiche"
-    const QUESTION_SECTION = "domande"
-
-    // sections component
-    const sectionComponent = {
-        [INFO_SECTION] : () => <InfoSection {...props} />,
-        [NEWS_SECTION] : () => <NewsSection {...props} />,
-        [ACCADEMY_SECTION] : () => <AccademySection {...props} />,
-        [COURSE_SECTION] : () => <CoursesSection {...props} />,
-        [WEBINAR_SECTION] : () => <WebinarSection {...props} />,
-        [SCHOOL_SECTION] : () => <SchoolSection {...props} />,
-        [STATISTIC_SECTION] : () => <StatisticSection {...props} />,
-        [QUESTION_SECTION] : () => <QuestionSection {...props} />,
-    }
-
-    const [section, setSection] = useState(INFO_SECTION)
+    const TAG_FIELD = "tag"
+    const QUESTION_SECTION = "question"
 
     return <div className="account_page">
         {
@@ -64,42 +49,68 @@ function AccountHome(props) {
                             <h3>Menu</h3>
                             <p 
                             className={section == INFO_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                            onClick={() => setSection(INFO_SECTION)}>
+                            onClick={() => navigate(internal_routes.info.path)}>
                                 Informazioni
                             </p>
                             <p 
+                            className={section == PAYMENTS ? "menu_item bounce selected" : "menu_item bounce"}
+                            onClick={() => navigate(internal_routes.payments.path)}>
+                                Abbonamento
+                            </p>
+                            <p 
                             className={section == NEWS_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                            onClick={() => setSection(NEWS_SECTION)}>
+                            onClick={() => navigate(internal_routes.news.path)}>
                                 News
                             </p>
                             <p 
                             className={section == ACCADEMY_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                            onClick={() => setSection(ACCADEMY_SECTION)}>
+                            onClick={() => navigate(internal_routes.academy.path)}>
                                 Academy
                             </p>
-                            <p 
-                            className={section == COURSE_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                            onClick={() => setSection(COURSE_SECTION)}>
-                                Corsi
-                            </p>
-                            <p 
-                            className={section == WEBINAR_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                            onClick={() => setSection(WEBINAR_SECTION)}>
-                                Webinar
-                            </p>
-                            <p 
-                            className={section == SCHOOL_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                            onClick={() => setSection(SCHOOL_SECTION)}>
-                                Scuola
-                            </p>
-                            <p 
+                            {
+                                user && user.canI("create_course") ?
+                                <p 
+                                className={section == COURSE_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
+                                onClick={() => navigate(internal_routes.course.path)}>
+                                    Corsi
+                                </p> :
+                                ""
+                            }
+                            {
+                                user && user.canI("create_webinar") ?
+                                <p 
+                                className={section == WEBINAR_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
+                                onClick={() => navigate(internal_routes.webinar.path)}>
+                                    Webinar
+                                </p> :
+                                ""
+                            }
+                            {
+                                user && user.canI("create_school") ?
+                                <p 
+                                className={section == SCHOOL_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
+                                onClick={() => navigate(internal_routes.school.path)}>
+                                    Scuola
+                                </p> :
+                                ""
+                            }
+                            {
+                                user && user.canI("manage_tag") ?
+                                <p 
+                                className={section == TAG_FIELD ? "menu_item bounce selected" : "menu_item bounce"}
+                                onClick={() => navigate(internal_routes.tag.path)}>
+                                    Tag & Field
+                                </p> :
+                                ""
+                            }
+                            {/* <p 
                             className={section == STATISTIC_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                            onClick={() => setSection(STATISTIC_SECTION)}>
+                            onClick={() => navigate(internal_routes.stat.path)}>
                                 Statistiche
-                            </p>
+                            </p> */}
                             <p 
                             className={section == QUESTION_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                            onClick={() => setSection(QUESTION_SECTION)}>
+                            onClick={() => navigate(internal_routes.question.path)}>
                                 Domande
                             </p>
                         </> : 
@@ -113,44 +124,54 @@ function AccountHome(props) {
                             </AccordionSummary>
                             <AccordionDetails>
                                 <div onClick={() => setOpenMobileMenu(false)}>
-                                    <p 
+                                    <p
                                     className={section == INFO_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                                    onClick={() => setSection(INFO_SECTION)}>
+                                    onClick={() => navigate(internal_routes.info.path)}>
                                         Informazioni
                                     </p>
                                     <p 
+                                    className={section == PAYMENTS ? "menu_item bounce selected" : "menu_item bounce"}
+                                    onClick={() => navigate(internal_routes.payments.path)}>
+                                        Payments
+                                    </p>
+                                    <p 
                                     className={section == NEWS_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                                    onClick={() => setSection(NEWS_SECTION)}>
+                                    onClick={() => navigate(internal_routes.news.path)}>
                                         News
                                     </p>
                                     <p 
                                     className={section == ACCADEMY_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                                    onClick={() => setSection(ACCADEMY_SECTION)}>
+                                    onClick={() => navigate(internal_routes.academy.path)}>
                                         Academy
                                     </p>
                                     <p 
                                     className={section == COURSE_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                                    onClick={() => setSection(COURSE_SECTION)}>
+                                    onClick={() => navigate(internal_routes.course.path)}>
                                         Corsi
                                     </p>
                                     <p 
                                     className={section == WEBINAR_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                                    onClick={() => setSection(WEBINAR_SECTION)}>
+                                    onClick={() => navigate(internal_routes.webinar.path)}>
                                         Webinar
                                     </p>
                                     <p 
                                     className={section == SCHOOL_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                                    onClick={() => setSection(SCHOOL_SECTION)}>
+                                    onClick={() => navigate(internal_routes.school.path)}>
                                         Scuola
                                     </p>
                                     <p 
-                                    className={section == STATISTIC_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                                    onClick={() => setSection(STATISTIC_SECTION)}>
-                                        Statistiche
+                                    className={section == TAG_FIELD ? "menu_item bounce selected" : "menu_item bounce"}
+                                    onClick={() => navigate(internal_routes.tag.path)}>
+                                        Tag & Field
                                     </p>
+                                    {/* <p 
+                                    className={section == STATISTIC_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
+                                    onClick={() => navigate(internal_routes.info.path)}>
+                                        Statistiche
+                                    </p> */}
                                     <p 
                                     className={section == QUESTION_SECTION ? "menu_item bounce selected" : "menu_item bounce"}
-                                    onClick={() => setSection(QUESTION_SECTION)}>
+                                    onClick={() => navigate(internal_routes.question.path)}>
                                         Domande
                                     </p>
                                 </div>
@@ -161,9 +182,11 @@ function AccountHome(props) {
                 </div>
             </Col>
             <Col md="7" className="content">
-                {
-                    sectionComponent[section]({user : user, routes : routes})
-                }
+                <CustomRouter>
+                    {Object.values(internal_routes).map(route => (
+                        <Route path={route.url} element={route.component({routes: routes, user: user, windowInfo: windowInfo})}/>
+                    ))}
+                </CustomRouter>
             </Col>
         </Row>
         <br/>

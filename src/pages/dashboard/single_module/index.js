@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Route, Routes } from 'react-router'
+import { Route } from 'react-router'
+import CustomRouter from '../../../components/custom_router'
 
 import routes from "./routes"
 
@@ -10,11 +11,11 @@ function SingleModule(props) {
 
     return (
         <div>
-            <Routes>
+            <CustomRouter>
                 {Object.values(routes).map((route) =>
                     <Route path={route.url} element={route.component({windowInfo : windowInfo})} />
                 )}
-            </Routes>
+            </CustomRouter>
         </div>
     )
 }

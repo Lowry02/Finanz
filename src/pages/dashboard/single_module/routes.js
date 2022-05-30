@@ -1,7 +1,7 @@
 import Lesson from "./lesson"
 import PageLayout from "./page_layout"
 
-const base_url = "/dashboard/single_module/"
+const base_url = "/dashboard/academy/"
 
 let routes = {
     home: {

@@ -3,6 +3,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import News from '../../../../components/news_card';
 import { Col, Row } from "react-bootstrap"
 import $ from "jquery"
+import { Skeleton } from '@mui/material';
 
 function NewsHome(props) {
     let content = props.content
@@ -10,7 +11,7 @@ function NewsHome(props) {
     let scrollTo = props.scrollTo
     
     useEffect(() => {
-        content.loadGeneralNews(6)
+        content.loadNewsPerCategory() // general news
     }, []);
 
     return (
@@ -29,6 +30,8 @@ function DesktopLayout(props) {
     let content = props.content
     let windowInfo = props.windowInfo
     let scrollTo = props.scrollTo
+
+    const categoryTag = "general"
 
     return <div id="news-home">
         <div className="centered">
@@ -51,46 +54,56 @@ function DesktopLayout(props) {
             </div>
         </div>
         <div className="small_news_container">
-            <Row>
-                <Col md="1"></Col>
-                <Col md="4">
-                    <News
-                    content={Object.values(content.getGeneralNews())[0]}
-                    windowInfo={windowInfo}
-                    layout="squared"
-                    selected={true}/>
-                    <News
-                    content={Object.values(content.getGeneralNews())[1]}
-                    windowInfo={windowInfo}
-                    layout="squared"
-                    selected={true}/>
-                </Col>
-                <Col md="2">
-                    <News
-                    content={Object.values(content.getGeneralNews())[2]}
-                    windowInfo={windowInfo}
-                    layout="squared"
-                    selected={true}/>
-                    <News
-                    content={Object.values(content.getGeneralNews())[3]}
-                    windowInfo={windowInfo}
-                    layout="squared"
-                    selected={true}/>
-                </Col>
-                <Col md="4">
-                    <News
-                    content={Object.values(content.getGeneralNews())[4]}
-                    windowInfo={windowInfo}
-                    layout="squared"
-                    selected={true}/>
-                    <News
-                    content={Object.values(content.getGeneralNews())[5]}
-                    windowInfo={windowInfo}
-                    layout="squared"
-                    selected={true}/>
-                </Col>
-                <Col md="1"></Col>
-            </Row>
+            {
+                content.getNewsPerCategory(categoryTag).length == 0 ?
+                    <Row>
+                        <Col md="1"></Col>
+                        <Col md="4">
+                            <Skeleton height="200px" />
+                            <br/>
+                            <Skeleton height="200px" />
+                        </Col>
+                        <Col md="2">
+                            <Skeleton height="200px" />
+                            <br/>
+                            <Skeleton height="200px" />
+                        </Col>
+                        <Col md="4">
+                            <Skeleton height="200px" />
+                            <br/>
+                            <Skeleton height="200px" />
+                        </Col>
+                        <Col md="1"></Col>
+                    </Row> : 
+                    <Row>
+                        <Col md="2"></Col>
+                        <Col md="4">
+                            <News
+                            content={content.getNewsPerCategory(categoryTag)[0]}
+                            windowInfo={windowInfo}
+                            layout="squared"
+                            selected={true}/>
+                            <News
+                            content={content && content.getNewsPerCategory(categoryTag)[1]}
+                            windowInfo={windowInfo}
+                            layout="squared"
+                            selected={true}/>
+                        </Col>
+                        <Col md="4">
+                            <News
+                            content={content && content.getNewsPerCategory(categoryTag)[2]}
+                            windowInfo={windowInfo}
+                            layout="squared"
+                            selected={true}/>
+                            <News
+                            content={content && content.getNewsPerCategory(categoryTag)[3]}
+                            windowInfo={windowInfo}
+                            layout="squared"
+                            selected={true}/>
+                        </Col>
+                        <Col md="2"></Col>
+                    </Row>
+            }
         </div>
     </div>;
 }
@@ -99,6 +112,7 @@ function MobileLayout(props) {
     let content = props.content
     let windowInfo = props.windowInfo
     let scrollTo = props.scrollTo
+    const categoryTag = "general"
 
     return (
         <div id="news-home">
@@ -115,10 +129,10 @@ function MobileLayout(props) {
             </div>
             <h6 className="section_title">Panoramica</h6>
             {
-                content && Object.values(content.getGeneralNews()).map((item) => {
+                content && Object.values(content.getNewsPerCategory(categoryTag)).map((item) => {
                     return (
                         <News
-                        content={Object.values(content.getGeneralNews())[4]}
+                        content={item}
                         windowInfo={windowInfo}
                         layout="rectangular"/>
                     )

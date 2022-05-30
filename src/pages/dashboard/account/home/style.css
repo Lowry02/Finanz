@@ -9,6 +9,15 @@
     padding: 20px;
 } */
 
+#account_page .grid {
+    display: grid;
+    column-gap: 10px;
+    grid-template-columns: repeat( auto-fit, minmax(100%, calc(32%)))
+}
+
+#account_page #payments .block {
+    border: 1px solid var(--details_color)
+}
 
 #account_page .sidebar {
     padding: 20px;
@@ -68,7 +77,7 @@
 
 #account_page .search_bar input {
     background: var(--second_color);
-    width: 90%;
+    width: 100%;
     min-width: unset;
 }
 
@@ -103,21 +112,6 @@
     font-weight: 500;
 }
 
-.modal_redeem_code {
-    background: green;
-    display: grid;
-    place-content: center;
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: var(--default_shadow);
-    background: var(--third_bkg);
-    color: white;
-    position: relative;
-}
-
 .modal_redeem_code .close_modal {
     position: absolute;
     top: 10px;
@@ -132,6 +126,11 @@
     overflow: hidden;
     margin-left: auto;
     margin-right: auto;
+}
+
+#account_page #info_section .avatar_container h1 {
+    font-size: 120px;
+    color: var(--details_color);
 }
 
 #account_page #info_section .avatar {

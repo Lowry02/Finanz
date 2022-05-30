@@ -35,6 +35,7 @@ class CoursesListController {
         this.coursesPerCategory = coursesPerCategory
         this.state = state
         this.overrideState = overrideState
+        this.categories = categories
     }
 
     updateInfo() {
@@ -109,8 +110,44 @@ class CoursesListController {
     }
 
     loadAllCourses(n = 10) {
-        let list = this.__getCoursesList(this.allCourses, n)
-        this.setAllCourses(list)
+        let accessToken = window.localStorage.getItem('accessToken')
+        
+        return $.ajax({
+            type: "GET",
+            url: api_url + "courses",
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: (data) => {
+                let courses = data['courses']
+                this.coursesPerCategory = {}
+
+                for(let course of courses) {
+                    let slug = course['slug']
+                    let courseArg = course['argument']['slug']
+                    let wallpaper = course['coverImageLink']
+                    let title = course['title']
+                    let description = course['description']
+
+                    let newCourse = new CourseController()
+                    newCourse.setId(slug)
+                    newCourse.setArgument(courseArg)
+                    newCourse.setWallpaper(wallpaper)
+                    newCourse.setTitle(title)
+                    newCourse.setDescription(description)
+
+                    // list[slug] = newCourse
+
+                    if(this.coursesPerCategory[courseArg] != undefined) {
+                        this.coursesPerCategory[courseArg].push(newCourse)
+                    } else {
+                        this.coursesPerCategory[courseArg] = [newCourse]
+                    }
+                }
+
+                this.updateInfo()
+            }
+        })
     }
     
     loadSavedCourses(n = 10) {
@@ -160,21 +197,28 @@ class CoursesListController {
     }
 
     loadCategories() {
-        let list = {
-            1 : "Nuovi",
-            2 : "I più visti",
-            3 : "Finanza",
-            4 : "Python",
-            5 : "Da non perdere",
-            6 : "Nuovi",
-            7 : "I più visti",
-            8 : "Finanza",
-            9 : "Python",
-            10 : "Da non perdere",
-            11 : "Finanza",
-            12 : "Python",
-        }
-        this.setCategories(list)
+        let accessToken = window.localStorage.getItem('accessToken')
+        
+        return $.ajax({
+            type: "GET",
+            url: api_url + "course/arguments",
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: (data) => {
+                let args = data['arguments']
+
+                let list = {}
+                for(let arg of args) {
+                    let slug = arg['slug']
+                    let title = arg['title']
+
+                    list[slug] = title
+                }
+
+                this.setCategories(list)
+            },
+        })
     }
 
     async removeCourse(courseId, tag) {
@@ -200,8 +244,6 @@ class CoursesListController {
             contentType: "application/json",
             beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
         })
-
-        console.log(this.createdCourses)
 
         this.updateInfo()
     }

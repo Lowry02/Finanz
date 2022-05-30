@@ -6,7 +6,7 @@ import "./style.css"
 
 function CoursesBlock(props) {
     let id = props.id
-    let content = props.content && props.content[0]
+    let content = props.content
     let windowInfo = props.windowInfo
     let title = props.title
 

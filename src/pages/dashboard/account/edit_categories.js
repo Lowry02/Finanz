@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ImagePicker from "../../../media/icons/image_picker.png"
 import CloseIcon from '@mui/icons-material/Close';
 import {urlToFile} from "../../../utils"
+import ConfirmAction from '../../../components/confirm_action';
 
 function EditCategories(props) {
     let isOpen = props.isOpen
@@ -24,6 +25,7 @@ function EditCategories(props) {
     const [image, setImage] = useState("")
     const [selectedItem, setSelectedItem] = useState('')
     const [questionCreator, setQuestionCreator] = useState(new QuestionCreationController())
+    const [confirmInfo, setConfirmInfo] = useState({confirm: undefined, refute: undefined})
 
     function handleClose() { setIsOpen(false) }
 
@@ -107,9 +109,12 @@ function EditCategories(props) {
                                     <p className="m-0">{questionCreator.question.getChoices()[id]?.description}</p>
                                     <DeleteIcon onClick={(e) => {
                                         e.stopPropagation()
-                                        onDelete(id, () => {
-                                            setSelectedItem('')
-                                            questionCreator.deleteItem(id)
+                                        setConfirmInfo({
+                                            confirm: () => onDelete(id, () => {
+                                                setSelectedItem('')
+                                                questionCreator.deleteItem(id)
+                                            }),
+                                            refute: undefined
                                         })
                                     }}/>
                                 </div>
@@ -168,6 +173,7 @@ function EditCategories(props) {
                     </div>
                 </DialogContent>
             </Dialog>
+            <ConfirmAction action={confirmInfo} closeFunction={() => setConfirmInfo({confirm: undefined, refute: undefined})} />
         </div>
     )
 }

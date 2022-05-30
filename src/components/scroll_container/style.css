@@ -6,8 +6,7 @@
 .scroll_container.horizontal {
     grid-auto-flow: column;
     width: 100%;
-    place-content: center;
-
+    /* place-items: center; */
 }
 
 .scroll_container.vertical {

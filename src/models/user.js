@@ -1,3 +1,5 @@
+import FieldsOfInterestListController from "../controllers/field_of_interest_list_controller"
+
 class User {
     constructor() {
         this.accessToken = ""
@@ -16,10 +18,11 @@ class User {
         this.consecutiveDaysJoin = ""
         this.role = []
         this.createdCodes = []
+        this.interests_field = new FieldsOfInterestListController()
         // language, league, consecutiveDaysJoin, role
     }
 
-    load({ accessToken, refreshToken, name, surname, birthday, email, username, password, codice_invito, avatar, xp, language, league, consecutiveDaysJoin, role, createdCodes }) {
+    load({ accessToken, refreshToken, name, surname, birthday, email, username, password, codice_invito, avatar, xp, language, league, consecutiveDaysJoin, role, createdCodes, interests_field }) {
         this.accessToken = accessToken != undefined ? accessToken : this.accessToken
         this.refreshToken = refreshToken != undefined ? refreshToken : this.refreshToken
         this.name = name != undefined ? name : this.name
@@ -36,6 +39,7 @@ class User {
         this.consecutiveDaysJoin = consecutiveDaysJoin != undefined ? consecutiveDaysJoin : this.consecutiveDaysJoin
         this.role = role != undefined ? role : this.role
         this.createdCodes = createdCodes != undefined ? createdCodes : this.createdCodes
+        this.interests_field = interests_field != undefined ? interests_field : this.interests_field
     }
 
     setAccessToken(accessToken) {this.accessToken = accessToken}
@@ -54,6 +58,7 @@ class User {
     setConsecutiveDaysJoin(consecutiveDaysJoin) {this.consecutiveDaysJoin = consecutiveDaysJoin}
     setRole(role) {this.role = role}
     setCreatedCodes(createdCodes) { this.createdCodes = createdCodes}
+    setInterestsField(interests_field) { this.interests_field = interests_field}
 
     getAccessToken() {return this.accessToken}
     getRefreshToken() {return this.refreshToken}
@@ -71,6 +76,7 @@ class User {
     getConsecutiveDaysJoin() {return this.consecutiveDaysJoin}
     getRole() {return this.role}
     getCreatedCodes() {return this.createdCodes}
+    getInterestsField() { return this.interests_field }
 }
 
 export default User

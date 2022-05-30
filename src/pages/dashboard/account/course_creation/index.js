@@ -10,7 +10,7 @@ import video_icon from "../../../../media/icons/video_camera.png"
 import MarkupEditor from "../../../../components/markup_editor"
 import arrowIcon from '../../../../media/icons/arrow_bottom_orange.png'
 import trashIcon from "../../../../media/icons/trash.png"
-import { TextField, Card, CardContent, Accordion, AccordionSummary, AccordionDetails} from '@mui/material'
+import { TextField, Card, CardContent, Accordion, AccordionSummary, AccordionDetails, Checkbox} from '@mui/material'
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import { IconButton } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -24,6 +24,8 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
+import ConfirmAction from '../../../../components/confirm_action'
+import { useNavigate } from 'react-router'
 
 function CourseCreation(props) {
     const [content, setContent] = useState(new CourseCreationController())
@@ -33,9 +35,14 @@ function CourseCreation(props) {
     const [authorField, setAuthorField] = useState("")
     const [firstLoad, setFirstLoad] = useState(true)
     const [showDeleteDraft, setShowDeleteDraft] = useState(true)
+    const [confirmInfo, setConfirmInfo] = useState({confirm: undefined, refute: undefined})
+
     let { state } = useLocation()
+    let navigate = useNavigate()
 
     let windowInfo = props.windowInfo
+    let user = props.user
+    let routes = props.routes
 
     function loadWallpaper(e) {
         if(e != undefined) {
@@ -118,6 +125,13 @@ function CourseCreation(props) {
         }
     }, [content])
 
+    useEffect(() => {
+        if(user) {
+            if(!user.canI("create_course")) navigate(routes.home.path)
+        }
+    }, [user])
+    
+
     return (
         <div className="creation" id="course_creation">
             <div className="wallpaper_container block">
@@ -198,6 +212,7 @@ function CourseCreation(props) {
                                                 content={content}
                                                 selectedChapter={selectedChapter}
                                                 setSelectedChapter={setSelectedChapter}
+                                                confirmInfo={{confirmInfo: confirmInfo, setConfirmInfo: setConfirmInfo }}
                                                 />
                                             )
                                         }
@@ -216,6 +231,7 @@ function CourseCreation(props) {
                                 selectedChapter={selectedChapter}
                                 setSelectedChapter={setSelectedChapter}
                                 windowInfo={windowInfo}
+                                confirmInfo={{confirmInfo: confirmInfo, setConfirmInfo: setConfirmInfo }}
                                 />
                             }
                         </div>
@@ -226,13 +242,13 @@ function CourseCreation(props) {
                     <div className="info_container block">
                         <h5>Informazioni news</h5>
                         <br/>
-                        <h6>Autori(nome utente)</h6>
+                        <h6>Autori</h6>
                         <div>
                             {
                                 content.course.getOfferedBy().map(item => (
                                     <div className="space_between">
                                         <p>{item}</p>
-                                        <DeleteIcon className="orange_icon" onClick={() => content.deleteAuthor(item)}/>
+                                        <DeleteIcon className="orange_icon" onClick={() => setConfirmInfo({confirm: () => content.deleteAuthor(item), refute: undefined})}/>
                                     </div>
                                 ))
                             }
@@ -284,6 +300,7 @@ function CourseCreation(props) {
                 <Popup isError={popupContent['error']} message={popupContent['message']} removeFunction={closePopup} /> :
                 "" 
             }
+            <ConfirmAction action={confirmInfo} closeFunction={() => setConfirmInfo({confirm: undefined, refute: undefined})}/>
            
         </div>
     )
@@ -295,6 +312,7 @@ function ChapterLayout(props) {
     let selectedChapter = props.selectedChapter
     let setSelectedChapter = props.setSelectedChapter
     let windowInfo = props.windowInfo
+    let {confirmInfo, setConfirmInfo} = props.confirmInfo
 
     const [selectedLesson, setSelectedLesson] = useState(undefined)
 
@@ -325,7 +343,10 @@ function ChapterLayout(props) {
                         <h6 className="m-0">{content.course.getChapterTitle(id)}</h6>
                         <div className="centered">
                             <IconButton className="orange_icon mb-0" type="submit" aria-label="search">
-                                <DeleteIcon onClick={(e) => handleChapterDelete(e, id)}/>
+                                <DeleteIcon onClick={(e) => {
+                                    e.stopPropagation()
+                                    setConfirmInfo({confirm: () => handleChapterDelete(e, id), refute: undefined})
+                                }}/>
                                 <ModeEditIcon />
                             </IconButton>
                             <div>
@@ -372,6 +393,7 @@ function ChapterLayout(props) {
                                                                         selectedLesson={selectedLesson}
                                                                         setSelectedLesson={setSelectedLesson}
                                                                         windowInfo={windowInfo}
+                                                                        confirmInfo={{confirmInfo: confirmInfo, setConfirmInfo: setConfirmInfo }}
                                                                         />
                                                                     </div>
                                                                 )
@@ -405,6 +427,7 @@ function LessonLayout(props) {
     let lessonId = props.lessonId
     let chapterId = props.chapterId
     let windowInfo = props.windowInfo
+    let {confirmInfo, setConfirmInfo} = props.confirmInfo
 
     const [collapseOpened, setCollapseOpened] = useState(false)
     const [quizAdded, setQuizAdded] = useState(false)
@@ -433,7 +456,7 @@ function LessonLayout(props) {
                             className="orange_icon"
                             onClick={(e) => {
                                 e.stopPropagation()
-                                content.course.removeLesson(chapterId, lessonId)
+                                setConfirmInfo({confirm: () => content.course.removeLesson(chapterId, lessonId), refute: undefined})
                             }}/>
                         </div>
                     </div>
@@ -483,11 +506,24 @@ function LessonLayout(props) {
                         </div>
                         <br />
                         <QuizSection
+                        confirmInfo={{confirmInfo: confirmInfo, setConfirmInfo: setConfirmInfo }}
                         deleteQuiz={() => setQuizAdded(false)}
                         content={content}
                         chapterId={chapterId}
                         lessonId={lessonId}
                         />
+                        <div className="centered">
+                            <div>
+                                Gratis<Checkbox
+                                onChange={(e, value) => {
+                                    console.log(content.course.getLesson(chapterId, lessonId)['isFree'])
+                                    content.course.getLesson(chapterId, lessonId)['isFree'] = value
+                                    content.updateInfo()
+                                }}
+                                checked={content.course.getLesson(chapterId, lessonId)['isFree']}
+                                className="orange_icon"/>
+                            </div>
+                        </div>
                     </AccordionDetails>
                 </Accordion> : 
                 <>
@@ -499,7 +535,7 @@ function LessonLayout(props) {
                             className="orange_icon"
                             onClick={(e) => {
                                 e.stopPropagation()
-                                content.course.removeLesson(chapterId, lessonId)
+                                setConfirmInfo({confirm: () => content.course.removeLesson(chapterId, lessonId), refute: undefined})
                             }}/>
                         </div>
                     </div>
@@ -561,11 +597,13 @@ function LessonLayout(props) {
                                 </div>
                                 <br />
                                 <QuizSection
+                                confirmInfo={{confirmInfo: confirmInfo, setConfirmInfo: setConfirmInfo }}
                                 deleteQuiz={() => setQuizAdded(false)}
                                 content={content}
                                 chapterId={chapterId}
                                 lessonId={lessonId}
                                 />
+                                Gratis<Checkbox/>
                         </div>
                     </SwipeableDrawer>
                 </>
@@ -581,6 +619,7 @@ function QuizSection(props) {
     let content = props.content
     let chapterId = props.chapterId
     let lessonId = props.lessonId
+    let {confirmInfo, setConfirmInfo} = props.confirmInfo
 
     return (
         <div className="block">
@@ -590,6 +629,7 @@ function QuizSection(props) {
                 Object.keys(content.course.getQuiz(chapterId, lessonId)).map(
                     (quizId) =>
                         <QuizItem
+                        confirmInfo={{confirmInfo: confirmInfo, setConfirmInfo: setConfirmInfo }}
                         key={quizId}
                         quiz={content.course.getQuizById(chapterId, lessonId, quizId)}
                         quizId={quizId}
@@ -616,6 +656,8 @@ function QuizItem(props) {
     let quizId = props.quizId
     let content = props.content
     let quiz = props.quiz
+    let {confirmInfo, setConfirmInfo} = props.confirmInfo
+
     const [collapseOpened, setCollapseOpened] = useState(false)
 
     return (
@@ -631,7 +673,7 @@ function QuizItem(props) {
                         className="orange_icon"
                         onClick={(e) => {
                             e.stopPropagation()
-                            content.course.removeQuiz(chapterId, lessonId, quizId)
+                            setConfirmInfo({confirm: () => content.course.removeQuiz(chapterId, lessonId, quizId), refute: undefined})
                         }}/>
                     </div>
                 </AccordionSummary>

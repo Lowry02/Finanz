@@ -53,28 +53,52 @@ class WebinarList {
     getDate() {
         let date = []
         this.getList().forEach((item) => date.push(item.getDate()))
-        date.sort((a, b)=> moment(a, "DD/MM/YYYY").diff(moment(b, "DD-MM-YYYY")))
+        date.sort((a, b)=> moment(a).diff(moment(b)))
+        date = date.map(item => moment(item).format("DD/MM/YYYY"))
         return date
     }
 
     // API
 
-    loadWebinar(n = 10) {
-        let list = []
+    async loadWebinar(n = 10) {
+        let accessToken = window.localStorage.getItem('accessToken')
 
-        for(let i = 0; i < n; i++) {
-            let webinarExample = new WebinarController()
-            let date = moment().add(i, 'days').format("DD/MM/YYYY")
-            webinarExample.setId(webinarData.id)
-            webinarExample.setTitle(webinarData.title)
-            webinarExample.setDescription(webinarData.description)
-            webinarExample.setDate(date)
-            webinarExample.setAuthors(webinarData.authors)
-            webinarExample.setWallpaper(webinarData.wallpaper)
-            list.push(webinarExample)
+        if(this.list.length == 0) {
+            return $.ajax({
+                type: "GET",
+                url: api_url + "webinars",
+                accepts: "json",
+                contentType: "json",
+                beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                success: (data) => {
+                    let webinarList = data['webinar']
+
+                    for(let webinar of webinarList) {
+                        let id = webinar['slug']
+                        let wallpaper = webinar['coverImage']
+                        let isFree = webinar['isFree']
+                        let description = webinar['description']
+                        let title = webinar['title']
+                        let date = webinar['liveDatetime']
+                        console.log(data)
+
+                        let newWebinar = new WebinarController()
+                        newWebinar.setId(id)
+                        newWebinar.setTitle(title)
+                        newWebinar.setWallpaper(wallpaper)
+                        newWebinar.setIsFree(isFree)
+                        newWebinar.setDescription(description)
+                        newWebinar.setDate(date)
+                        // newWebinar.setAuthors(webinarData.authors)
+    
+                        this.list.push(newWebinar)
+                    }
+                    
+                    this.updateInfo()
+                    // this.setList(data['webinar'])
+                },
+            })
         }
-        this.list = list
-        this.updateInfo()
     }
 
     loadSavedWebinar(n = 10) {

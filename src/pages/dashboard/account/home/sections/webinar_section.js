@@ -1,15 +1,10 @@
 import React, {useState, useEffect} from "react"
-import SearchIcon from '@mui/icons-material/Search';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import { InputLabel } from "@mui/material";
-import Select from '@mui/material/Select';
 import {Row, Col} from "react-bootstrap"
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useNavigate } from "react-router";
-import { IconButton } from "@material-ui/core";
+import ConfirmAction from "../../../../../components/confirm_action";
 
 function WebinarSection(props) {
     let user = props.user
@@ -22,7 +17,8 @@ function WebinarSection(props) {
     const CREATED_SECTION = "created"
     const SAVED_SECTION = "saved"
 
-    const [section, setSection] = useState(SAVED_SECTION)
+    const [section, setSection] = useState(CREATED_SECTION)
+    const [confirmInfo, setConfirmInfo] = useState({confirm: undefined, refute: undefined})
     const [firstLoad, setFirstLoad] = useState(true)
 
     // opens create webinar page
@@ -32,37 +28,35 @@ function WebinarSection(props) {
 
     useEffect(() => {   
         if(firstLoad && webinar != undefined) {
-            webinar.loadCreatedWebinar()
+            if(user && user.canI("create_webinar")) webinar.loadCreatedWebinar()
             webinar.loadSavedWebinar()
             setFirstLoad(false)
         }
     }, [webinar])
 
+    useEffect(() => {
+        if(user) {
+            if(!user.canI("create_webinar")) navigate(routes.home.path)
+        }
+    }, [user])
+    
+
     return <div id="webinar_section">
         <div className="space_between">
             <h2>Webinar</h2>
-            <div className="centered">
-                <AddCircleIcon className="orange_icon" onClick={createWebinarPage}/>
-            </div>
+            {
+                user && user.canI("create_webinar") ?
+                    <div className="centered">
+                        <AddCircleIcon className="orange_icon" onClick={createWebinarPage}/>
+                    </div> :
+                    ""
+            }
         </div>
-        <div className="space_between">
+        <Col md="6" className="mx-auto">
             <div className="search_bar mt-4">
                 <input placeholder="Cerca..."/>
-                <FormControl className="mobile_filter" variant="standard" sx={{ m: 1, minWidth: 120 }}>
-                    <InputLabel id="demo-simple-select-label" className="label_orange">Categoria</InputLabel>
-                    <Select
-                    className="select my_input"
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={section}
-                    onChange={(e) => setSection(e.target.value)}
-                    >
-                        <MenuItem value={CREATED_SECTION}>Create</MenuItem>
-                        <MenuItem value={SAVED_SECTION}>Salvate</MenuItem>
-                    </Select>
-                </FormControl>
             </div>
-        </div>
+        </Col>
         <div className="items_container">
             {
                 !windowInfo.mobileMode ?
@@ -81,19 +75,19 @@ function WebinarSection(props) {
                         </Row>
                     </div> : 
                     ""
-
             }
             <hr/>
             <div className="list">
                 {
                     section == SAVED_SECTION ?
-                    webinar && Object.values(webinar.getSavedWebinar()).map((item) => <ListItem content={item} webinarList={webinar} routes={routes}/>)
+                    webinar && Object.values(webinar.getSavedWebinar()).map((item) => <ListItem confirmInfo={{ confirmInfo: confirmInfo, setConfirmInfo: setConfirmInfo}} content={item} webinarList={webinar} routes={routes}/>)
                     : section == CREATED_SECTION ?
-                    webinar && Object.values(webinar.getCreatedWebinar()).map((item) => <ListItem content={item} webinarList={webinar} routes={routes}/>)
+                    webinar && Object.values(webinar.getCreatedWebinar()).map((item) => <ListItem confirmInfo={{ confirmInfo: confirmInfo, setConfirmInfo: setConfirmInfo}} content={item} webinarList={webinar} routes={routes}/>)
                     : ""
                 }
             </div>
         </div>
+        <ConfirmAction action={confirmInfo} closeFunction={() => setConfirmInfo({confirm: undefined, refute: undefined})} />
     </div>
 }
 
@@ -102,10 +96,14 @@ function ListItem(props) {
     let webinarList = props.webinarList
     let routes = props.routes
     let navigate = useNavigate()
+    let {confirmInfo, setConfirmInfo} = props.confirmInfo
 
     function deleteWebinar(e) {
         e.stopPropagation()
-        webinarList.deleteWebinar(content)
+        setConfirmInfo({
+            confirm: () => webinarList.deleteWebinar(content),
+            refute: undefined
+        })
     }
 
     // opens create webinar page

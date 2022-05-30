@@ -8,15 +8,17 @@ import QuestionController from '../../../controllers/question_controller'
 import QuizGroup from '../../../components/quiz_group'
 import RichTextEditor from 'react-rte'
 import MultipleChoiceQuestion from '../../../components/multiple_choice_question'
+import routes from '../routes'
 
 
 function Lesson(props) {
     let windowInfo = props.windowInfo
 
     let { pathname, state } = useLocation()
+    let { moduleId, lessonId } = useParams()
     let navigate = useNavigate()
 
-    const lessonId = useRef(useParams()['lessonId'])
+    const lessonIdRef = useRef(lessonId)
     const [content, setContent] = useState(new ModuleController())
     const [activePage, setActivePage] = useState(0)
     const [activePageId, setActivePageId] = useState(null)
@@ -25,12 +27,11 @@ function Lesson(props) {
     const [previousPageLabel, setPreviousPageLabel] = useState("Precedente")
 
     useEffect(() => {
-        let lessons = content.getAllPages(lessonId.current)
+        let lessons = content.getAllPages(lessonIdRef.current)
         
         // checking if all quiz have been done
         for(let lesson of Object.values(lessons).sort((a,b) => a['position'] > b['position'] ? 1 : -1)) {
             let position = lesson['position'] - 1
-            console.log(position, activePage ,lesson['type'] == "quiz", lesson)
             if((position <= activePage) && (lesson['type'] == "quiz")) {
                 let quiz = lesson['content']['question']
                 if(quiz instanceof QuestionController && (quiz && quiz.getSelectedChoices().length == 0)) {
@@ -43,7 +44,7 @@ function Lesson(props) {
         // managin page overflow
         if(activePage < 0) {
             setActivePage(0)
-        } else if(activePage == 0 && content.getModuleById(lessonId.current)?.position == 1) {
+        } else if(activePage == 0 && content.getModuleById(lessonIdRef.current)?.position == 1) {
             setPreviousPageLabel("")
         } else if(activePage == 0){
             setPreviousPageLabel("Capitolo precedente")
@@ -53,7 +54,7 @@ function Lesson(props) {
 
         if(activePage > Object.keys(lessons).length) {
             setActivePage(Object.keys(lessons).length - 1)
-        } else if(activePage == (Object.keys(lessons).length - 1) && content.getModuleById(lessonId.current)?.position == Object.keys(content.getModules()).length) {
+        } else if(activePage == (Object.keys(lessons).length - 1) && content.getModuleById(lessonIdRef.current)?.position == Object.keys(content.getModules()).length) {
             setNextPageLabel("Fine")
         } else if(activePage == (Object.keys(lessons).length - 1)){
             setNextPageLabel("Prossimo capitolo")
@@ -66,12 +67,12 @@ function Lesson(props) {
             // TODO: check finisched quiz
             // load new chapter
             let chapters = content.getModules()
-            let position = content.getModuleById(lessonId.current)['position']
+            let position = content.getModuleById(lessonIdRef.current)['position']
             let [nextChapter] = Object.values(chapters).filter(item => item['position'] == position + 1)
-            content.setChapterFinished(lessonId.current)
+            content.setChapterFinished(lessonIdRef.current)
             if(nextChapter != undefined) {
                 pathname = pathname.substring(0, pathname.lastIndexOf("/")) + "/" + nextChapter['id']
-                lessonId.current = nextChapter['id']
+                lessonIdRef.current = nextChapter['id']
                 navigate(pathname, { state : { module: content.exportInfo() }})
             } else {
                 // chapters finished
@@ -80,12 +81,12 @@ function Lesson(props) {
             }
         } else if(!loading && activePage == -1) {
             let chapters = content.getModules()
-            let position = content.getModuleById(lessonId.current)['position']
+            let position = content.getModuleById(lessonIdRef.current)['position']
             let [nextChapter] = Object.values(chapters).filter(item => item['position'] == position - 1)
             if(nextChapter != undefined) {
                 // TODO: set finished
                 pathname = pathname.substring(0, pathname.lastIndexOf("/")) + "/" + nextChapter['id']
-                lessonId.current = nextChapter['id']
+                lessonIdRef.current = nextChapter['id']
                 navigate(pathname, { state : { module: content.exportInfo() }})
             } else {
                 // first chapter just loaded
@@ -96,22 +97,31 @@ function Lesson(props) {
     useEffect(async () => {
         // not first load
         if(!loading) {
-            lessonId.current = pathname.substring(pathname.lastIndexOf("/") + 1)
+            lessonIdRef.current = pathname.substring(pathname.lastIndexOf("/") + 1)
             setActivePage(0)
             setLoading(true)
             let updateMode = true
-            if(Object.keys(content.getAllPages(lessonId.current)) == 0) {
-                await content.loadNote(lessonId.current, updateMode)
+            if(Object.keys(content.getAllPages(lessonIdRef.current)) == 0) {
+                await content.loadNote(lessonIdRef.current, updateMode)
             }
             setLoading(false)
         }
     }, [pathname])
     
-    useEffect(async() => {
+    useEffect(async () => {
         content.setState(setContent)
-        content.load(state.module, false)
+        if(state?.module != undefined) {
+            content.load(state.module, false)
+        } else {
+            let fullGet = false
+            await content.loadById(moduleId, fullGet)
+        }
         let updateMode = true
-        await content.loadNote(lessonId.current, updateMode)
+        try{
+            await content.loadNote(lessonIdRef.current, updateMode)
+        } catch {
+            navigate(routes.single_module.path)
+        }
         setLoading(false)
     }, [])
 
@@ -121,7 +131,7 @@ function Lesson(props) {
                 <div className="header text-center centered">
                     <h6 className="title">{content.getTitle()}</h6>
                     <div className="separator"></div>
-                    <h2>{content.getModuleTitle(lessonId.current)}</h2>
+                    <h2>{content.getModuleTitle(lessonIdRef.current)}</h2>
                     <div className="separator"></div>
                     <br/>
                 </div>
@@ -130,23 +140,23 @@ function Lesson(props) {
                 alternativeLabel={!(window && windowInfo.mobileMode)}
                 orientation={windowInfo && windowInfo.mobileMode ? "vertical" :"horizontal"}>
                     {
-                        Object.values(content.getAllPages(lessonId.current))
+                        Object.values(content.getAllPages(lessonIdRef.current))
                         .sort((a,b) => a['position'] > b['position'] ? 1 : -1)
                         .map(a => a.id)
                         .map((pageId, index) => {
                                 if(activePage == index && activePageId != pageId) setActivePageId(pageId) 
                                 return  <Step key={index} className="step" onClick={() => setActivePage(index)}>
-                                            <Fade in={true} style={{ transitionDuration: "1000ms"}}><StepLabel>{"Lezione " + (index + 1)}</StepLabel></Fade>
+                                            <Fade in={true} style={{ transitionDuration: "1000ms"}}><StepLabel>{"Lezione " + content.getAllPages(lessonIdRef.current)[pageId]['position']}</StepLabel></Fade>
                                             {
                                                 windowInfo && windowInfo.mobileMode ?
                                                 <StepContent>
                                                     {
-                                                        content.getPageType(lessonId.current, pageId) == 'quiz'  ?
+                                                        content.getPageType(lessonIdRef.current, pageId) == 'quiz'  ?
                                                         <div className="mt-3">
-                                                        <MultipleChoiceQuestion question={content.getPageContent(lessonId.current, pageId).question} />
+                                                            <MultipleChoiceQuestion question={content.getPageContent(lessonIdRef.current, pageId).question} />
                                                         </div> :
                                                         <div
-                                                        dangerouslySetInnerHTML={{ __html: RichTextEditor.createValueFromString(content.getPageContent(lessonId.current, activePageId), 'markdown').toString("html")}}
+                                                        dangerouslySetInnerHTML={{ __html: RichTextEditor.createValueFromString(content.getPageContent(lessonIdRef.current, pageId), 'markdown').toString("html")}}
                                                         className="markdown_content"/>
                                                     }
                                                     <Col md="11" className="mx-auto">
@@ -180,10 +190,10 @@ function Lesson(props) {
                         <div className="content_container">
                             <Col md="8" className="mx-auto mt-5">
                                 {
-                                    content.getPageType(lessonId.current, activePageId) == 'quiz' ?
-                                    <MultipleChoiceQuestion question={content.getPageContent(lessonId.current, activePageId).question} /> :
+                                    content.getPageType(lessonIdRef.current, activePageId) == 'quiz' ?
+                                    <MultipleChoiceQuestion question={content.getPageContent(lessonIdRef.current, activePageId).question} /> :
                                     <div
-                                    dangerouslySetInnerHTML={{ __html: RichTextEditor.createValueFromString(content.getPageContent(lessonId.current, activePageId), 'markdown').toString("html")}}
+                                    dangerouslySetInnerHTML={{ __html: RichTextEditor.createValueFromString(content.getPageContent(lessonIdRef.current, activePageId), 'markdown').toString("html")}}
                                     className="markdown_content"/>
                                 }
                             </Col>

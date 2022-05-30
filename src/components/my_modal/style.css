@@ -1,0 +1,14 @@
+.modal_container {
+  background: green;
+  display: grid;
+  place-content: center;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: var(--default_shadow);
+  background: var(--third_bkg);
+  color: white;
+  position: relative;
+}

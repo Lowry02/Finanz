@@ -176,6 +176,9 @@
     background: var(--details_color);
 }
 
+#single_module .content_container .info_container .lessons_container .lesson_item.ended .orange_icon{
+    color: var(--second_bkg) !important;
+}
 
 #single_module .content_container .info_container .lessons_container .vertical_line {
     width: 3px;
@@ -277,5 +280,10 @@
 
     #single_module .content_container .info_container .lessons_container .lesson_item {
         width: 100%;
+    }
+
+    #single_module .content_container .content {
+        left: 0;
+        width: calc(100vw - 20px);
     }
 }

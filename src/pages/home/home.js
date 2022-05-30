@@ -147,7 +147,7 @@ function Home(props) {
 
         {/* CORSI E CERTIFICATI */}
         <div className="courses ball">
-          <div className="animate">
+          <div className="animate" style={{ mixBlendMode: "plus-lighter"}}>
             {
               mobileMode ?
                 <h6 className="sub_title">ACCELLERA I <br/>TUOI PROGRESSI<br/>CON FINANZ PLUS</h6> :
@@ -161,62 +161,44 @@ function Home(props) {
           </div>
           <br/>
           <Row className="animate">
-            <Col md="12" >
+            <div className="auto_columns centered">
+              <div className="block bounce certificate odd">
+                <h5 className="m-0">Finanza comportamentale</h5>
+              </div>
+              <div className="block bounce certificate even">
+                <h5>Trading online</h5>
+              </div>
+              <div className="block bounce certificate odd">
+                <h5>Titoli azionari</h5>
+              </div>
+              <div className="block bounce certificate odd">
+                <h5>Mercato Forex</h5>
+              </div>
+              <div className="block bounce certificate even">
+                <h5>Python per la finanza</h5>
+              </div>
+              <div className="block bounce certificate odd">
+                <h5 className="m-0">Excel per la finanza</h5>
+              </div>
+              <div className="block bounce certificate even">
+                <h5>Cryptovalute</h5>
+              </div>
+              <div className="block bounce certificate odd">
+                <h5>Macro Economia</h5>
+              </div>
+              <div className="block bounce certificate odd">
+                <h5>Come avviare una Start-Up</h5>
+              </div>
+              <div className="block bounce certificate even">
+                <h5>Contratti derivati</h5>
+              </div>
+            </div>
+            {/* <Col md="12" >
               <Row>
-                  <Col md>
-                    <div className="block bounce certificate odd">
-                      <h5 className="m-0">Finanza comportamentale</h5>
-                    </div>
-                  </Col>
-                  <Col md>
-                    <div className="block bounce certificate even">
-                      <h5>Trading online</h5>
-                    </div>
-                  </Col>
-                  <Col md>
-                    <div className="block bounce certificate odd">
-                      <h5>Titoli azionari</h5>
-                    </div>
-                  </Col>
-                  <Col md>
-                    <div className="block bounce certificate odd">
-                      <h5>Mercato Forex</h5>
-                    </div>
-                  </Col>
-                  <Col md>
-                    <div className="block bounce certificate even">
-                      <h5>Python per la finanza</h5>
-                    </div>
-                  </Col>
               </Row>
               <Row>
-                <Col md>
-                  <div className="block bounce certificate odd">
-                    <h5 className="m-0">Excel per la finanza</h5>
-                  </div>
-                </Col>
-                <Col md>
-                  <div className="block bounce certificate even">
-                    <h5>Cryptovalute</h5>
-                  </div>
-                </Col>
-                <Col md>
-                  <div className="block bounce certificate odd">
-                    <h5>Macro Economia</h5>
-                  </div>
-                </Col>
-                <Col md>
-                  <div className="block bounce certificate odd">
-                    <h5>Come avviare una Start-Up</h5>
-                  </div>
-                </Col>
-                <Col md>
-                  <div className="block bounce certificate even">
-                    <h5>Contratti derivati</h5>
-                  </div>
-                </Col>
               </Row>
-            </Col>
+            </Col> */}
           </Row>
           <h1 className="description text-center animate" ><b>...</b></h1>
           <br/>
@@ -244,7 +226,7 @@ function Home(props) {
           <br/>
           <Row className="animate">
             <Col md="4">
-              <div className="block bounce">
+              <div className="block bounce prices">
                 <h1 className="text-center">Gratuito</h1>
                 <p className="description">
                   <h6 className="mini_title">Academy</h6>
@@ -293,7 +275,7 @@ function Home(props) {
               </div>
             </Col>
             <Col md="4">
-              <div className="block bounce">
+              <div className="block prices bounce">
                 <h1 className="text-center">Mensile</h1>
                 <p className="description">
                   <h6 className="mini_title">Academy</h6>
@@ -342,7 +324,7 @@ function Home(props) {
               </div>
             </Col>
             <Col md="4">
-              <div className="block bounce">
+              <div className="block prices bounce">
                 <h1 className="text-center">Annuale</h1>
                 <p className="description">
                   <h6 className="mini_title">Academy</h6>
@@ -385,7 +367,8 @@ function Home(props) {
                   Ottieni 60 giorni di apprendimento illimitato in regalo
                 </p>
                 
-                <h1 className="text-center title" id="month_price">8,25€</h1>
+                <h1 className="text-center" id="month_price_wrong">119,98€</h1>
+                <h1 className="text-center title" id="month_price">99€</h1>
                 <div className="centered">
                   <button className="bounce button m-0">Inizia Subito</button>
                 </div>

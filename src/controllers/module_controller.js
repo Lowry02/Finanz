@@ -27,7 +27,7 @@ class ModuleController {
                         quiz = new QuestionCreationController()
                         quiz.question.setAcceptedChoices(1)
                         quiz.setOverrideState((() => this.updateInfo()).bind(this))
-                        quiz.question.load({question: {...quizObj.question.question, selectedChoices: [...quizObj.question.selectedChoices]}, correctChoices : undefined})
+                        quiz.load({question: {...quizObj.question.question, selectedChoices: [...quizObj.question.selectedChoices]}, correctChoices : undefined})
                     } else {
                         quiz = new QuestionController()
                         quiz.setAcceptedChoices(1)
@@ -54,6 +54,7 @@ class ModuleController {
                 this.loadNote(noteId)
             }
         }
+
     }
 
     // API function
@@ -70,7 +71,7 @@ class ModuleController {
                 let title = data['title']
                 let description = data['description']
                 let argument = data['argument_slug']
-                let difficultyLevel = data['difficulty']
+                let difficultyLevel = data['difficulty'] == undefined ? "" : data['difficulty']
                 let wallpaper = data['coverImageLink']
                 let position = data['order']
 
@@ -103,6 +104,8 @@ class ModuleController {
                 for(let note of notesInfo) {
                     let title = note['title']
                     let id = note['slug']
+                    let isLiked = note['isLiked']
+                    let isSaved = note['isSaved']
                     notes.push(id)
 
                     if(writeMode)
@@ -110,7 +113,9 @@ class ModuleController {
                             id : id,
                             title : title,
                             position : Object.keys(this.module.getModules()).length + 1,
-                            pages : {}
+                            pages : {},
+                            isLiked : isLiked,
+                            isSaved : isSaved
                         })
                 }
             },
@@ -143,7 +148,7 @@ class ModuleController {
                         content : data['page']['content'],
                         quiz : data['page']['quiz'],
                         position : data['page']['order'],
-                        wallpaper : data['page']['coverImageLink'] == null ? "" : data['page']['coverImageLink']
+                        wallpaper : data['page']['coverImageLink'] == null ? "" : data['page']['coverImageLink'],
                     }
 
                     if(info['quiz'] == null) this.addPage(noteId, info)
@@ -207,6 +212,54 @@ class ModuleController {
         return info
     }
 
+    async likeNote(noteId) {
+        let accessToken = window.localStorage.getItem("accessToken")
+
+        await $.ajax({
+            type: "POST",
+            url: api_url + "academy/note/" + noteId + "/like",
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+        })
+    }
+
+    async unlikeNote(noteId) {
+        let accessToken = window.localStorage.getItem("accessToken")
+
+        await $.ajax({
+            type: "DELETE",
+            url: api_url + "academy/note/" + noteId + "/like",
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+        })
+    }
+
+    async saveNote(noteId) {
+        let accessToken = window.localStorage.getItem("accessToken")
+
+        await $.ajax({
+            type: "POST",
+            url: api_url + "academy/note/" + noteId + "/save",
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+        })
+    }
+
+    async unsaveNote(noteId) {
+        let accessToken = window.localStorage.getItem("accessToken")
+
+        await $.ajax({
+            type: "DELETE",
+            url: api_url + "academy/note/" + noteId + "/save",
+            accepts: "json",
+            contentType: "json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+        })
+    }
+
     getId() {return this.module.id}
     getAuthor() {return this.module.getAuthor()}
     getSocialPage() {return this.module.socialPage}
@@ -268,7 +321,7 @@ class ModuleController {
         if(_auto_save) this.updateInfo()
     }
     setNModules(n_modules, _auto_save = true) {
-        this.setNModules(n_modules)
+        this.module.setNModules(n_modules)
         if(_auto_save) this.updateInfo()
     }
     setTime(time, _auto_save = true) {
@@ -338,7 +391,9 @@ class ModuleController {
             _format = {
                 title: "Nuovo Modulo",
                 position: Object.keys(this.module.getModules()).length + 1,
-                pages: {}
+                pages: {},
+                isLiked : false,
+                isSaved : false
             }
             newId = "_0"
             while(Object.keys(newModules).includes(newId)) newId = "_" + Math.random() * 10
@@ -365,6 +420,7 @@ class ModuleController {
         let _questionCreationController = new QuestionCreationController()
         _questionCreationController.setOverrideState((() => this.updateInfo()).bind(this))
         _questionCreationController.question.setAcceptedChoices(undefined)
+        _questionCreationController.question.setType(this.module.quiz_type)
 
         if(info != undefined) {
             title = info['title']

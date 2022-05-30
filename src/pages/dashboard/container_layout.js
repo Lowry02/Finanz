@@ -33,7 +33,7 @@ function NavBar(props) {
     return (
         <div id="navbar">
             <div id="logo">
-                <h1>NI</h1>
+                <h1>Fi</h1>
             </div>
             <div className="routes">
                 {Object.values(routes).map((item) => {

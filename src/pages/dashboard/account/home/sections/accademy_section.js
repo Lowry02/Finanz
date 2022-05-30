@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react"
+import React, {useState, useEffect, useRef} from "react"
 import SearchIcon from '@mui/icons-material/Search';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -11,6 +11,9 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { IconButton } from "@material-ui/core";
 import { useNavigate } from "react-router";
 import $ from "jquery"
+import { Tab, Tabs } from "@material-ui/core";
+import {default as external_routes} from "../../../routes"
+import ConfirmAction from "../../../../../components/confirm_action";
 
 function AccademySection(props) {
     let user = props.user
@@ -26,22 +29,22 @@ function AccademySection(props) {
 
     const [section, setSection] = useState(SAVED_SECTION)
     const [firstLoad, setFirstLoad] = useState(true)
+    const [confirmInfo, setConfirmInfo] = useState({confirm: undefined, refute: undefined})
 
-    useEffect(() => {   
-        if(firstLoad && accademy != undefined) {
-            accademy.loadSavedModules()
-            accademy.loadCreatedModules()
-            accademy.loadModulesInProgress()
-            setFirstLoad(false)
-        }
-    }, [accademy])
+    const loaderElement = useRef()
+    const observer = useRef(new IntersectionObserver(() => {}))
 
     // delete and edit management
     function handleDelete(e, id) {
         e.stopPropagation()
-        if(section == CREATED_SECTION) accademy.removeModule(id, accademy.CREATED_MODULES_TAG)
-        else if(section == SAVED_SECTION) accademy.removeModule(id, accademy.SAVED_SECTION)
-        else if(section == IN_PROPGRESS_SECTION) accademy.removeModule(id, accademy.IN_PROGRESS_MODULE_TAG)
+        setConfirmInfo({
+            confirm: () => {
+                if(section == CREATED_SECTION) accademy.removeModule(id, accademy.CREATED_MODULES_TAG)
+                else if(section == SAVED_SECTION) accademy.removeModule(id, accademy.SAVED_SECTION)
+                else if(section == IN_PROPGRESS_SECTION) accademy.removeModule(id, accademy.IN_PROGRESS_MODULE_TAG)
+            },
+            refute: undefined
+        })
     }
 
     function handleEdit(item) {
@@ -53,6 +56,9 @@ function AccademySection(props) {
         navigate(routes.module_creation.path)
     }
 
+    function openNote(moduleId, noteId) {
+        navigate(external_routes.single_module.path + moduleId + "/" + noteId)
+    }
     // used to load modules automatically on scroll
     async function manageInfiniteScroll(e) {
         let list = e.target
@@ -65,60 +71,50 @@ function AccademySection(props) {
         }
     }
 
+    useEffect(() => {
+        observer.current.disconnect()
+
+        if(loaderElement.current != undefined) {
+            console.log("a")
+            observer.current = new IntersectionObserver((e) => {
+                let info = e[0]
+                if(info['isIntersecting']) {
+                    if(section == CREATED_SECTION && user && user.canI("create_academy")) accademy.loadCreatedModules()
+                    else if(section == SAVED_SECTION) accademy.loadSavedNotes()
+                }
+            })
+
+            observer.current.observe(loaderElement.current)
+        }
+    }, [section, accademy.getSavedNotes(), accademy.getCreatedModules()])
+    
+
+
+    useEffect(() => {   
+        console.log(accademy.getSavedNotes())
+    }, [accademy.getSavedNotes()])
+
     return <div id="accademy_section">
         <div className="space_between">
             <h2>Accademy</h2>
-            <div className="centered">
-                <AddCircleIcon className="orange_icon" onClick={createNewModule}/>
-            </div> 
+            {
+                user && user.canI("create_academy") ?
+                    <div className="centered">
+                        <AddCircleIcon className="orange_icon" onClick={createNewModule}/>
+                    </div> :
+                    ""
+            }
         </div>
-        <br/>
-        {
-            !windowInfo.mobileMode ? 
-                <Row>
-                    <Col md="4">
-                        <div className="search_bar mt-4">
-                            <input placeholder="Cerca..."/>
-                        </div>
-                    </Col>
-                    <Col md="4">
-                        <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-                            <InputLabel id="demo-simple-select-label" className="label_orange">Categoria</InputLabel>
-                            <Select
-                            className="select my_input"
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={section}
-                            onChange={(e) => setSection(e.target.value)}
-                            >
-                                <MenuItem value={CREATED_SECTION}>Create</MenuItem>
-                                <MenuItem value={SAVED_SECTION}>Salvate</MenuItem>
-                                <MenuItem value={IN_PROPGRESS_SECTION}>In Corso</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Col>
-                </Row> : 
-                <div>
-                    <div className="search_bar ">
-                        <input placeholder="Cerca..."/>
-                    </div>
-                    <FormControl className="mobile_filter" variant="standard" sx={{ m: 1, minWidth: 120 }}>
-                        <InputLabel id="demo-simple-select-label" className="label_orange">Categoria</InputLabel>
-                        <Select
-                        className="select my_input"
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={section}
-                        onChange={(e) => setSection(e.target.value)}
-                        >
-                            <MenuItem value={CREATED_SECTION}>Create</MenuItem>
-                            <MenuItem value={SAVED_SECTION}>Salvate</MenuItem>
-                            <MenuItem value={IN_PROPGRESS_SECTION}>In Corso</MenuItem>
-                        </Select>
-                    </FormControl>
-                </div>
+        <Col md="6" className="mx-auto">
+            <div className="search_bar mt-4">
+                <input placeholder="Cerca..."/>
+            </div>
+        </Col>
+        <Tabs value={section} onChange={(e, newValue) => setSection(newValue)} scrollButtons="auto" centered>
+            <Tab label="Salvate" value={SAVED_SECTION}/>
+            { user && user.canI("create_academy") ? <Tab label="Create" value={CREATED_SECTION} /> : "" }
             
-        }
+        </Tabs>
 
         <div className="items_container">
             {
@@ -128,12 +124,8 @@ function AccademySection(props) {
                             <Col md="3">
                                 <h6>Titolo</h6>
                             </Col>
-                            <Col md="3">
-                                <h6>Data</h6>
-                            </Col>
-                            <Col md="3">
-                                <h6>Categoria</h6>
-                            </Col>
+                            <Col md="3"></Col>
+                            <Col md="3"></Col>
                             <Col md="3">
                                 <h6>Modifica</h6>
                             </Col>
@@ -142,23 +134,29 @@ function AccademySection(props) {
                     ""
             }
             <hr/>
-            <div className="list" id="modules_container" onScroll={manageInfiniteScroll}>
+            <div className="list" id="modules_container">
                 {
                     section == SAVED_SECTION ?
-                    accademy && Object.values(accademy.getSavedModules()).map((item) => <ListItem content={item} deleteItem={handleDelete} editItem={handleEdit}/>)
+                        accademy && accademy.getSavedNotes().map((item) => (
+                            <div className="bounce" onClick={() => openNote(item['module_id'], item['id'])}>
+                                <p>{item.title}</p>
+                                <hr/>
+                            </div>
+                        ))
                     : section == CREATED_SECTION ?
-                    accademy && Object.values(accademy.getCreatedModules()).map((item) => <ListItem content={item} deleteItem={handleDelete} editItem={handleEdit}/>)
-                    : section == IN_PROPGRESS_SECTION ?
-                    accademy && Object.values(accademy.getModulesInProgress()).map((item) => <ListItem content={item} deleteItem={handleDelete} editItem={handleEdit}/>)
+                        accademy && Object.values(accademy.getCreatedModules()).map((item) => <ListItem content={item} deleteItem={handleDelete} editItem={handleEdit}/>)
                     : ""
                 }
                 {
-                    accademy.isLastPageLoaded() ?
+                    section == CREATED_SECTION && accademy.isLastPageLoaded() ?
                     "" : 
-                    <div className="loading m-auto"></div>
+                    section == SAVED_SECTION && accademy.saved_notes_index == null ?
+                    "" :
+                    <div ref={loaderElement} className="loading m-auto"></div>
                 }
             </div>
         </div>
+        <ConfirmAction action={confirmInfo} closeFunction={() => setConfirmInfo({confirm: undefined, refute: undefined})}/>
     </div>
 }
 

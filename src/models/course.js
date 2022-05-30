@@ -17,9 +17,10 @@ class CourseModel {
         this.author = "" //
         this.n_video = 0 //
         this.comments = []
+        this.quiz_type = "course"
     }
 
-    load({id = "", title = "", argument = "", description = "", presentationVideo = "", presentationVideoId = "", professors = "", syllabus = "", publishDate = "", content = {}, time = "", star = "", wallpaper = "", offeredBy = "", author = "", n_video = 0, comments = []}) {
+    load({id = "", title = "", argument = "", description = "", presentationVideo = "", presentationVideoId = "", professors = "", syllabus = "", publishDate = "", content = {}, time = "", star = "", wallpaper = "", offeredBy = "", author = "", n_video = 0, comments = [], quiz_type = "course"}) {
         this.id = id
         this.title = title
         this.argument = argument
@@ -37,6 +38,7 @@ class CourseModel {
         this.n_video = n_video
         this.content = content
         this.comments = comments
+        this.quiz_type = quiz_type
     }
 
     // Setter
@@ -57,6 +59,7 @@ class CourseModel {
     setAuthor(author) { this.author = author }
     setNVideo(n_video) { this.n_video = n_video }
     setComments(comments) { this.comments = comments }
+    setQuizType(quiz_type) { this.quiz_type = quiz_type }
     
     // Getter
     getId() { return this.id }
@@ -76,6 +79,7 @@ class CourseModel {
     getAuthor() { return this.author }
     getNVideo() { return this.n_video }
     getCommentts() { return this.comments }
+    getQuizType() { return this.quiz_type }
 
 }
 

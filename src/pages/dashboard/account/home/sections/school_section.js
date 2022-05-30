@@ -14,8 +14,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from "react-router";
 import Popup from '../../../../../components/popup';
+import ConfirmAction from '../../../../../components/confirm_action';
 
-function SchoolSection() {
+function SchoolSection(props) {
   // sections tag
   const SCHOOL_LIST_TAG = "list"
   const QUIZ_LIST_TAG = "quiz"
@@ -25,6 +26,10 @@ function SchoolSection() {
   const [schoolList, setSchoolList] = useState(new SchoolListController())
   const [searchValue, setSearchValue] = useState("")
   const [popupContent, setPopupContent] = useState({})
+  const [confirmInfo, setConfirmInfo] = useState({confirm: undefined, refute: undefined})
+
+  let user = props.user
+
   // redirect to school creation page
   function createSchool() {
     navigate(routes.school_creation.path)
@@ -38,13 +43,19 @@ function SchoolSection() {
   // delete quiz from quiz list
   function deleteQuiz(e, quiz) {
     e.stopPropagation()
-    schoolList.deleteQuiz(quiz)
+    setConfirmInfo({
+      confirm: () => schoolList.deleteQuiz(quiz),
+      refute: undefined
+    })
   }
 
   // delete school from school list
   function deleteSchool(e, schoolId) {
     e.stopPropagation()
-    schoolList.deleteSchool(schoolId)
+    setConfirmInfo({
+      confirm: () => schoolList.deleteSchool(schoolId),
+      refute: undefined
+    })
   }
 
   async function publishQuiz(quiz) {
@@ -60,14 +71,21 @@ function SchoolSection() {
   // setting up schoolList and getting from server
   useEffect(() => {
     schoolList.setState(setSchoolList)
-    schoolList.loadList()
+    if(user && user.canI("create_school")) schoolList.loadList()
   }, [])
 
   useEffect(() => {
     if(currentSection == QUIZ_LIST_TAG) {
-      schoolList.loadQuiz()
+      if(user && user.canI("create_school")) schoolList.loadQuiz()
     }
   }, [currentSection])
+
+  useEffect(() => {
+    if(user) {
+      if(!user.canI("create_school")) navigate(routes.home.path)
+    }
+  }, [user])
+  
   
   
   return (
@@ -75,14 +93,14 @@ function SchoolSection() {
       <div className="space_between">
         <h2>Scuola</h2>
         {
-          currentSection == SCHOOL_LIST_TAG ? 
+          currentSection == SCHOOL_LIST_TAG && user && user.canI("create_school") ? 
           <div className="centered">
             <AddCircleIcon className="orange_icon" onClick={() => createSchool()}/>
           </div>
           : ""
         }
       </div>
-      <Tabs value={currentSection} onChange={(e, value) => setCurrentSection(value)} aria-label="basic tabs example">
+      <Tabs value={currentSection} onChange={(e, value) => setCurrentSection(value)} scrollButtons="auto" >
         <Tab label="Scuole" value={SCHOOL_LIST_TAG} />
         <Tab label="Quiz" value={QUIZ_LIST_TAG} />
       </Tabs>
@@ -171,6 +189,8 @@ function SchoolSection() {
             />
           : ""
       }
+      <ConfirmAction action={confirmInfo} closeFunction={() => setConfirmInfo({confirm: undefined, refute: undefined})} />
+
     </div>
   )
 }

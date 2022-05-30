@@ -23,6 +23,8 @@ import AccountPage from "./account"
 import SingleNews from "./single_news"
 import SingleCourse from "./single_course"
 import SingleModule from "./single_module"
+import SingleWebinar from "./single_webinar"
+import ErrorPage from "../404"
 
 const _base_url = "/dashboard"
 
@@ -42,8 +44,8 @@ let routes = {
         icon : <NewspaperRoundedIcon className="orange_icon"/>
     },
     accademy : {
-        path : _base_url + "/accademy",
-        url : "/accademy",
+        path : _base_url + "/academy",
+        url : "/academy",
         title : "Academy",
         component : (props) => <AccademyPage {...props}/>,
         icon : <FilePresentRoundedIcon className="orange_icon"/>
@@ -51,7 +53,7 @@ let routes = {
     },
     courses : {
         path : _base_url + "/courses",
-        url : "/courses/*",
+        url : "/courses",
         title : "Corsi",
         component : (props) => <CoursesPage {...props}/>,
         icon : <OndemandVideoRoundedIcon className="orange_icon"/>
@@ -77,22 +79,28 @@ let routes = {
         component : (props) => <AccountPage {...props}/>,
     },
     single_news : {
-        path : _base_url + "/single_news/",
-        url : "/single_news/:id",
+        path : _base_url + "/news/",
+        url : "/news/:id",
         title : "News",
         component : (props) => <SingleNews {...props}/>,
     },
     single_course : {
-        path : _base_url + "/single_course/",
-        url : "/single_course/*",
+        path : _base_url + "/courses/",
+        url : "/courses/*",
         title : "Corso",
         component : (props) => <SingleCourse {...props}/>,
     },
     single_module : {
-        path : _base_url + "/single_module/",
-        url : "/single_module/*",
+        path : _base_url + "/academy/",
+        url : "/academy/*",
         title : "Corso",
         component : (props) => <SingleModule {...props}/>,
+    },
+    single_webinar : {
+        path : _base_url + "/single_webinar/",
+        url : "/single_webinar/:webinar_id",
+        title : "Webinar",
+        component : (props) => <SingleWebinar {...props}/>,
     },
 }
 

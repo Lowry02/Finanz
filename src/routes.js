@@ -49,4 +49,6 @@ let routes = {
         component : (props) => <Policy {...props} />
     },
 }
+
+
 export default routes

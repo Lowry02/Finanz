@@ -10,7 +10,7 @@ const _base_url = "/dashboard/account"
 let routes = {
     home: {
         path: _base_url,
-        url: '',
+        url: '*',
         component: (props) => <AccountHome {...props} />
     },
     course_creation: {

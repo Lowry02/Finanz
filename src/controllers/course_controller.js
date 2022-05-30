@@ -27,24 +27,22 @@ class CourseController {
                 for(let lessonId in this.getLessonsByChapter(chapterId)) {
                     for(let quizId in this.getLessonQuiz(chapterId, lessonId)) {
                         let quizObj = this.getSpecificQuiz(chapterId, lessonId, quizId)
-                        if(quizObj['question'] != undefined) quizObj = quizObj['question']
+                        if(quizObj['selectedChoices'] == undefined) quizObj = quizObj['question']
                         let quizController
-                        if(creationMode) {
+                        if(true) {
                             quizController = new QuestionCreationController()
                             quizController.setOverrideState((() => this.updateInfo()).bind(this))
                             quizController.question.setId(quizObj['question']['id'])
                             quizController.question.setTitle(quizObj['question']['title'])
                             quizController.question.setImage(quizObj['question']['image'])
-                            
                             for(let answerId of Object.keys(quizObj['question']['choices'])) {
                                 quizController.question.addChoice(quizObj['question']['choices'][answerId], answerId)
                             }
-
                             quizController.question.setSelectedChoices(quizObj['selectedChoices'])
                         } else {
                             quizController = new QuestionController()
                             quizController.setOverrideUpdateInfo((() => this.updateInfo()).bind(this))
-                            quizController.load({...quizObj.question})
+                            quizController.load({...quizObj.question, ...quizObj})
                         }
                         content[chapterId]['lessons'][lessonId]['quiz'][quizId] = quizController
                     }
@@ -56,7 +54,7 @@ class CourseController {
         this.updateInfo()
     }
 
-    async loadById(courseId, creationMode = true) {
+    async loadById(courseId, allInfo = true) {
         // getting general info
         let info = await this.getGeneralInfo(courseId)
         if(info == undefined) throw Error()
@@ -79,11 +77,7 @@ class CourseController {
         this.setPresentationVideo(course['trailerIframe'])
         this.setPresentationVideoId(course['trailerId'])
         // setting authors account
-        for(let author of course['authors']) {
-            let username = author['username']
-            this.getOfferedBy().push(username)
-            this.updateInfo()
-        }
+        this.setOfferedBy(course['authors'])
 
         // setting chapters
         for(let chapter of chapters) {
@@ -92,15 +86,21 @@ class CourseController {
             // getting lessons per chapter
             let lessons = Object.values(chapter['lessons'])
 
-            for(let lesson of lessons) {
-                let lessonSlug = lesson['slug']
-                let lessonInfo = await this.getLessonFromServer(lessonSlug)
-
-                this.addLesson(chapter['slug'], lessonInfo)
-            } 
+            if(allInfo) {
+                for(let lesson of lessons) {
+                    let lessonSlug = lesson['slug']
+                    let lessonInfo = await this.getLessonFromServer(lessonSlug)
+    
+                    this.addLesson(chapter['slug'], lessonInfo)
+                } 
+            } else {
+                for(let lesson of lessons) {
+                    this.addLesson(chapter['slug'], lesson)
+                }
+            }
         }
     }
-    
+
     // get course title, description, chapters and argument
     async getGeneralInfo(courseId) {
         let accessToken = window.localStorage.getItem('accessToken')
@@ -132,6 +132,36 @@ class CourseController {
         })
 
         return info
+    }
+
+    async loadLessonFromServer(chapterId, lessonId) {
+        let lessonInfo = await this.getLessonFromServer(lessonId)
+        this.addLesson(chapterId, lessonInfo)
+    }
+
+    async setReadLesson(chapterId, lessonId) {
+        let accessToken = window.localStorage.getItem('accessToken')
+
+        await $.ajax({
+            type: "POST",
+            url: api_url + "/course/lesson/" + lessonId +"/finish",
+            accepts: "application/json",
+            contentType: "application/json",
+            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+            success: () => {
+                let lesson = this.getLesson(chapterId, lessonId)
+                lesson['isFinished'] = true
+                this.updateInfo()
+            }
+        })
+    }
+
+    async getThumbnail(videoId) {
+        await $.ajax({
+            type: "GET",
+            url: "https://vimeo.com/api/oembed.json?url=https://vimeo.com/" + videoId,
+            success: (data) => console.log(data)
+        })
     }
     
     updateInfo() {
@@ -292,7 +322,9 @@ class CourseController {
         let text = ""
         let position = Object.keys(_chapterContent['lessons']).length + 1
         let quiz = {}
-        let isFree = true
+        let isFree = false
+        let isFinished = false
+        // let thumbnail = ""
 
         if(info != undefined) {
             newId = info['slug']
@@ -303,10 +335,14 @@ class CourseController {
             text = info['text']
             position = info['order']
             isFree = info['isFree']
+            isFinished = info['isFinished']
+            // thumbnail = info['thumbnail']
+            let quizList = info['quiz'] ? info['quiz'] : []
             // creating quiz object
-            for(let quizItem of info['quiz']) {
+            for(let quizItem of quizList) {
                 let newQuiz = new QuestionCreationController()
                 newQuiz.setOverrideState((() => this.updateInfo()).bind(this))
+                newQuiz.question.setType(this.course.quiz_type)
                 newQuiz.question.setId(quizItem['slug'])
                 newQuiz.question.setTitle(quizItem['question'])
                 let answers = quizItem['answers']
@@ -333,8 +369,12 @@ class CourseController {
             text: text,
             position: position,
             quiz: quiz,
-            isFree: isFree
+            isFree: isFree,
+            isFinished: isFinished,
+            // thumbnail: thumbnail
         }
+
+
         let _content = this.getContent()
         _content[chapterId] = _chapterContent
         this.setContent(_content)
@@ -391,6 +431,7 @@ class CourseController {
     }
 
     getLessonVideoId(chapterId, lessonId) {
+        console.log(this.getLesson(chapterId, lessonId))
         if(this.getLesson(chapterId, lessonId) != undefined)
             return this.getLesson(chapterId, lessonId)['videoId']
         else return ""
@@ -469,11 +510,17 @@ class CourseController {
             newQuiz.load({question: {title: "Nuova domanda", acceptedChoices : undefined}})
         else
             newQuiz.load({question: quizContent})
+
+        console.log(newQuiz)
         let chapter = this.getChapter(chapterId)
         let chapterLessons = this.getLessonsByChapter(chapterId)
         let lesson = this.getLesson(chapterId, lessonId)
         let content = this.getContent()
-        let id = Object.keys(lesson['quiz']).length + 1
+        
+        let id = "_0"
+        if(quizContent != undefined) id = quizContent[id]
+        else while(Object.keys(lesson['quiz']).includes(id)) id = "_" + Math.random() * 10
+
         lesson['quiz'][id] = newQuiz 
         chapterLessons[lessonId] = lesson
         chapter['lessons'] = chapterLessons

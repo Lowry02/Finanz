@@ -8,12 +8,18 @@ import Popup from "../../../../components/popup"
 import { Checkbox } from '@mui/material';
 import "./style.css"
 import { useLocation } from 'react-router';
+import { useNavigate } from 'react-router';
 
 function WebinarCreation(props) {
     const [content, setContent] = useState(new CreateWebinarController())
     const [dateType, setDateType] = useState("text")
     const [popupContent, setPopupContent] = useState()
+
     let { state } = useLocation()
+    let navigate = useNavigate()
+
+    let user = props.user
+    let routes = props.routes
 
     function loadWallpaper(e) {
         if(e != undefined) {
@@ -53,6 +59,13 @@ function WebinarCreation(props) {
             content.webinar.loadById(webinarId)
         }
     }, [])
+
+    useEffect(() => {
+        if(user) {
+            if(!user.canI("create_webinar")) navigate(routes.home.path)
+        }
+    }, [user])
+    
     
   return (
     <div id="webinar_creation" className="container">

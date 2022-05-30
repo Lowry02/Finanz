@@ -14,6 +14,7 @@ import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import CloseIcon from '@mui/icons-material/Close';
+import MyModal from '../../../../../components/my_modal';
 
 function InfoSection(props) {
     let user = props.user
@@ -24,44 +25,11 @@ function InfoSection(props) {
     const [anchorEl, setAnchorEl] = useState(null) // popover(code roles)
     const createdCodesLoaded = useRef(false)
     const [contentEdited, setContentEdited] = useState(false) // update user info
-    const [openModal, setOpenModal] = useState(false) // used on redeem_code
+    const [openRoles, setOpenRoles] = useState(false) // used on redeem_code
+    const [openFields, setOpenFields] = useState(false)
 
-    const rolesToAssign = {
-        "normal-user" : [{name: "Utente normale", slug: "normal-user"}],
-        "super-admin" : [
-            {name: "Utente normale", slug: "normal-user"},
-            {name: "Super admin", slug: "super-admin"},
-            {name: "Admin academy", slug: "admin-academy"},
-            {name: "Admin news", slug: "admin-news"},
-            {name: "Admin course", slug: "admin-course"},
-            {name: "Admin ebook", slug: "admin-ebook"},
-            {name: "Admin quiz", slug: "admin-quiz"},
-        ],
-        "admin-academy" : [
-            {name: "Utente normale", slug: "normal-user"},
-            {name: "Admin academy", slug: "admin-academy"},
-        ],
-        "admin-news" : [
-            {name: "Utente normale", slug: "normal-user"},
-            {name: "Admin news", slug: "admin-news"},
-        ],
-        "admin-course" : [
-            {name: "Utente normale", slug: "normal-user"},
-            {name: "Admin corsi", slug: "admin-course"},
-        ],
-        "admin-ebook" : [
-            {name: "Utente normale", slug: "normal-user"},
-            {name: "Admin ebook", slug: "admin-ebook"},
-        ],
-        "admin-quiz" : [
-            {name: "Utente normale", slug: "normal-user"},
-            {name: "Admin quiz", slug: "admin-quiz"},
-        ],
-    }
-    
     async function createRoleList() {
         let list = await user.getAllRoles()
-        
         setAssignableRoles(list)
     }
 
@@ -75,17 +43,28 @@ function InfoSection(props) {
         if(user) {
             user.redeemCode().then(() => user.refreshToken().then(() => {
                 user.setCodiceInvito("")
-                setOpenModal(true)
+                setOpenRoles(true)
             }))
-            .catch((data) => setPopupStatus({error: true, message: "Codice non valido"}))
+            .catch(() => setPopupStatus({error: true, message: "Codice non valido"}))
+        }
+    }
+
+    function changeUserInterests(field) {
+        if(user.getInterestsField().getUserInterests().includes(field.getId())) {
+            user.getInterestsField().removeUserFieldOfInterest(field.getId())
+        } else {
+            user.getInterestsField().addUserFieldOfInterest(field.getId())
         }
     }
 
     useEffect(() => {
         if(!createdCodesLoaded.current) {
-            createRoleList()
-            user.getCreatedCodesFromServer()
-            console.log('ciao')
+            if(user && user.canI("manage_roles")) {
+                createRoleList()
+                user.getCreatedCodesFromServer()
+            }
+            user.getInterestsField().loadFields()
+            user.getInterestsField().loadUserFieldsOfInterest()
             createdCodesLoaded.current = true
         }
     }, [user])
@@ -95,14 +74,16 @@ function InfoSection(props) {
         <div className="display_inline mt-3">
             <div>
                 <div className="avatar_container">
-                    <img src={user && user.getAvatar()} className="img-fluid avatar"/>
+                    <h1 style={{ fontSize: "100px"}}>{user.getSurname()[0]}{user.getName()[0]}</h1>
                 </div>    
             </div>
             <div className="m-3 centered">
                 <h4 className="name">{user && user.getSurname()} {user && user.getName()}</h4>
                 <p className="username thin">{user && user.getUsername()}</p>
-                <h6>I tuoi ruoli</h6>
-                <p>{user && user.getRole().map(item => <Chip label={item['slug']} style={{ color: "white", background: "var(--details_color)", margin: 2}}/>)}</p>
+                <div className="">
+                    <Chip label="Ruoli" className="my_chip bounce" onClick={() => setOpenRoles(true)}/>
+                    <Chip label="Campi d'interesse" className="my_chip" onClick={() => setOpenFields(true)}/>
+                </div>
             </div>
         </div>
         <Row className="mt-3">
@@ -311,33 +292,37 @@ function InfoSection(props) {
             <Popup isError={popupStatus['error']} message={popupStatus['message']} removeFunction={() => setPopupStatus({})}/> :
             ""
         }
-        {
-            <Modal
-            aria-labelledby="transition-modal-title"
-            aria-describedby="transition-modal-description"
-            open={openModal}
-            onClose={() => setOpenModal(false)}
-            closeAfterTransition
-            BackdropProps={{
-              timeout: 500,
-            }}
-            className="centered"
-            >
-                <Fade in={openModal}>
-                    <Box className="modal_redeem_code">
-                        <Typography id="transition-modal-title" variant="h4" component="h1" className="text-center">
-                        Hai fatto passi avanti!
-                        </Typography>
-                        <br/>
-                        <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-                        { user && user.getRole().map(item => <Chip label={item['slug']} style={{ color: "white", background: "var(--details_color)", margin: 2}}/>) }
-                        </Typography>
-                        <br/>
-                        <CloseIcon className="close_modal" onClick={() => setOpenModal(false)}/>
-                    </Box>
-                </Fade>
-            </Modal>
-        }
+        <MyModal open={openRoles} closeFunction={() => setOpenRoles(false)}>
+            <Fade in={openRoles}>
+                <Box className="modal_redeem_code">
+                    <Typography id="transition-modal-title" variant="h4" component="h1" className="text-center">
+                    I tuoi Ruoli
+                    </Typography>
+                    <br/>
+                    <Typography id="transition-modal-description" sx={{ mt: 2 }}>
+                    { user && user.getRole().map(item => <Chip label={item['slug']} style={{ color: "white", background: "var(--details_color)", margin: 2}}/>) }
+                    </Typography>
+                    <br/>
+                    <CloseIcon className="close_modal" onClick={() => setOpenRoles(false)}/>
+                </Box>
+            </Fade>
+        </MyModal>
+
+        <MyModal open={openFields} closeFunction={() => setOpenFields(false)}>
+            <Fade in={openFields}>
+                <div>
+                    <Col md="8" className="mx-auto">
+                        <h1>I tuoi campi d'interesse</h1>
+                        <p style={{ fontWeight: 200}}>Modificali in base ai tuoi gusti!</p>
+                        {
+                            user && user.getInterestsField().getFieldOfInterest().map(field => (
+                                <Chip label={field.getName()} className={"my_chip" + (user.getInterestsField().getUserInterests().includes(field.getId()) ? " orange" : "")} onClick={() => changeUserInterests(field)}/>
+                            ))
+                        }
+                    </Col>
+                </div>
+            </Fade>
+        </MyModal>
     </div>
 }
 

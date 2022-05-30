@@ -3,6 +3,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { Fade, IconButton } from '@mui/material'
 
 import "./style.css"
+import ConfirmAction from '../confirm_action'
 
 function MultipleChoiceQuestion(props) {
     let deletable = props.deletable     //in this case question is a QuestionCreatorControllor
@@ -12,6 +13,7 @@ function MultipleChoiceQuestion(props) {
 
     const [correctAnswer, setCorrectAnswer] = useState({isCorrect: false, message: ""})
     const [answerGiven, setanswerGiven] = useState(false)
+    const [confirmInfo, setConfirmInfo] = useState({confirm: undefined, refute: undefined})
 
     async function addRemoveChoice(id) {
         if(question.isChoiceSelected(id)) question.removeSelectedChoice(id)
@@ -20,16 +22,18 @@ function MultipleChoiceQuestion(props) {
             if(!deletable) {
                 // send user answer
                 let isCorrect = await question.sendUserAnswer(id)
-                setCorrectAnswer({isCorrect: isCorrect, message: question.getChoices()[id]['description']})
-                setanswerGiven(true)
-                setTimeout(() => setanswerGiven(false), 4000)
+                if(isCorrect != undefined) {
+                    setCorrectAnswer({isCorrect: isCorrect, message: question.getChoices()[id]['description']})
+                    setanswerGiven(true)
+                    setTimeout(() => setanswerGiven(false), 4000)
+                } 
             }
         }
     }
 
     function handleDelete(e, id) {
         e.stopPropagation()
-        questionCreator.deleteItem(id)
+        setConfirmInfo({confirm: () => questionCreator.deleteItem(id), refute: undefined})
     }
 
     useEffect(() => {
@@ -39,7 +43,7 @@ function MultipleChoiceQuestion(props) {
 
     return (
         <div className={!deletable ? "multiple_choice centered" : "multiple_choice"}>
-            {!deletable ? <p>{question.getTitle()}</p> : ""}
+            {!deletable ? <p>{question && question.getTitle()}</p> : ""}
             {
                 Object.keys(question.getChoices()).map((id) => 
                     <div key={id}>
@@ -85,6 +89,7 @@ function MultipleChoiceQuestion(props) {
                 </Fade> :
                 ""
             }
+            <ConfirmAction action={confirmInfo} closeFunction={() => setConfirmInfo({confirm: undefined, refute: undefined})}/>
         </div>
     )
 }

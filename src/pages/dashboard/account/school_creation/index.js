@@ -1,13 +1,19 @@
 import React, {useState, useEffect} from 'react'
-import { useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import CreateSchoolController from '../../../../controllers/create_school_controller'
 import {Container, Row, Col} from "react-bootstrap"
 import { TextField } from '@material-ui/core'
 import "./style.css"
 import Popup from '../../../../components/popup'
+import { default as home_routes } from "../home/routes"
 
-function SchoolCreation() {
+function SchoolCreation(props) {
+  let user = props.user
+  let routes = props.routes
+
   let { state } = useLocation()
+  let navigate = useNavigate()
+
   const [school, setSchool] = useState(new CreateSchoolController())
   const [popupContent, setPopupContent] = useState()
 
@@ -21,7 +27,10 @@ function SchoolCreation() {
       // publish school
       setPopupContent({error: false, message: "Creazione in corso..."})
       school.publish()
-      .then(() => setPopupContent({error: false, message: "Creazione completata"}))
+      .then(() => {
+        setPopupContent({error: false, message: "Creazione completata"})
+        setTimeout(() => navigate(home_routes.school.path), 1000)
+      })
       .catch((error) => {
         console.warn(error)
         setPopupContent({error: true, message: "Errore, riprovare"})
@@ -32,7 +41,6 @@ function SchoolCreation() {
   // setting up 
   useEffect(() => {
     school.setState(setSchool)
-    console.log(state)
     if(state != undefined) {
       let schoolObj = state['school']
       // edit mode
@@ -42,6 +50,13 @@ function SchoolCreation() {
       school.setCode(schoolObj['code'])
     }
   }, [])
+
+  useEffect(() => {
+    if(user) {
+      if(!user.canI("create_tag")) navigate(routes.home.path)
+    }
+  }, [user])
+  
 
   return (
     <Container id="school_creation" className="creation">

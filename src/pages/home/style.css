@@ -260,6 +260,12 @@
   z-index: 0;
 }
 
+#home .courses .auto_columns {
+  display: grid;
+  column-gap: 10px;
+  grid-template-columns: repeat( auto-fit, minmax(200px, calc(20% - 20px)))
+}
+
 #home .courses.ball::before {
   top: -300px;
   right: -400px;
@@ -308,12 +314,16 @@
   margin: 30px;
 }
 
-#home .subscription #month_price::after {
-  content: "al mese";
-  font-size: 20px;
-  font-weight: 300;
+#home .subscription .prices {
+  height: 100%;
+  position: relative;
+}
+
+#home .subscription #month_price_wrong {
   color: var(--details_color);
-  margin-left: 5px;
+  font-size: x-large;
+  font-weight: 300;
+  text-decoration: line-through;
 }
 
 #home .subscription .sub_title {
@@ -329,7 +339,7 @@
   /* max-width: 300px; */
   width: 100%;
   margin-left: auto;
-  margin-right: auto;
+  margin-rignht: auto;
 }
 
 #home .subscription .block .description {

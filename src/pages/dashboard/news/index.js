@@ -18,6 +18,7 @@ function NewsPage(props) {
     const categoriesContainer = useRef()
     const forYouContainer = useRef()
     const currentSection = useRef()
+    const timestamp = useRef(0)
 
     function scrollTo(sectionName) {
         let section
@@ -48,29 +49,34 @@ function NewsPage(props) {
 
     function autoScroll(e) {
         if(!windowInfo.mobileMode) {
-            let target = e.currentTarget
-            let sections = [homeContainer, dailyContainer, forYouContainer, categoriesContainer]
-    
-            if(!currentSection.current.isScrolling) {
-                let isScrollDown = e.deltaY > 0
-                let newIndexSection = sections.indexOf(currentSection.current.section)
-                if(isScrollDown) {
-                    if(newIndexSection < 3) newIndexSection += 1
-                } else {
-                    if(newIndexSection > 0) newIndexSection -= 1
+            let _timestamp = e.timeStamp
+            console.log(e)
+            if(_timestamp - timestamp.current > 100) {
+                let target = e.currentTarget
+                let sections = [homeContainer, dailyContainer, forYouContainer, categoriesContainer]
+        
+                if(!currentSection.current.isScrolling) {
+                    let isScrollDown = e.deltaY > 0
+                    let newIndexSection = sections.indexOf(currentSection.current.section)
+                    if(isScrollDown) {
+                        if(newIndexSection < 3) newIndexSection += 1
+                    } else {
+                        if(newIndexSection > 0) newIndexSection -= 1
+                    }
+                    currentSection.current.section = sections[newIndexSection]
+                    currentSection.current.isScrolling = true
+                    if(newIndexSection == 0) scrollTo('home')
+                    if(newIndexSection == 1) scrollTo('daily')
+                    if(newIndexSection == 2) scrollTo('for_you')
+                    if(newIndexSection == 3) scrollTo('categories')
+                    setTimeout(() => {
+                        currentSection.current.isScrolling = false
+                    }, 800)
                 }
-                currentSection.current.section = sections[newIndexSection]
-                currentSection.current.isScrolling = true
-                if(newIndexSection == 0) scrollTo('home')
-                if(newIndexSection == 1) scrollTo('daily')
-                if(newIndexSection == 2) scrollTo('for_you')
-                if(newIndexSection == 3) scrollTo('categories')
-                setTimeout(() => {
-                    currentSection.current.isScrolling = false
-                }, 800)
             }
+            timestamp.current = _timestamp
         } else {
-            document.querySelector("#content_container").style.overflow = "auto"
+            document.querySelector("#content_container").style.overflowY = "auto"
         }
         
     }
@@ -81,10 +87,23 @@ function NewsPage(props) {
             section : homeContainer,
             isScrolling : false,
         }
-        document.querySelector("#content_container").style.overflow = "hidden"
 
-        return () => document.querySelector("#content_container").style.overflow = ""
+        return () => {
+            let container = document.querySelector("#content_container")
+            if(container != undefined) container.style.overflow = ""
+        }
     }, [])
+
+    useEffect(() => {
+        console.log('ciao')
+        if(windowInfo.mobileMode) {
+            document.querySelector("#content_container").style.overflowY = "auto"
+        } else {
+            document.querySelector("#content_container").style.overflowY = "hidden"
+        }
+        document.querySelector("#content_container").style.overflowX = "hidden"
+    }, [{...windowInfo}])
+    
     
     return (
         <Fade in={true}>

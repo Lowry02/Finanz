@@ -6,21 +6,27 @@ import CreateNewsController from '../../../../controllers/create_news_controller
 import x_icon from "../../../../media/icons/x.png"
 import MarkupEditor from "../../../../components/markup_editor"
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import { useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { TextField } from '@mui/material'
 import EditCategories from '../edit_categories'
 import Popup from "../../../../components/popup"
+import TagListController from '../../../../controllers/tags_list'
+import { Select, MenuItem, Checkbox, ListItemText } from '@material-ui/core'
 
 import "./style.css"
 import ImageLink from '../../../../components/image_link'
 
 function NewsCreation(props) {
     let user = props.user
+    let routes = props.routes
 
     const [content, setContent] = useState(new CreateNewsController())
+    const [tagList, setTagList] = useState(new TagListController())
+    const [tagPerNews, setTagPerNews] = useState([])
     const [dialogOpen, setDialogOpen] = useState(false)
     const [popupContent, setPopupContent] = useState()
     const { state } = useLocation()
+    let navigate = useNavigate()
 
     function loadWallpaper(e) {
         if(e != undefined) {
@@ -55,19 +61,41 @@ function NewsCreation(props) {
         }
     }
 
+    function linkTagToNews(tag, link) {
+          if(link) {
+            setTagPerNews([...tagPerNews, tag])
+            tag.linkTagToNews(content.news.getId())
+          }
+          else {
+            let index = tagPerNews.map(item => item.getId()).indexOf(tag.id)
+            if(index >= 0) {
+              tagPerNews.splice(index, 1)
+              setTagPerNews([...tagPerNews])
+            }
+            tag.unlinkTagToNews(content.news.getId())
+          }
+      }
+
     // manage news loading
-    useEffect(() => {
+    useEffect(async () => {
         content.setState(setContent)
+        tagList.setState(setTagList)
         content.loadCategories()
+        tagList.loadTags()
         if(state != null) {
             let newsInfo = state['news']
             let slug = newsInfo['id']
             content.news.loadById(slug)
+            setTagPerNews(await tagList.getTagPerNews(slug))
         }
     }, [])    
 
+    // checking roles
     useEffect(() => {
-    }, [content.news.getDescription()])
+        if(user) {
+            if(!user.canI("create_news")) navigate(routes.home.path)
+        }
+    }, [user])
 
     return (
         <div className="creation" id="news_creation">
@@ -128,6 +156,23 @@ function NewsCreation(props) {
                     <div className="info_container block">
                         <h5>Informazioni news</h5>
                         <br />
+                        <h6>Tag</h6>
+                        {
+                            content.news.getId() == "" ? 
+                            <p className="m-0">Per collegare i tag devi prima pubblicare la news</p> : 
+                            <Select renderValue={(selected) => selected.map(item => item.getName()).join(', ')} multiple value={tagPerNews} variant="standard" className="input" label="Tag">
+                            {
+                                tagList.getList().map(tag => (
+                                <MenuItem onClick={() => linkTagToNews(tag, !tagPerNews.map(item => item.getId()).includes(tag.getId()))}>
+                                    <Checkbox className="orange_icon" checked={tagPerNews.map(item => item.getId()).includes(tag.getId())} />
+                                    <ListItemText primary={tag.getName()} />
+                                </MenuItem>
+                                ))
+                            }
+                            </Select>
+                        }
+                        <br />
+                        <hr/>
                         <div className="space_between">
                             <h6 className="mb-4">Categoria</h6>
                             {

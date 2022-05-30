@@ -7,6 +7,11 @@ import DoneIcon from '@mui/icons-material/Done';
 import { Skeleton } from '@mui/material';
 import { Fade } from '@mui/material';
 
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+
 function PageLayout(props) {
     let windowInfo = props.windowInfo
     let { moduleId } = useParams()
@@ -29,6 +34,22 @@ function PageLayout(props) {
             let nextNoteSlug = notesId[nextNoteIndex]
             navigate(nextNoteSlug, { state : { module: content.exportInfo() }})
         }
+    }
+
+    function saveNote(e, noteId) {
+        e.stopPropagation()
+        if(!content.getModuleById(noteId)['isSaved']) content.saveNote(noteId)
+        else content.unsaveNote(noteId)
+        content.getModuleById(noteId)['isSaved'] = !content.getModuleById(noteId)['isSaved']
+        content.updateInfo()
+    }
+
+    function likeNote(e, noteId) {
+        e.stopPropagation()
+        if(!content.getModuleById(noteId)['isLiked']) content.likeNote(noteId)
+        else content.unlikeNote(noteId)
+        content.getModuleById(noteId)['isLiked'] = !content.getModuleById(noteId)['isLiked']
+        content.updateInfo()
     }
 
     useEffect(async () => {
@@ -76,12 +97,12 @@ function PageLayout(props) {
                                     <div className="separator"></div>
                                     <div className="buttons">
                                         <div className="display_inline">
-                                            <div className="item">
+                                            {/* <div className="item">
                                                 <div className="icon_container bounce">
                                                     <AddIcon className="icon"/>
                                                 </div>
                                                 <h6>Aggiungi</h6>
-                                            </div>
+                                            </div> */}
                                         {
                                             content && content.getCompletedNotes().length == Object.keys(content.getModules()).length ? 
                                             "" : 
@@ -105,11 +126,24 @@ function PageLayout(props) {
                                             onClick={() => openLesson(moduleId)}
                                             className={content.getCompletedNotes().includes(moduleId) ? "block lesson_item ended bounce" : "block lesson_item bounce"}>
                                                 <h3 className="lesson_title">{content.getModuleTitle(moduleId)}</h3>
-                                                {
-                                                    !content.getCompletedNotes().includes(moduleId) ?
-                                                    <h6 className="text-center"><PlayArrowIcon className="play_module bounce"/>Inizia</h6> : 
-                                                    <h6 className="text-center"><DoneIcon className="play_module bounce"/>Terminato</h6> 
-                                                }
+                                                <div className="text-center">
+                                                    {
+                                                        !content.getModuleById(moduleId)['isSaved'] ? 
+                                                        <PlaylistAddIcon className="orange_icon m-2" onClick={(e) => saveNote(e, moduleId)}/> :
+                                                        <PlaylistAddCheckIcon className="orange_icon m-2" onClick={(e) => saveNote(e, moduleId)}/>
+                                                    }
+                                                    {
+                                                        content.getModuleById(moduleId)['isLiked'] ? 
+                                                        <FavoriteIcon className="orange_icon m-2" onClick={(e) => likeNote(e, moduleId)}/> :
+                                                        <FavoriteBorderIcon className="orange_icon m-2" onClick={(e) => likeNote(e, moduleId)}/>
+
+                                                    }
+                                                    {
+                                                        !content.getCompletedNotes().includes(moduleId) ?
+                                                            <PlayArrowIcon className="play_module bounce m-2"/> : 
+                                                            <DoneIcon className="play_module bounce m-2"/> 
+                                                    }
+                                                </div>
                                             </div>
                                             {
                                                 i == Object.keys(content.getModules()).length - 1 ?

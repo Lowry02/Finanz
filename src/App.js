@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-import { Routes, Route, useLocation } from "react-router-dom";
-
-import TestPage from './pages/test';
+import { Route, useLocation } from "react-router-dom";
 import routes from "./routes";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./style.css"
+import CustomRouter from './components/custom_router';
 
-export const api_url = "https://finanz-developing.herokuapp.com/"
+export const api_url = "https://apifinanz.com/"
 
 function App() {
   let location = useLocation()
@@ -18,6 +17,8 @@ function App() {
     windowHeight : 0,
     dashboardContainerHeight : 0
   })
+
+  const observer = useRef()
 
   function updateWindowInfo() {
     let dashboardContainer = document.getElementById('content_container')
@@ -31,23 +32,32 @@ function App() {
       dashboardContainerHeight : height
     })
   }
-
-  useEffect(() => {
-    updateWindowInfo()
-    window.addEventListener('resize', () => updateWindowInfo())
-  }, [])
-
+  
   useEffect(() => {
     updateWindowInfo()
   }, [location])
   
+  useEffect(() => {
+    updateWindowInfo()
+    window.addEventListener('resize', () => updateWindowInfo())
+    
+    observer.current = new MutationObserver((e) => {
+      if(document.getElementById('content_container') != undefined) {
+        console.log(document.getElementById('content_container'))
+        updateWindowInfo()
+        observer.current.disconnect()
+      }
+    })
+
+    observer.current.observe(document.body, { childList: true, subtree: true })
+  }, [])
 
   return (
-    <Routes>
+    <CustomRouter>
       {Object.values(routes).map((route) => 
         <Route path={route.url} element={route.component({windowInfo : windowInfo})} />
       )}
-    </Routes>
+    </CustomRouter>
   )
 }
 

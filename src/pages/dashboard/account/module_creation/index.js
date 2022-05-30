@@ -13,14 +13,12 @@ import { TextField } from '@mui/material'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import Popup from "../../../../components/popup"
 import Skeleton from '@mui/material/Skeleton';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { IconButton } from '@material-ui/core'
-import Compressor from 'compressorjs';
-
+import { useNavigate } from 'react-router'
 import { MenuItem } from '@material-ui/core'
 
 import "./style.css"
 import ImageLink from '../../../../components/image_link'
+import ConfirmAction from '../../../../components/confirm_action'
 
 function ModuleCreation(props) {
     const [content, setContent] = useState(new CreateModuleController())
@@ -33,8 +31,10 @@ function ModuleCreation(props) {
 
     let user = props.user
     let windowInfo = props.windowInfo
+    let routes = props.routes
 
     let { state } = useLocation()
+    let navigate = useNavigate()
 
     function loadWallpaper(e) {
         if(e != undefined) {
@@ -112,6 +112,10 @@ function ModuleCreation(props) {
     }, [])
 
     useEffect(() => {
+        // redirect if user doesn't have permission
+        if(user) {
+            if(!user.canI("create_academy")) navigate(routes.home.path) 
+        }
         // saving data to local storage(don't lose data on refresh)
         if(!firstLoad) {
             window.localStorage.setItem("data", JSON.stringify(content.module.exportInfo()))
@@ -240,17 +244,14 @@ function ModuleCreation(props) {
                             <MenuItem value={1}>1</MenuItem>
                             <MenuItem value={2}>2</MenuItem>
                             <MenuItem value={3}>3</MenuItem>
-                            <MenuItem value={4}>4</MenuItem>
-                            <MenuItem value={5}>5</MenuItem>
                         </TextField>
                         <br/>
                         <br/>
                         <div className="space_between">
                             <h5>Categoria</h5>
                             {
-                                user && Object.values(user.getRole()).map((item) => item['slug']).includes("super-admin") ||
-                                user && Object.values(user.getRole()).map((item) => item['slug']).includes('super-admin-academy') ?
-                                <ModeEditIcon
+                                user && user.canI("create_academy_category") ?
+                                    <ModeEditIcon
                                     className="orange_icon mb-3"
                                     onClick={() => setOpenDialog(true)}/> :
                                     ""

@@ -4,18 +4,14 @@ import News from '../../../../components/news_card';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ScrollContainer from "../../../../components/scroll_container"
 import Fade from '@mui/material/Fade';
+import { Skeleton } from '@mui/material';
 
 function DailyNews(props) {
   let windowInfo = props.windowInfo
   let content = props.content
-  const [selectedNews, setSelectedNews] = useState(null);
-  const [sidebarListHeight, setSidebarListHeight] = useState("auto")
-  const [isHover, setIsHover] = useState(false)
-  const [isEffectRunning, setIsEffectRunning] = useState(true)
-  const [fadeIn, setFadeIn] = useState(true)
 
   useEffect(() => {
-      content.loadDailyNews()
+      content.loadNewsPerCategory("economia") // daily news
   }, []);
 
   return (
@@ -24,7 +20,6 @@ function DailyNews(props) {
         windowInfo.mobileMode ?
           <MobileLayout windowInfo={windowInfo} content={content} /> : 
           <DesktopLayout windowInfo={windowInfo} content={content} /> 
-
       }
     </>
   )
@@ -44,9 +39,15 @@ function DesktopLayout(props) {
   useEffect(() => {
     if(content && firstLoad) {
       if(Object.values(content.getDailyNews()).length > 0) {
+        setFadeIn(false)
         setSelectedNews(Object.values(content.getDailyNews())[0])
         setFirstLoad(false)
       }
+    }
+
+    if(selectedNews == null && content.getNewsPerCategory("economia").length != 0) {
+      setFadeIn(false)
+      setSelectedNews(content.getNewsPerCategory("economia")[0])
     }
   }, [content]);
 
@@ -64,10 +65,11 @@ function DesktopLayout(props) {
 
     if(selectedNews != null) {
         timer = setInterval(() => {
-        let index = Object.values(content.getDailyNews()).findIndex(item => item === selectedNews)
-        index = (index + 1) % Object.values(content.getDailyNews()).length
+        let index = content.getNewsPerCategory("economia").findIndex(item => item === selectedNews)
+        index = (index + 1) % content.getNewsPerCategory("economia").length
         if(!isHover) {
-          setSelectedNews(Object.values(content.getDailyNews())[index])
+          setFadeIn(false)
+          setTimeout(() => setSelectedNews(content.getNewsPerCategory("economia")[index]), 200)
         } else setIsEffectRunning(!isEffectRunning)
       }, 3000)
     }
@@ -90,14 +92,16 @@ function DesktopLayout(props) {
           {
             selectedNews ? 
               <>
-                <Fade timeout={500} in={fadeIn}>
+                <Fade in={fadeIn}>
                   <img src={selectedNews.getWallpaper()} />
                 </Fade>
                 <div className="info">
-                  <h2 className="text-center">{selectedNews.getTitle()}</h2>
-                  <div className="separator"></div>
-                  <h6 className="text-center author">{selectedNews.getPublishDate()} - Di {selectedNews.getAuthor()}</h6>
-                  <div className="text-center read_news bounce"><VisibilityIcon /></div>
+                  <div>
+                    <h2 className="text-center">{selectedNews.getTitle()}</h2>
+                    <div className="separator"></div>
+                    <h6 className="text-center author">{selectedNews.getPublishDate()} - Di {selectedNews.getAuthor()}</h6>
+                    <div className="text-center read_news bounce"><VisibilityIcon /></div>
+                  </div>
                   <br/>
                 </div>
               </>
@@ -109,28 +113,42 @@ function DesktopLayout(props) {
           <br/>
           <h4 className="text-center">News del giorno</h4>
           <div id="list">
-            <ScrollContainer
-            isMobile={windowInfo.mobileMode}
-            direction={windowInfo.mobileMode ? "horizontal" : "vertical"}
-            margin={15}
-            mustVisible={Object.values(content.getDailyNews()).indexOf(selectedNews)}>
-              {Object.values(content.getDailyNews()).map((news, i) => {
-                  return <div
-                          id={i}
-                          key={i}
-                          onMouseEnter={() => {
-                            setSelectedNews(news)
-                            setIsHover(true)
-                            }}
-                          onMouseLeave={() => setIsHover(false)}>
-                            <News
-                              layout="rectangular_img"
-                              content={news}
-                              windowInfo={windowInfo}
-                              selected={selectedNews == news}/>
-                          </div>
-                })}
-              </ScrollContainer>
+            {
+              content.getNewsPerCategory("economia") == 0 ?
+              <div>
+                <Skeleton sx={{ bgcolor: "grey.900"}} variant={"rectangular"} height={"150px"} />
+                <br/>
+                <Skeleton sx={{ bgcolor: "grey.900"}} variant={"rectangular"} height={"150px"} />
+                <br/>
+                <Skeleton sx={{ bgcolor: "grey.900"}} variant={"rectangular"} height={"150px"} />
+                <br/>
+                <Skeleton sx={{ bgcolor: "grey.900"}} variant={"rectangular"} height={"150px"} />
+                <br/>
+              </div> :
+              <ScrollContainer
+              isMobile={windowInfo.mobileMode}
+              direction={windowInfo.mobileMode ? "horizontal" : "vertical"}
+              margin={15}
+              mustVisible={content.getNewsPerCategory("economia").indexOf(selectedNews)}>
+                {content.getNewsPerCategory("economia").map((news, i) => {
+                    return <div
+                            id={i}
+                            key={i}
+                            onMouseEnter={() => {
+                              setFadeIn(false)
+                              setTimeout(() => setSelectedNews(news), 200)
+                              setIsHover(true)
+                              }}
+                            onMouseLeave={() => setIsHover(false)}>
+                              <News
+                                layout="rectangular_img"
+                                content={news}
+                                windowInfo={windowInfo}
+                                selected={selectedNews == news}/>
+                            </div>
+                  })}
+                </ScrollContainer>
+            }
           </div>
         </Col>
       </Row>
@@ -146,7 +164,7 @@ function MobileLayout(props) {
       <h6 className="section_title mb-1 mt-1">Notizie del giorno</h6>
       <div className="mobile_news_list">
         {
-          content && Object.values(content.getDailyNews()).map((news) => {
+          content && Object.values(content.getNewsPerCategory("economia")).map((news) => {
             return <News
               layout="rectangular_img"
               content={news}

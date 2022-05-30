@@ -11,13 +11,14 @@ class QuestionController {
         this.overrideUpdateInfo = overrideUpdateInfo
     }
 
-    load({id, title, image, choices, acceptedChoices = 1, selectedChoices = []}) {
-        this.question.load({id, title, image, choices, acceptedChoices})
+    load({id, title, image, choices, acceptedChoices = 1, selectedChoices = [], type}) {
+        this.question.load({id, title, image, choices, acceptedChoices, type})
         this.selectedChoices = selectedChoices
         this.updateInfo()
     }
 
     async loadById(id, quizType = "academy") {
+
         // checking quizType validity 
         let acceptedQuizType = ["academy", "course", "school"]
         if(!acceptedQuizType.includes(quizType)) {
@@ -59,16 +60,24 @@ class QuestionController {
         let accessToken = window.localStorage.getItem("accessToken")
         let isCorrect = false
 
-        await $.ajax({
-            type: "POST",
-            url: api_url + "/quiz/answer/" + id +"/user_answer",
-            accepts: "json",
-            contentType: "json",
-            beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
-            success: (data) => isCorrect = data['message']['isCorrect']
-        })
+        let requestLink = ""
+        if(this.getType() == "course") {
+            requestLink = "/course/lesson/answer/" + id + "/user_answer"
+        } else if(this.getType() == "academy") {
+            requestLink = "/quiz/answer/" + id +"/user_answer"
+        }
 
-        console.log(isCorrect)
+        if(requestLink != "") {
+            await $.ajax({
+                type: "POST",
+                url: api_url + requestLink,
+                accepts: "json",
+                contentType: "json",
+                beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                success: (data) => isCorrect = data['message']['isCorrect']
+            })
+        } else isCorrect = undefined
+
         return isCorrect
     }
 
@@ -91,6 +100,7 @@ class QuestionController {
     getImage() { return this.question.getImage() }
     getAcceptedChoices() {return this.question.getAcceptedChoices()}
     getSelectedChoices() {return this.selectedChoices}
+    getType() {return this.type}
 
     setId(id, _auto_save = true) {
         this.question.setId(id)
@@ -118,6 +128,10 @@ class QuestionController {
     }
     setSelectedChoices(selectedChoices, _auto_save = true) {
         this.selectedChoices = selectedChoices
+        if(_auto_save) this.updateInfo()
+    }
+    setType(type, _auto_save = true) {
+        this.type = type
         if(_auto_save) this.updateInfo()
     }
 

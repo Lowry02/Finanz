@@ -6,17 +6,17 @@ import AddIcon from '@mui/icons-material/Add';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import Collapse from '@mui/material/Collapse';
-import VideocamIcon from '@mui/icons-material/Videocam';
-import WatchLaterIcon from '@mui/icons-material/WatchLater';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Chip, Icon, Modal } from '@material-ui/core';
-import { Row, Col } from "react-bootstrap"
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-import { TextField, Rating, Fade } from '@mui/material'
+import { Col } from 'react-bootstrap';
+
+import { Fade, Skeleton } from '@mui/material'
 import "./style.css"
-import { Box } from '@mui/system';
 import ScrollContainer from '../../../components/scroll_container';
+import { HashLink } from 'react-router-hash-link';
+import routes from '../routes';
+import Popup from "../../../components/popup"
 
 // function PageLayout() {
 //     let { courseId } = useParams()
@@ -130,57 +130,76 @@ function PageLayout(props) {
     let { courseId } = useParams()
     const [content, setContent] = useState(new CourseController())
     const [selectedSection, setSelectedSection] = useState(0)
+    let navigate = useNavigate()
     const [openModal, setOpenModal] = useState(false)
+    const [loading, setLoading] = useState(true)
 
     let sections = {
         0 : (props) => <Description {...props}/>,
         1 : (props) => <Video {...props}/>,
     }
 
-    useEffect(() => {
+    useEffect(async () => {
         content.setState(setContent)
-        content.loadById(courseId, false)
-        content.loadComments()
-        console.log(content.getComments())
+        let allInfo = false // it doesn't load all lessons
+        try {
+            await content.loadById(courseId, allInfo)
+            setLoading(false)
+        } catch {
+            // error page
+            navigate(routes.single_webinar.path)
+        }
     }, [])
 
+    useEffect(() => {
+        // updates dashboardContainerHeight field
+        if(!loading) {
+            window.dispatchEvent(new Event('resize'))
+        }
+    }, [loading])
+    
+
     return (
-        <Fade in={true}>
+        loading ? 
+        <Fade in={loading}>
+            <div>
+                <Skeleton height={"500px"}/>
+                <Skeleton />
+                <Skeleton />
+                <Skeleton />
+                <Skeleton />
+            </div>
+        </Fade>:
+        <Fade in={!loading}>
         <div id="single_course">
-            <div className="wallpaper_container" style={{height: windowInfo.dashboardContainerHeight}}>
+            <div className="wallpaper_container" style={{height: windowInfo['dashboardContainerHeight']}}>
                 <div className="gradient"></div>
                 <img className="wallpaper" src={content.getWallpaper()}/>
                 <div className="info">
-                    <Col md="7" className="mx-auto">
+                    <Col md="12" className="mx-auto" >
                         <h2 className="title text-center">{content.getTitle()}</h2>
                     </Col>
                     <div className="separator"></div>
-                    <p className="text-center">di <b className="author">{content.getAuthor()}</b></p>
+                    <p className="text-center">di <b className="author">{content.getOfferedBy().join(' - ')}</b></p>
                     <div className="display_inline actions_container">
-                        <div className="m-3">
+                        {/* <div className="m-3">
                             <div className="action bounce">
                                 <AddIcon />
                             </div>
                             <div className="text-center">
                                 <h6>Aggiungi</h6>
                             </div>
-                        </div>
-                        <div className="m-3">
-                            <div className="action bounce">
-                                <ShoppingCartIcon />
-                            </div>
-                            <div className="text-center">
-                                <h6>Acquista</h6>
-                            </div>
-                        </div>
-                        <div className="m-3">
-                            <div className="action bounce" onClick={() => setOpenModal(true)}>
-                                <PlayArrowIcon/>
-                            </div>
+                        </div> */}
+                        {/* <div className="m-3">
+                            <HashLink to={"#presentazion_video"}>
+                                <div className="action bounce">
+                                    <PlayArrowIcon/>
+                                </div>
+                            </HashLink>
                             <div className="text-center">
                                 <h6>Trailer</h6>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
@@ -190,27 +209,10 @@ function PageLayout(props) {
                     <p className={selectedSection == 1 ? "panel_item selected" : "panel_item"} onClick={() => setSelectedSection(1)}>Video</p>
                 </div>
                 {selectedSection != undefined ? sections[selectedSection]({ content : content }) : ""}
-                <hr/>
-                <Comments content={content} windowInfo={windowInfo}/>
+                {/* <hr/> */}
+                {/* <Comments content={content} windowInfo={windowInfo}/> */}
                 <br/>
             </Col>
-            <Modal
-            open={openModal}
-            onClose={() => setOpenModal(false)}>
-                <Box
-                className="modal_content"
-                style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: 'translate(-50%, -50%)',
-                    border: "0px",
-                }}>
-                    <video controls={true} className="video block" style={{width: "100%"}}>
-                        <source src={content && content.getPresentationVideo()} />
-                    </video>
-                </Box>
-            </Modal>
         </div>
         </Fade>
     )
@@ -222,55 +224,74 @@ function Description(props) {
     return (
         <Col id="course_description" md="10" className="mx-auto">
             <div className="chip_container text-center">
-                <Chip className="item mb-3" label={content && content.getArgument()}/>
-                <Chip className="item mb-3" label={content && content.getNVideo() + " video"}/>
+                {/* <Chip className="item mb-3" label={content && content.getArgument()}/> */}
+                {/* <Chip className="item mb-3" label={content && content.getNVideo() + " video"}/>
                 <Chip className="item mb-3" label={content && content.getStar() + " stelle"}/>
                 <Chip className="item mb-3" label={content && content.getTime()}/>
-                <Chip className="item mb-3" label={content && "Di " + content.getAuthor()}/>
+                <Chip className="item mb-3" label={content && "Di " + content.getAuthor()}/> */}
             </div>
             <h5>Descrizione</h5>
             <p className="thin">{content.getDescription()}</p>
-            <h5>Syllabus</h5>
-            <p className="thin">{content.getSyllabus()}</p>
+            <a id="presentazion_video"></a>
+            <h5>Video di presentazione</h5>
+            <div dangerouslySetInnerHTML={{ __html: content.getPresentationVideo()}}></div>
         </Col>
     )
 }
 
 function Video(props) {
     let content = props.content
-    const [currentSection, setCurrentSection] = useState(undefined)
     let navigate = useNavigate()
 
+    const [popupContent, setPopupContent] = useState({})
+    const [currentSection, setCurrentSection] = useState(undefined)
+    
     function openChapter(chapterId) {
-        navigate(chapterId, {state: {course : content.exportInfo()}})
+        let chapterPosition = content.getChapter(chapterId)['position']
+        if(chapterPosition != 1) {
+            let [lastChapter] = Object.values(content.getContent()).filter(item => item['position'] == chapterPosition - 1)
+            let notFinishedLessons = Object.values(lastChapter['lessons']).filter(item => !item['isFinished'])
+            if(notFinishedLessons.length == 0) navigate(chapterId, {state: {course : content.exportInfo()}})
+            else setPopupContent({ error: true, message: "Devi completare i capitoli precedenti"})
+        } else {
+            navigate(chapterId, {state: {course : content.exportInfo()}})
+        }
     }
 
     return (
-        <Col id="course_video" md="10" className="mx-auto">
+        <div id="course_video" md="8" className="mx-auto centered">
             {
                 content && Object.keys(content.getContent()).map(
                     (chapterId, i) => <div className="chapter_item">
-                        <div className="display_inline">
-                            <h6 className="chapter">
-                                <PlayArrowIcon
+                        <div className={"block mb-3 text-center " + (Object.values(content.getLessonsByChapter(chapterId)).filter(item => !item['isFinished']).length == 0 ? "orange" : "")}>
+                            <h5 className={"chapter"}>Capitolo {i + 1} - {content.getChapterTitle(chapterId)}</h5>
+                            <p className={"thin "}>{Object.values(content.getLessonsByChapter(chapterId)).filter(item => item['isFinished']).length}/{Object.values(content.getLessonsByChapter(chapterId)).length} lezioni completate</p>
+
+                            <PlayArrowIcon
                                 onClick={() => openChapter(chapterId)}
-                                className="orange_icon"/>
-
-                                Capitolo {i + 1} - {content.getChapterTitle(chapterId)}</h6>
-
-                                <KeyboardArrowDownIcon
-                                className={i == currentSection ? "orange_icon arrow selected" : "orange_icon arrow"}
-                                onClick={() => setCurrentSection(i == currentSection ? undefined : i)}/>
+                                className={"orange_icon"}/>
+                            <KeyboardArrowDownIcon
+                            className={i == currentSection ? "orange_icon arrow selected" : "orange_icon arrow"}
+                            onClick={() => setCurrentSection(i == currentSection ? undefined : i)}/>
                         </div>
-                        <p className="thin">3/5 - 15 minuti rimanenti</p>
                         <Collapse in={i == currentSection}>
                             <div className="lessons m-2">
                                 {
                                     Object.keys(content.getLessonsByChapter(chapterId)).map(
-                                        (lessonId, i) => <div className="lesson_item">
+                                        (lessonId, i) => <Col md="8" className={"lesson_item block mb-3 mx-auto " + (content.getLesson(chapterId, lessonId)['isFinished'] ? "orange" : "")}>
+                                            {
+                                                content.getLesson(chapterId, lessonId)['isFree'] ? 
+                                                <h5 className="text-right">FREE</h5> :
+                                                ""
+                                            }
                                             <h6>Lezione {i + 1} - {content.getLessonTitle(chapterId, lessonId)}</h6>
-                                            <p className="thin mb-4">{content.getLessonDescription(chapterId, lessonId)}</p>
-                                        </div> 
+                                            <p className="thin">{content.getLessonDescription(chapterId, lessonId)}</p>
+                                            <div className="centered">
+                                                <PlayArrowIcon
+                                                    onClick={() => navigate(chapterId + "/" + lessonId)}
+                                                    className={"orange_icon"}/>
+                                            </div>
+                                        </Col> 
                                     )
                                 }
                             </div>
@@ -278,7 +299,12 @@ function Video(props) {
                     </div>
                 )
             }
-        </Col>
+            {
+                Object.keys(popupContent).length != 0 ?
+                <Popup isError={popupContent['error']} message={popupContent['message']} removeFunction={() => setPopupContent({})}/>
+                : ""
+            }
+        </div>
     )
 }
 

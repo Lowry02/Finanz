@@ -6,6 +6,11 @@
     (/pages/dashboard/index.js => Dashboard component))
 */
 
+#loading_section {
+    background-color: var(--first_bkg);
+    height: 100vh;
+}
+
 #container_layout {
     width: 100vw;
     height: 100vh;
@@ -94,10 +99,28 @@
     overflow: scroll;
     padding-left: 25px;
     padding-right: 25px;
+    overflow-x: hidden;
 }
 
 #container_layout #content_container::-webkit-scrollbar {
-    display: none;
+    /* display: none; */
+    display: block;
+}
+
+#container_layout #content_container::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+#container_layout #content_container::-webkit-scrollbar-track {
+    background: transparent;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+#container_layout #content_container::-webkit-scrollbar-thumb {
+    background: var(--details_color);
+    border-radius: 10px;
+    padding-top: 100px;
 }
 
 #container_layout #dashboard_header {

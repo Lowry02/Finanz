@@ -183,9 +183,9 @@ class WebinarController {
         // check eventChatIframe
         if(this.getEventChatIframe().replaceAll(" ", "") == "") return { error : true, message : "Iframe della chat non inserito"}
         // check finalVideoIframe
-        if(this.getFinalVideoIframe().replaceAll(" ", "") == "") return { error : true, message : "Iframe del video finale non inserito"}
+        // if(this.getFinalVideoIframe().replaceAll(" ", "") == "") return { error : true, message : "Iframe del video finale non inserito"}
         // check finalVideoId
-        if(this.getFinalVideoId().replaceAll(" ", "") == "") return { error : true, message : "Id del video finale non inserito"}
+        // if(this.getFinalVideoId().replaceAll(" ", "") == "") return { error : true, message : "Id del video finale non inserito"}
 
         return { error : false, message : "Tutto apposto"}
     }

@@ -33,14 +33,18 @@ function InsertCredentials(props) {
     const [password, setPassword] = useState("")
     const [checking, setChecking] = useState(false)
     const [theresError, setTheresError] = useState(false)
+    const [errorMessage, setErrorMessage] = useState("")
 
     function isCorrect() {
         setChecking(true)
         user.areCredentialsCorrect(username, password, manageError)
     }
 
-    function manageError(isError) {
-        if(isError) setTheresError(true)
+    function manageError(isError, data) {
+        if(isError) {
+            setTheresError(true)
+            setErrorMessage(data)
+        }
         else navigate(routes.dashboard.path, {state: {user : user.exportInfo()}})
         setChecking(false)
     }
@@ -80,7 +84,7 @@ function InsertCredentials(props) {
             <p className="thin_orange" onClick={() => setIsSigninIn(true)}>Registrati</p>
             {
                 theresError ?
-                <Popup isError={true} message="Username o password errati" removeFunction={removePopup}/>:
+                <Popup isError={true} message={errorMessage} removeFunction={removePopup}/>:
                 ""
             }
         </div>

@@ -22,6 +22,7 @@ class UserController {
         this.modules.setOverrideState((() => this.updateState()).bind(this))
         this.webinar = webinar
         this.webinar.setOverrideState((() => this.updateState()).bind(this))
+        this.user.getInterestsField().setOverrideState((() => this.updateState()).bind(this))
         this.justLogged = justLogged
         this.state = state
     }
@@ -64,6 +65,7 @@ class UserController {
     getConsecutiveDaysJoin() {return this.user.consecutiveDaysJoin}
     getRole() {return this.user.role}
     getCreatedCodes() {return this.user.createdCodes}
+    getInterestsField() { return this.user.interests_field }
 
     setAccessToken(accessToken, _auto_save = true) {
         this.user.setAccessToken(accessToken)
@@ -147,7 +149,13 @@ class UserController {
     setCreatedCodes(createdCodes, _auto_save = true) {
         this.user.setCreatedCodes(createdCodes)
         if(this._auto_save) {
-            console.log('aggiorno')
+            this.updateState()
+        }
+    }
+
+    setInterestsField(interests_field, _auto_save = true) {
+        this.user.setInterestsField(interests_field)
+        if(this._auto_save) {
             this.updateState()
         }
     }
@@ -200,6 +208,46 @@ class UserController {
             f()
     }
 
+    canI(action) {
+        console.log(this.getRole().filter(item => item['slug'] == "super-admin-news"))
+        // super admin can do everything
+        if(this.getRole().filter(item => item['slug'] == "super-admin").length != 0) return true
+        // other roles
+        switch (action) {
+            case "create_academy":
+                if(this.getRole().filter(item => item['slug'] == "super-admin-academy").length != 0) return true
+                if(this.getRole().filter(item => item['slug'] == "admin-academy").length != 0) return true
+                break
+            case "create_news":
+                if(this.getRole().filter(item => item['slug'] == "super-admin-news").length != 0) return true
+                if(this.getRole().filter(item => item['slug'] == "admin-news").length != 0) return true
+                break
+            case "create_course":
+                if(this.getRole().filter(item => item['slug'] == "admin-course").length != 0) return true
+                break
+            case "create_school":
+                if(this.getRole().filter(item => item['slug'] == "admin-school").length != 0) return true
+                break
+            case "create_tag":
+                if(this.getRole().filter(item => item['slug'] == "admin-tag").length != 0) return true
+                break
+            case "create_webinar":
+                if(this.getRole().filter(item => item['slug'] == "admin-webinar").length != 0) return true
+                break
+            case "create_academy_category":
+                if(this.getRole().filter(item => item['slug'] == "super-admin-academy").length != 0) return true
+                break
+            case "create_news_category":
+                if(this.getRole().filter(item => item['slug'] == "super-admin-news").length != 0) return true
+                break
+            case "manage_roles":
+                if(this.getRole().filter(item => item['slug'] == "admin-roles").length != 0) return true
+                break
+        }
+
+        return false
+    }
+
     async isUsernameValid(username = this.getUsername()) {
         let accessToken = this.getAccessToken()
         let isValid = false
@@ -241,23 +289,38 @@ class UserController {
     async areCredentialsCorrect(username, password, callback) {
         return $.ajax({
             type : "POST",
-            url : api_url +  "login",
+            url : api_url +  "/login",
+            xhrFields: {
+                withCredentials: true
+            },
+            cache: false,
+            crossDomain: true,
             data : {
                 username : username,
                 password : password
             },
             success : async (data) => {
+                console.log(data)
                 let isError = false
+                
+                if(data['emailVerification'] != undefined && !data['emailVerification']) {
+                    isError = true
+                    data = "Account non ancora attivato"
+                    callback(isError, data)
+                    return
+                }
+                
                 let accessToken = data.access_token
                 let refreshToken = data.refresh_token
                 let auto_update = false
                 this.setAccessToken(accessToken, auto_update)
                 this.setRefreshToken(refreshToken, auto_update)
+
                 await this.setInfo(() => callback(isError, data))
             },
             error : (message) => {
                 let isError = true
-                let data = message.responseJSON
+                let data = "Username o password errati"
                 callback(isError, data)
             }
         })
@@ -306,10 +369,10 @@ class UserController {
         let accessToken = this.getAccessToken()
         let refreshToken = this.getRefreshToken()
 
-        $.ajax({
+        await $.ajax({
             type : "GET",
             url : api_url + "user",
-            contentType: "application/json",
+            contentType : "application/json",
             beforeSend : (request) => request.setRequestHeader("Authorization", "Bearer " + accessToken),
             success : (data) => {
                 let info = {

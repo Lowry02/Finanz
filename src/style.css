@@ -20,6 +20,32 @@
     margin-right: auto;
 }
 
+iframe {
+    border-radius: 10px;
+    width: 100%;
+}
+
+.my_chip {
+    color: white !important;
+    width: fit-content;
+    margin: 5px !important;
+    background: transparent !important;
+    border: 1px solid var(--details_color) !important;
+    transition: 0.3s;
+    border-radius: 8px !important;
+}
+.my_chip .MuiChip-deleteIcon {
+    color: white !important;
+}
+
+.my_chip.orange {
+    background-color: var(--details_color) !important;
+}
+
+.my_chip.orange .MuiChip-deleteIcon {
+    color: var(--details_color);
+}
+
 .button {
     width: fit-content;
     padding: 7px 20px 7px 20px;
@@ -87,12 +113,16 @@
     margin-bottom: 10px;
     background: rgba(0, 0, 0, 0);
     border: none;
-    border-bottom: 2px solid var(--details_color);
+    border-bottom: 2px solid var(--details_color) !important;
     text-align: center;
-    color: var(--main_text_color);
+    color: var(--main_text_color) !important;
     font-weight: 200;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.input * {
+    color: var(--main_text_color) !important;
 }
 
 .input:focus-visible {

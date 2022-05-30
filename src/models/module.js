@@ -14,9 +14,10 @@ class Module {
         this.modules = {}
         this.publishDate = ""
         this.completedNotes = []
+        this.quiz_type = "academy"
     }
 
-    load({id = "", author = "", socialPage = "", argument = "", wallpaper = "", title = "", description = "", difficultyLevel = "", position = 1, modules = {}, publishDate = "", n_modules = "", time = 30, completedNotes = []}) {
+    load({id = "", author = "", socialPage = "", argument = "", wallpaper = "", title = "", description = "", difficultyLevel = "", position = 1, modules = {}, publishDate = "", n_modules = "", time = 30, completedNotes = [], quiz_type = "academy"}) {
         this.id = id
         this.author = author
         this.socialPage = socialPage
@@ -32,6 +33,7 @@ class Module {
         this.time = time
         this.position = position
         this.completedNotes = completedNotes
+        this.quiz_type = quiz_type
     }
 
     getId() {return this.id} 
@@ -49,6 +51,7 @@ class Module {
     getTime() { return this.time }
     getPosition() { return this.position }
     getCompletedNotes() { return this.completedNotes }
+    getQuizType() { return this.quiz_type }
 
     setId(id) {this.id = id}
     setAuthor(author) {this.author = author}
@@ -65,6 +68,7 @@ class Module {
     setTime(time) { this.time = time }
     setPosition(position) { this.position = position }
     setCompletedNotes(completedNotes) { this.completedNotes = completedNotes }
+    setQuizType(quiz_type) { this.quiz_type = quiz_type }
 }
 
 export default Module

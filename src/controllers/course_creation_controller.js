@@ -5,8 +5,9 @@ import {api_url} from "../App"
 import { urlToFile } from "../utils"
 
 class CourseCreationController {
-    constructor(course = new CourseController, state = undefined, args = new QuestionController(), presentationVideo = undefined) {
+    constructor(course = new CourseController(), state = undefined, args = new QuestionController(), presentationVideo = undefined) {
         this.course = course
+        course.course.quiz_type = undefined
         this.course.setOverrideState((() => this.updateInfo()).bind(this))
         this.args = args
         this.args.setOverrideUpdateInfo((() => this.updateInfo()).bind(this))
@@ -136,13 +137,15 @@ class CourseCreationController {
         })
     }
 
-    addAuthor(username) {
-        this.course.getOfferedBy().push(username)
-        this.updateInfo()
+    addAuthor(author) {
+        if(author != "") {
+            this.course.getOfferedBy().push(author)
+            this.updateInfo()
+        }
     }
 
-    deleteAuthor(username) {
-        let index = this.course.getOfferedBy().indexOf(username)
+    deleteAuthor(author) {
+        let index = this.course.getOfferedBy().indexOf(author)
         this.course.getOfferedBy().splice(index, 1)
         this.updateInfo()
     }
@@ -225,7 +228,6 @@ class CourseCreationController {
                 slug = data['slug']
                 
                 // updating content
-                console.log(this.course.getChapter(chapterSlug))
                 this.course.getChapter(chapterSlug)['id'] = slug
                 this.course.getContent()[slug] = this.course.getChapter(chapterSlug)
                 if(slug != chapterSlug) delete this.course.getContent()[chapterSlug]
@@ -382,6 +384,9 @@ class CourseCreationController {
         let accessToken = window.localStorage.getItem('accessToken')
         let error = false
 
+        console.log(author)
+
+
         await $.ajax({
             type: "DELETE",
             url: api_url + "course/" + courseId + "/author/" + author,
@@ -418,11 +423,10 @@ class CourseCreationController {
         messageFunction({error: false, message: "Elimino i vecchi autori"})
         let authors = (await this.course.getGeneralInfo(courseSlug))['course']['authors']
         for(let author of authors) {
-            let username = author['username']
-            if(!this.course.getOfferedBy().includes(username)) {
-                messageFunction({error: false, message: "Elimino " + username})
-                let error = await this.deleteCourseAuthor(courseSlug, username)
-                if(error) throw Error("Nome utente non esistente(" + username + ")")
+            if(!this.course.getOfferedBy().includes(author)) {
+                messageFunction({error: false, message: "Elimino " + author})
+                let error = await this.deleteCourseAuthor(courseSlug, author)
+                if(error) throw Error("Nome utente non esistente(" + author + ")")
             }
         }
 
@@ -504,6 +508,7 @@ class CourseCreationController {
                     let updateMode = false
                     if(quiz.question.getId() != "") updateMode = true
                     let quizSlug = await quiz.publish("course")
+                    messageFunction({ error: false, message: "Carico quiz - " + quizSlug})
                     quizSlugs.push(quizSlug)
                 }
 
@@ -513,9 +518,10 @@ class CourseCreationController {
                 let lessonVideo = this.course.getLessonVideo(chapterSlug, lessonId)
                 let lessonVideoId = this.course.getLessonVideoId(chapterSlug, lessonId)
                 let lessonPosition = this.course.getLessonPosition(chapterSlug, lessonId)
-                let isFree = true // ?
+                let isFree = this.course.getLesson(chapterSlug, lessonId)['isFree']
 
                 let lessonSlug = await this.postLesson(chapterSlug, lessonId, lessonTitle, lessonDescription, lessonText, lessonVideo, lessonVideoId, lessonPosition, isFree, quizSlugs, updateMode)
+                messageFunction({ error: false, message: "Carico lezione - " + lessonSlug})
                 if(lessonSlug == undefined) throw Error()
             }
         }

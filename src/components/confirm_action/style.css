@@ -1,0 +1,9 @@
+.confirm_action {
+  width: 90vw;
+  max-width: 500px;
+  color: white;
+}
+
+.confirm_action:focus-visible {
+  outline: none;
+}

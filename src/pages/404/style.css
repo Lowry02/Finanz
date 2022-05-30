@@ -1,0 +1,13 @@
+#error_page {
+
+  height: calc(100vh - 20px)
+}
+
+#error_page .title {
+  font-size: 70px;
+  color: var(--details_color);
+}
+
+#error_page img {
+  border-radius: 10px;
+}

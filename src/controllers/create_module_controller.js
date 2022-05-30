@@ -7,6 +7,7 @@ import $ from "jquery"
 class CreateModuleController {
     constructor(module = new ModuleController(), args = new QuestionController(), state = undefined) {
         this.module = module
+        this.module.module.quiz_type = undefined
         this.module.setOverrideState((() => this.updateInfo()).bind(this))
         this.args = args
         this.state = state
@@ -334,7 +335,6 @@ class CreateModuleController {
                 pageNumber++
             }
         }
-
     }
 
     async createModule(updateMode = false, categoryChanged = false) {
@@ -450,31 +450,37 @@ class CreateModuleController {
             // updating quiz id
             pageContent.question.setId(quizSlug)
 
-            let error = false
-            if(!updateMode) {
-                // link quiz to module
-                await $.ajax({
-                    type: "POST",
-                    url: api_url + "/academy/note/" + moduleSlug + "/pages",
-                    contentType: "application/json",
-                    accepts: "application/json",
-                    data: JSON.stringify({
-                        content: "",
-                        quizSlug: quizSlug,
-                        pageOrder: this.module.getPage(moduleId, pageId)['position']
-                    }),
-                    beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
-                    success: (data) => {
-                        let pageSlug = data['id']
-
-                        // updating page id
-                        let pages = this.module.getAllPages(moduleId)
-                        pages[pageSlug] = pages[pageId]
-                        if(pageId != pageSlug) delete pages[pageId]
-                    },
-                    error: () => error = true
-                })
+            if(updateMode) {
+                requestType = "PUT"
+                requestLink = "academy/page/" + pageId
+            } else {
+                requestType = "POST"
+                requestLink = "/academy/note/" + moduleSlug + "/pages"
             }
+
+            let error = false
+                // link quiz to module
+            await $.ajax({
+                type: requestType,
+                url: api_url + requestLink,
+                contentType: "application/json",
+                accepts: "application/json",
+                data: JSON.stringify({
+                    content: "",
+                    quizSlug: quizSlug,
+                    pageOrder: this.module.getPage(moduleId, pageId)['position']
+                }),
+                beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                success: (data) => {
+                    let pageSlug = data['id']
+
+                    // updating page id
+                    let pages = this.module.getAllPages(moduleId)
+                    pages[pageSlug] = pages[pageId]
+                    if(pageId != pageSlug) delete pages[pageId]
+                },
+                error: () => error = true
+            })
             return true
         }
 
@@ -551,6 +557,7 @@ class CreateModuleController {
         // category check
         if(this.getArguments().getSelectedChoices().length == 0) return {error : true, message: "Argomento non inserito"}
         // difficulty check
+        console.log(this.module.getDifficultyLevel())
         if(this.module.getDifficultyLevel() == "") return {error : true, message : "Difficoltà non inserita"}
         // module title and module content check
         for(let moduleID of Object.keys(this.module.getModules())) {

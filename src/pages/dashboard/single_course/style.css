@@ -2,6 +2,18 @@
     font-weight: 100;
 }
 
+#single_course a {
+    color: white;
+}
+
+#course_video .orange {
+    background: var(--details_color);
+}
+
+#course_video .orange .orange_icon {
+    color: var(--second_bkg) !important;
+}
+
 #single_course .wallpaper_container {
     width: calc(100% + 50px);
     top: 0px;
@@ -114,7 +126,7 @@
 }
 
 #single_course .lessons {
-    border-left: 1px solid gray;
+    /* border-left: 1px solid gray; */
     padding-left: 15px;
 }
 
@@ -153,6 +165,10 @@
     margin-right: 10px;
 }
 
+#single_chapter .lesson_item.finished {
+    background: var(--details_color);
+}
+
 #single_chapter .lesson_item::before {
     position: absolute;
     bottom: 0;
@@ -185,6 +201,12 @@
 #single_chapter .lesson_item .lesson_description {
     font-weight: 100;
     text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* number of lines to show */
+            line-clamp: 1; 
+    -webkit-box-orient: vertical;
 }
 
 

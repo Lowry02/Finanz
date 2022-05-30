@@ -1,6 +1,7 @@
 {
   "name": "nova_investor",
-  "homepage": "https://Lowry02.github.io/Finanz/",
+  "_homepage": "https://lowry02.github.io/Finanz/",
+  "homepage": "",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -45,6 +46,7 @@
     "react-router-hash-link": "^2.4.3",
     "react-rte": "^0.16.5",
     "react-scripts": "4.0.3",
+    "react-typing-effect": "^2.0.5",
     "rehype-sanitize": "^5.0.1",
     "turndown": "^7.1.1",
     "web-vitals": "^1.1.2"

@@ -20,6 +20,7 @@ function ScrollContainer(props) {
   let mustVisible = props.mustVisible
   let LeftArrow = props.leftArrow
   let RightArrow = props.rightArrow
+  let arrowClickFunction = props.arrowClickFunction
   LeftArrow = LeftArrow == undefined ? 
                 direction == "horizontal" ? 
                   DEFAULT_LEFT_ARROW : 
@@ -72,6 +73,8 @@ function ScrollContainer(props) {
       setFirstInViewPort(firstIndex)
       if(_firstInViewPort > firstIndex) setLastInViewPort(_lastInViewPort - n)
     }
+
+    if(arrowClickFunction != undefined) arrowClickFunction(forward)
   }
 
   function checkContainerSize() {

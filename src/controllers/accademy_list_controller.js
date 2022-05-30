@@ -4,10 +4,10 @@ import {api_url} from "../App"
 import $ from "jquery"
 
 class AccademyListController {
-    constructor(personalModules = {}, allModules = {}, savedModules = {}, createdModules = {}, modulesInProgress = {}, modulesPerCategory = {}, infoPersonalModules = {}, categories = {}, state = undefined, overrideState = undefined, created_news_index = 1) {
+    constructor(personalModules = {}, allModules = {}, savedNotes = [], createdModules = {}, modulesInProgress = {}, modulesPerCategory = {}, infoPersonalModules = {}, categories = {}, state = undefined, overrideState = undefined, created_modules_index = 1, saved_notes_index = 1) {
         this.personalModules = personalModules 
         this.allModules = allModules
-        this.savedModules = savedModules
+        this.savedNotes = savedNotes
         this.createdModules = createdModules
         this.modulesInProgress = modulesInProgress
         this.infoPersonalModules = infoPersonalModules
@@ -15,7 +15,8 @@ class AccademyListController {
         this.categories = categories
         this.state = state
         this.overrideState = overrideState
-        this.created_news_index = created_news_index
+        this.created_modules_index = created_modules_index
+        this.saved_notes_index = saved_notes_index
         this.PERSONAL_MODULES_TAG = "personal"
         this.ALL_MODULES_TAG = "all"
         this.SAVED_MODULES_TAG = "saved"
@@ -32,10 +33,10 @@ class AccademyListController {
         this.overrideState = overrideState
     }
 
-    load({personalModules, allModules, savedModules, createdModules, modulesInProgress, infoPersonalModules, modulesPerCategory, categories, state, overrideState, created_news_index}) {
+    load({personalModules, allModules, savedNotes, createdModules, modulesInProgress, infoPersonalModules, modulesPerCategory, categories, state, overrideState, created_modules_index, saved_notes_index}) {
         this.personalModules = personalModules 
         this.allModules = allModules
-        this.savedModules = savedModules
+        this.savedNotes = savedNotes
         this.createdModules = createdModules
         this.modulesInProgress = modulesInProgress
         this.infoPersonalModules = infoPersonalModules
@@ -43,7 +44,8 @@ class AccademyListController {
         this.categories = categories
         this.state = state
         this.overrideState = overrideState
-        this.created_news_index = created_news_index
+        this.created_modules_index = created_modules_index
+        this.saved_notes_index = saved_notes_index
     }
 
     updateInfo() {
@@ -51,13 +53,16 @@ class AccademyListController {
             this.state(new AccademyListController(
                 this.personalModules,
                 this.allModules,
-                this.savedModules,
+                this.savedNotes,
                 this.createdModules,
                 this.modulesInProgress,
                 this.infoPersonalModules,
                 this.modulesPerCategory,
                 this.categories,
                 this.state,
+                this.overrideState,
+                this.created_modules_index,
+                this.saved_notes_index
             ))
         }
         else if(this.overrideState != undefined)
@@ -68,7 +73,7 @@ class AccademyListController {
 
     getAllModules() { return this.allModules }
 
-    getSavedModules() { return this.savedModules }
+    getSavedNotes() { return this.savedNotes }
 
     getCreatedModules() { return this.createdModules }
 
@@ -90,8 +95,8 @@ class AccademyListController {
         this.updateInfo()
     }
 
-    setSavedModules(savedModules) {
-        this.savedModules = {...this.savedModules, ...savedModules}
+    setSavedNotes(savedNotes) {
+        this.savedNotes = [...savedNotes]
         this.updateInfo()
     }
 
@@ -138,9 +143,37 @@ class AccademyListController {
         this.setPersonalModules(list)
     }
 
-    loadSavedModules(n = 10) {
-        let list = this.__getModulesList(this.savedModules, n)
-        this.setSavedModules(list)
+    loadSavedNotes(n = 10) {
+        let accessToken = window.localStorage.getItem('accessToken')
+
+        if(this.saved_notes_index != null) {
+            return $.ajax({
+                type: "GET",
+                url: api_url + "academy/note/saves",
+                accepts: "json",
+                contentType: "json",
+                beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
+                data: {
+                    page: this.saved_notes_index
+                },
+                success: (data) => {
+                    this.saved_notes_index = data['next_page']
+                    let noteList = data['note_list']
+                    let list = this.getSavedNotes()
+
+                    for(let note of noteList) {
+                        list.push({
+                            id: note['slug'],
+                            title: note['title'],
+                            module_id: note['module_slug'],
+                        })
+                    }
+
+                    this.setSavedNotes(list)
+                },
+                error: (message) => console.log(message)
+            })
+        }
     }
     
     loadAllModules(n = 10) {
@@ -152,15 +185,15 @@ class AccademyListController {
         // API call
         let accessToken = window.localStorage.getItem('accessToken')
 
-        if(this.created_news_index != null) {
-            $.ajax({
+        if(this.created_modules_index != null) {
+            return $.ajax({
                 type: "GET",
                 url: api_url + "academy/modules/modifiable",
                 accepts: "json",
                 contentType: "json",
                 beforeSend: (request) => request.setRequestHeader('Authorization', "Bearer " + accessToken),
                 data: {
-                    page: this.created_news_index
+                    page: this.created_modules_index
                 },
                 success: (data) => {
                     let list = data['module_list']
@@ -172,8 +205,7 @@ class AccademyListController {
                         newModule.setTitle(moduleInfo['title'])
                         moduleList[moduleInfo['slug']] = newModule
                     }
-                    this.created_news_index = data['next_page']
-                    console.log(data)
+                    this.created_modules_index = data['next_page']
                     this.setCreatedModules(moduleList)
                 },
                 error: (message) => console.log(message)
@@ -222,7 +254,9 @@ class AccademyListController {
                                 newAcademy.setId(module['slug'])
                                 newAcademy.setTitle(module['title'])
                                 newAcademy.setWallpaper(module['coverImageLink'])
+                                newAcademy.setNModules(module['completed_percentage'])
                                 newAcademy.setAuthor(module['author']['personalData']['surname'] + " " + module['author']['personalData']['name'] )
+                                newAcademy.setDifficultyLevel(module['difficulty'])
                                 modules[module['slug']] = newAcademy
                             }
 
@@ -285,14 +319,13 @@ class AccademyListController {
         if(tag == this.CREATED_MODULES_TAG) {
             delete this.personalModules[courseId]
             delete this.allModules[courseId]
-            delete this.savedModules[courseId]
             delete this.createdModules[courseId]
             delete this.modulesInProgress[courseId]
         }
         else if(tag == this.PERSONAL_MODULES_TAG)
             delete this.personalModules[courseId]
         else if(tag == this.SAVED_MODULES_TAG)
-            delete this.savedModules[courseId]
+            delete this.savedNotes[courseId]
         else if(tag == this.ALL_MODULES_TAG)
             delete this.allModules[courseId]
         else if(tag == this.IN_PROGRESS_MODULE_TAG)
@@ -314,7 +347,7 @@ class AccademyListController {
 
 
     isLastPageLoaded() {
-        return this.created_news_index == null
+        return this.created_modules_index == null
     }
 
 }

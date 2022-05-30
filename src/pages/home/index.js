@@ -10,6 +10,7 @@ import Logo from "../../media/img/logo.png"
 
 import routes from "./routes";
 import "./style.css"
+import CustomRouter from '../../components/custom_router';
 
 function Home(props) {
   let windowInfo = props.windowInfo
@@ -47,11 +48,11 @@ function Home(props) {
       </Container>
 
       {/* BODY */}
-      <Routes>
+      <CustomRouter>
         {Object.values(routes).map((route) => 
           <Route path={route.url} element={route.component({windowInfo: windowInfo})} />
         )}
-      </Routes>
+      </CustomRouter>
 
       {/* INFO SECTION */}
       <div className="info_section animate">

@@ -31,6 +31,7 @@ class CommentController {
     getAuthor() { return this.comment.author }
     getDate() { return this.comment.date }
     getContent() { return this.comment.content }
+    getAuthorUsername() { return this.comment.author_username }
 
     setId(id, _auto_save) {
         this.comment.id = id
@@ -57,13 +58,19 @@ class CommentController {
         if(_auto_save) this.updateInfo()
     }
 
+    setAuthorUsername(author_username, _auto_save = true) {
+        this.comment.author_username = author_username
+        if(_auto_save) this.updateInfo()
+    }
+
     exportInfo() {
         return {
             id : this.getId(),
             title : this.getTitle(),
             content : this.getContent(),
             date : this.getDate(),
-            author : this.getAuthor()
+            author : this.getAuthor(),
+            author_username : this.getAuthorUsername()
         }
     }
 }

@@ -1,0 +1,11 @@
+#single_webinar .thin {
+  font-weight: 200;
+}
+
+#single_webinar a {
+  text-decoration: none;
+}
+
+#single_webinar .my_chip:hover {
+  cursor: pointer;
+}

@@ -59,7 +59,9 @@ function SigninSection(props) {
                         setLoading(true)
                         await user.signIn()
                         .then(() => error = {error: false, description: "Utente registrato"})
-                        .catch(() => error = {error: true, description: "Nome o email già esistenti"})
+                        .catch((data) => data['responseJSON']['message']?.isPasswordValid != undefined ? 
+                                            error = {error: true, description: "Password non valida"} : 
+                                            error = {error: true, description: "Nome o email già esistenti"})
                         
                         // try to login
                         // if(!error['error']) await user.areCredentialsCorrect(user.getUsername(), user.getPassword(), () => {})

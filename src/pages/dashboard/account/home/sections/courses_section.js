@@ -10,6 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { IconButton } from "@material-ui/core";
 import { useNavigate } from "react-router";
+import ConfirmAction from "../../../../../components/confirm_action";
 
 function CoursesSection(props) {
     let user = props.user
@@ -24,24 +25,37 @@ function CoursesSection(props) {
     const SAVED_SECTION = "saved"
     const IN_PROPGRESS_SECTION = "in_progress"
 
-    const [section, setSection] = useState(SAVED_SECTION)
+    const [section, setSection] = useState(CREATED_SECTION)
+    const [confirmInfo, setConfirmInfo] = useState({confirm: undefined, refute: undefined})
     const [firstLoad, setFirstLoad] = useState(true)
 
     useEffect(() => {   
         if(firstLoad && courses != undefined) {
             courses.loadSavedCourses()
-            courses.loadCreatedCourses(3)
-            courses.loadCoursesInProgress()
+            if(user && user.canI("create_course")) courses.loadCreatedCourses()
             setFirstLoad(false)
         }
     }, [courses])
 
+    useEffect(() => {
+        if(user) {
+            if(!user.canI("create_course")) navigate(routes.home.path)
+        }
+    }, [user])
+    
+
     // delete and edit management
     function handleDelete(e, id) {
         e.stopPropagation()
-        if(section == CREATED_SECTION) courses.removeCourse(id, courses.CREATED_COURSES)
-        else if(section == SAVED_SECTION) courses.removeCourse(id, courses.SAVED_COURSES_TAG)
-        else if(section == IN_PROPGRESS_SECTION) courses.removeCourse(id, courses.IN_PROGRESS_COURSE)
+        setConfirmInfo({
+            confirm: () => {
+                if(section == CREATED_SECTION) courses.removeCourse(id, courses.CREATED_COURSES)
+                else if(section == SAVED_SECTION) courses.removeCourse(id, courses.SAVED_COURSES_TAG)
+                else if(section == IN_PROPGRESS_SECTION) courses.removeCourse(id, courses.IN_PROGRESS_COURSE)
+            },
+            refute: undefined
+        })
+
     }
 
     function handleEdit(item) {
@@ -56,33 +70,19 @@ function CoursesSection(props) {
     return <div id="courses_section">
         <div className="space_between">
             <h2>Corsi</h2>
-            <div className="centered">
-                <AddCircleIcon className="orange_icon" onClick={createNewCourse}/>
-            </div>
+            {
+                user && user.canI("create_course") ? 
+                    <div className="centered">
+                        <AddCircleIcon className="orange_icon" onClick={createNewCourse}/>
+                    </div> : 
+                    ""
+            }
         </div>
-        <Row>
-            <Col md="6">
-                <div className="search_bar mt-4">
-                    <input placeholder="Cerca..."/>
-                </div>
-            </Col>
-            <Col md="6">
-                <FormControl variant="standard" className="mobile_filter" sx={{ m: 1, minWidth: 120 }}>
-                    <InputLabel id="demo-simple-select-label" className="label_orange">Categoria</InputLabel>
-                    <Select
-                    className="select my_input"
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={section}
-                    onChange={(e) => setSection(e.target.value)}
-                    >
-                        <MenuItem value={CREATED_SECTION}>Create</MenuItem>
-                        <MenuItem value={SAVED_SECTION}>Salvate</MenuItem>
-                        <MenuItem value={IN_PROPGRESS_SECTION}>In Corso</MenuItem>
-                    </Select>
-                </FormControl>
-            </Col>
-        </Row>
+        <Col md="6" className="mx-auto">
+            <div className="search_bar mt-4">
+                <input placeholder="Cerca..."/>
+            </div>
+        </Col>
         <div className="items_container">
             {
                 !windowInfo.mobileMode ?
@@ -91,12 +91,8 @@ function CoursesSection(props) {
                             <Col md="3">
                                 <h6>Titolo</h6>
                             </Col>
-                            <Col md="3">
-                                <h6>Data</h6>
-                            </Col>
-                            <Col md="3">
-                                <h6>Categoria</h6>
-                            </Col>
+                            <Col md="3"></Col>
+                            <Col md="3"></Col>
                             <Col md="3">
                                 <h6>Modifica</h6>
                             </Col>
@@ -108,7 +104,8 @@ function CoursesSection(props) {
             <div className="list">
                 {
                     section == SAVED_SECTION ?
-                    courses && Object.values(courses.getSavedCourses()).map((item) => <ListItem content={item} deleteItem={handleDelete} editItem={handleEdit}/>)
+                    // courses && courses.getSavedNotes().map((item) => <ListItem content={item} deleteItem={handleDelete} editItem={handleEdit}/>)
+                    ""
                     : section == CREATED_SECTION ?
                     courses && Object.values(courses.getCreatedCourse()).map((item) => <ListItem content={item} deleteItem={handleDelete} editItem={handleEdit}/>)
                     : section == IN_PROPGRESS_SECTION ?
@@ -117,6 +114,8 @@ function CoursesSection(props) {
                 }
             </div>
         </div>
+        <ConfirmAction action={confirmInfo} closeFunction={() => setConfirmInfo({confirm: undefined, refute: undefined})} />
+
     </div>
 }
 

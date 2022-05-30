@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>Conferma account</title>
+  <style>
+    * {
+      font-family: 'Raleway', sans-serif;
+    }
+
+    :root {
+      --home_bkg: #0E0E0E;
+      --my_gray: #202020;
+      --details_color: #FF6600;
+      --second_bkg: #272727;
+    }
+
+    body {
+      position: relative;
+      background: var(--home_bkg);
+      color: white;
+      overflow: hidden;
+      margin: 0px;
+    }
+
+    .pos_relative {
+      position: relative;
+      height: 100vh;
+      display: grid;
+      place-content: center;
+      overflow: hidden;
+      width: 100vw;
+    }
+    
+    .ball {
+      width: 80vw;
+      height: 80vw;
+      border-radius: 100%;
+      background: var(--details_color);
+      position: absolute;
+    }
+
+    .ball.top {
+      top: -40vw;
+      left: -40vw;
+    }
+
+    .ball.bottom {
+      bottom: -40vw;
+      right: -40vw;
+    }
+
+    .block {
+      background: var(--second_bkg);
+      padding: 30px;
+      border-radius: 10px;
+      border: 2px solid var(--details_color);
+      text-align: center;
+      /* width: 500px; */
+      max-width: 90vw;
+      position: relative;
+      z-index: 2;
+    }
+
+    .small_title {
+      margin-top: 0px;
+      margin-bottom: 0px;
+      text-align: center;
+      font-family: 'Raleway';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 50px;
+      line-height: 82px;
+      text-align: center;
+    }
+
+    .big_title {
+      margin-top: 0px;
+      text-align: center;
+      margin-bottom: 0px;
+      font-family: 'Raleway';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 60px;
+      line-height: 82px;
+      text-align: center;
+    }
+
+    .description {
+      font-weight: 200;
+      text-align: center;
+    }
+
+    .button {
+      text-decoration: none;
+      color: white;
+      background: var(--details_color);
+      padding-top: 10px;
+      padding-bottom: 10px;
+      padding-left: 20px;
+      padding-right: 20px;
+      border-radius: 10px;
+      margin-left: auto;
+      margin-right: auto;
+      width: fit-content;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="pos_relative">  
+    <div class="ball top"></div>
+    <div class="block">
+      <h1 class="small_title">Ciao Lorenzo!</h1>
+      <h1 class="big_title">Ci siamo quasi</h1>
+      <br/>
+      <p class="description">Non ti resta che attivare il tuo account<br/> per accedre a centinaia di contenuti esclusivi!</p>
+      <br/>
+      <br/>
+      <a class="button" href="### INSERIRE LINK ###">Attiva l'account</a>
+      <br/>
+      <br/>
+    </div>
+    <div class="ball bottom"></div>
+  </div>
+</body>
+</html>

@@ -8,6 +8,7 @@ import "./style.css"
 function CustomCalendar(props) {
   let date = props.date
   let setExternalDate = props.setDate
+
   let weekDays = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"]
   const [currentDate, setCurrentDate] = useState(moment())
 
@@ -21,7 +22,8 @@ function CustomCalendar(props) {
     let currentDateString = currentDate.format("DD/MM/YYYY")
     let today = moment().format("DD/MM/YYYY")
     let classe = ""
-    
+
+
     if(today == dateString) classe += "today"
     if(currentDateString == dateString) classe += " selected"
     if(date != undefined && date.includes(dateString)) classe += " events"
@@ -92,7 +94,7 @@ function CustomCalendar(props) {
 
   useEffect(() => {
     if(date != undefined)
-      date.sort((a,b) => moment(a, "DD/MM/YYYY").diff(moment(b, "DD/MM/YYYY")))
+      date.sort((a,b) => moment(a).diff(moment(b, "DD/MM/YYYY")))
   }, [date])
 
   useEffect(() => {

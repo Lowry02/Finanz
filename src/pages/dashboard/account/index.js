@@ -5,6 +5,7 @@ import routes from './routes'
 import $ from "jquery"
 
 import "./style.css"
+import CustomRouter from '../../../components/custom_router'
 
 function AccontPage(props) {
     let user = props.user
@@ -13,11 +14,11 @@ function AccontPage(props) {
     return (
         <Fade in={true}>
         <div id="account_page">
-            <Routes>
+            <CustomRouter>
                 {Object.values(routes).map((route) =>
                     <Route path={route.url} element={route.component({routes:routes, user:user, windowInfo:windowInfo})} />
-                )}
-            </Routes>
+                )}              
+            </CustomRouter>
         </div>
         </Fade>
     )

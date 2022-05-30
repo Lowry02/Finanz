@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, forwardRef } from 'react'
+import { useNavigate } from 'react-router';
 import {Row, Col} from 'react-bootstrap'
 import InfoIcon from '@mui/icons-material/Info';
 import Fade from '@mui/material/Fade';
@@ -9,6 +10,11 @@ import "./style.css"
 import CustomCalendar from '../../../components/calendar';
 import ScrollContainer from '../../../components/scroll_container';
 import { SwipeableDrawer } from '@material-ui/core';
+import { Visibility } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
+import routes from '../routes';
+import moment from 'moment';
+import PremiumAlert from '../../../components/premium_alert';
 
 function WebinarPage(props) {
     let windowInfo = props.windowInfo
@@ -21,31 +27,41 @@ function WebinarPage(props) {
     const [fadeIn, setFadeIn] = useState(true)
     const [date, setDate] = useState()
     const [mustVisible, setMustVisible] = useState(0)
+    const [showPremiumAlert, setShowPremiumAlert] = useState(false)
+    let navigate = useNavigate()
 
     function getMustVisible() {
         if(webinar != undefined) {
             for(let item of webinar.getList())
-                if(item.getDate() == date) return webinar.getList().indexOf(item)
+                if(moment(item.getDate()).format("DD/MM/YYYY") == date) return webinar.getList().indexOf(item)
         }
+    }
+
+    function openWebinar() {
+        // check if it's a premium user
+        if(true) setShowPremiumAlert(true)
+        else navigate(routes.single_webinar.path + (selectedWebinar && selectedWebinar.getId()))
     }
     
     useEffect(() => {
-        if(mustVisible != undefined && webinar != undefined)
-            setSelectedWebinar(webinar.getList()[mustVisible])
+        if(mustVisible != undefined && webinar != undefined && webinarLoaded)
+            setFadeIn(false)
+            setTimeout(() => setSelectedWebinar(webinar.getList()[mustVisible]), 250)
     }, [mustVisible])
     
 
     useEffect(() => {
-        setMustVisible(getMustVisible())
+        let mustVisible = getMustVisible()
+        if(mustVisible != undefined) setMustVisible(mustVisible)
     }, [date])
 
-    useEffect(() => {
+    useEffect(async () => {
         if(webinar != undefined && !webinarLoaded) {
-            webinar.loadWebinar()
-            setSelectedWebinar(webinar.getList()[0])
+            await webinar.loadWebinar()
+            setTimeout(() => setSelectedWebinar(webinar.getList()[0]), 250)
             setWebinarLoaded(true)
         }
-    }, [webinar])
+    }, [])
 
     useEffect(() => {
         setFadeIn(false)
@@ -74,9 +90,12 @@ function WebinarPage(props) {
                             <div className="horizontal_gradient_effect"></div>
                             <div className="webinar_info">
                                 <h2 className="title">{selectedWebinar && selectedWebinar.getTitle()}</h2>
-                                <h6 className="date">{selectedWebinar && selectedWebinar.getDate()}</h6>
+                                <h6 className="date">{selectedWebinar && moment(selectedWebinar.getDate()).format("DD-MM-YYYY HH:mm")}</h6>
                                 <div className="separator"></div>
                                 <p className="description">{selectedWebinar && selectedWebinar.getDescription()}</p>
+                                <Visibility className="orange_icon bounce" onClick={openWebinar}/>
+                                <br/>
+                                <br/>
                             </div>
                         </Col>
                         <Col md="4" className="side_bar">
@@ -100,7 +119,10 @@ function WebinarPage(props) {
                                         {
                                             webinar && webinar.getList().map((item) => 
                                                 <div
-                                                onClick={() => setSelectedWebinar(item)}
+                                                onClick={() => {
+                                                    setFadeIn(false)
+                                                    setTimeout(() => setSelectedWebinar(item), 250)
+                                                }}
                                                 className={selectedWebinar === item ? "webinar_item bounce selected" : "webinar_item bounce"}>
                                                     <h6 className="title">{item.getTitle()}</h6>
                                                     <p className="date m-0">{item.getDate()}</p>
@@ -115,6 +137,13 @@ function WebinarPage(props) {
                 </div> : 
                 <MobileView webinar={webinar} setDate={setDate} setSelectedWebinar={setSelectedWebinar} selectedWebinar={selectedWebinar}/>
             }
+            {
+                showPremiumAlert ? 
+                    <PremiumAlert closeFunction={() => setShowPremiumAlert(false)}/> : 
+                    ""
+
+            }
+
         </div>
     )
 }
@@ -143,7 +172,7 @@ function MobileView(props) {
                     }}
                     className={selectedWebinar === item ? "webinar_item bounce selected" : "webinar_item bounce"}>
                         <h6 className="title">{item.getTitle()}</h6>
-                        <p className="date m-0">{item.getDate()}</p>
+                        <p className="date m-0">{moment(item.getDate()).format("DD-MM-YYYY HH:mm")}</p>
                     </div>
                 )
             }
@@ -165,6 +194,9 @@ function MobileView(props) {
                     <h3>{selectedWebinar && selectedWebinar.getTitle()}</h3>
                     <h6>{selectedWebinar && selectedWebinar.getDate()}</h6>
                     <p className="thin">{selectedWebinar && selectedWebinar.getDescription()}</p>
+                </div>
+                <div className="centered">
+                    <Link className="text-center mx-auto" to={routes.single_webinar.path + (selectedWebinar && selectedWebinar.getId())}><button className="button mx-auto">Guarda</button></Link>
                 </div>
             </div>
         </SwipeableDrawer>
