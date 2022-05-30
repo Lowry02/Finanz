@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/Finanz/static/css/main.6b5fd366.chunk.css",
-    "main.js": "/Finanz/static/js/main.b9626c77.chunk.js",
-    "main.js.map": "/Finanz/static/js/main.b9626c77.chunk.js.map",
+    "main.js": "/Finanz/static/js/main.4b666c6d.chunk.js",
+    "main.js.map": "/Finanz/static/js/main.4b666c6d.chunk.js.map",
     "runtime-main.js": "/Finanz/static/js/runtime-main.c89b2c6c.js",
     "runtime-main.js.map": "/Finanz/static/js/runtime-main.c89b2c6c.js.map",
     "static/css/2.0a9ec390.chunk.css": "/Finanz/static/css/2.0a9ec390.chunk.css",
@@ -22,6 +22,7 @@
     "static/media/example.e669cbc9.mp4": "/Finanz/static/media/example.e669cbc9.mp4",
     "static/media/home.1e9a0f67.png": "/Finanz/static/media/home.1e9a0f67.png",
     "static/media/image_picker.821cbe36.png": "/Finanz/static/media/image_picker.821cbe36.png",
+    "static/media/logo.682a57a1.png": "/Finanz/static/media/logo.682a57a1.png",
     "static/media/logo.9e790882.gif": "/Finanz/static/media/logo.9e790882.gif",
     "static/media/main_image.5d087764.png": "/Finanz/static/media/main_image.5d087764.png",
     "static/media/news.7141dd1a.png": "/Finanz/static/media/news.7141dd1a.png",
@@ -38,6 +39,6 @@
     "static/css/2.0a9ec390.chunk.css",
     "static/js/2.0aa55eaa.chunk.js",
     "static/css/main.6b5fd366.chunk.css",
-    "static/js/main.b9626c77.chunk.js"
+    "static/js/main.4b666c6d.chunk.js"
   ]
 }
